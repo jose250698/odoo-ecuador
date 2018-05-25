@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="invoice_form" model="ir.ui.view">
+        <field name="name">prepare_taxes_account.invoice</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before" >
+                <button name="set_autorizacion" string="DOCUMENTOS ELECTRONICOS"
+                        type="object" class="btn-primary"/>
+            </xpath>
+            <field name="payment_term_id" position="after">
+                <field name="factura_electronica_id"/>
+                <field name="retencion_electronica_id"/>
+                <field name="nota_credito_electronica_id"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="invoice_supplier_form" model="ir.ui.view">
+        <field name="name">prepare_taxes_account.invoice supplier form</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before" >
+                <button name="set_autorizacion" string="DOCUMENTOS ELECTRONICOS"
+                        type="object" class="btn-primary"/>
+            </xpath>
+            <field name="reference" position="after">
+                <field name="factura_electronica_id"/>
+                <field name="retencion_electronica_id"/>
+            </field>
+        </field>
+    </record>
+</odoo>
