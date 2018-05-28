@@ -12,7 +12,7 @@ class PosConfig(models.Model):
     autorizacion = fields.Integer('Autorización')
 
     # BORRAR
-    autorizacion_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion', )
+    # autorizacion_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion', )
 
 
 class PosOrder(models.Model):
@@ -31,4 +31,23 @@ class PosOrder(models.Model):
         inv = self.env[res_model].browse(res_id)
         inv.compute_sri_invoice_amounts()
         return res
+
+    def _process_order(self, cr, uid, order, context=None):
+        order_id = super(PosOrder, self)._process_order(cr, uid, order, context=context)
+        if order_id:
+            to_write = {
+                'secuencial': order.get('secuencial', None),
+                'autorizacion': order.get('autorizacion', None),
+                'puntoemision': order.get('puntoemision', None),
+                'establecimiento': order.get('establecimiento', None),
+            }
+            self.write(cr, uid, order_id, to_write, context=context)
+
+            config = self.browse(cr, uid, order_id, context=context)
+            config = config.config_id if config else None
+            if config:
+                if config.secuencial > to_write['secuencial']:
+                    to_write['secuencial'] = config.secuencial
+                config.write(to_write)
+        return order_id
 

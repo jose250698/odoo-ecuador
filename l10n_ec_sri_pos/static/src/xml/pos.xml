@@ -190,4 +190,12 @@
         </t>
     </t>
 
+    <t t-extend="Chrome">
+        <t t-jquery=".placeholder-UsernameWidget" t-operation="after">
+            <span class="username" id="pos-authorization">
+                Authorization
+            </span>
+        </t>
+    </t>
+
 </templates>
