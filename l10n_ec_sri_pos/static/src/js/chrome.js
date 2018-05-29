@@ -114,13 +114,10 @@ chrome.Chrome
                 'title': _t('Sequential'),
                 'value': self.pos.get_sequential(),
                 'confirm': function(value) {
-                	if (self.pos.get_order()){
-	                    value = Math.max(1, Number(value));
-	                    self.pos.get_order().establecer_secuencial(value);
-	                    self.pos.set_sequential(value, function () {
-	                        self.mostrar_menu_autorizacion();
-	                    });
-                	}
+                    value = Math.max(1, Number(value));
+                    self.pos.set_sequential(value, function () {
+                        self.mostrar_menu_autorizacion();
+                    });
                 },
                 cancel: function(){
                     self.mostrar_menu_autorizacion();
