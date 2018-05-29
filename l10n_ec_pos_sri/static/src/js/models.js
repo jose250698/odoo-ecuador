@@ -7,7 +7,7 @@ var core = require('web.core');
 var _t = core._t;
 
 /* Load required fields into res_partner */
-PosModels.load_fields("res.partner",['property_account_position_id', 'vat_ec','do_check_vat_ec'])
+PosModels.load_fields("res.partner",['property_account_position_id', 'vat','do_check_vat'])
 
 /* Load required models */
 PosModels.load_models([

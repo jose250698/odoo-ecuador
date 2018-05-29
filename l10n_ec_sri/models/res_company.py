@@ -21,3 +21,5 @@ class ResCompany(models.Model):
         'l10n_ec_sri.autorizacion', string='Autorizacion en notas de crédito', )
     autorizacion_retenciones_id = fields.Many2one(
         'l10n_ec_sri.autorizacion', string='Autorizacion en retenciones', )
+    # autorizacion_liquidaciones_id = fields.Many2one(
+    #     'l10n_ec_sri.autorizacion', string='Autorizacion en liquidaciones', )

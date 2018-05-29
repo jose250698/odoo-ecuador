@@ -14,13 +14,33 @@ TYPE2REFUND = {
     'in_refund': 'in_invoice',          # Vendor Refund
 }
 
+RET_COMPRAS = [
+    'RetAir', 'RetIva', 'RetBien10',
+    'RetBienes', 'RetServ50', 'RetServ100',
+    'RetServ20', 'RetServicios'
+]
+
+RET_VENTAS = [
+    'RetIva', 'RetRenta'
+]
+
+BASES_IMPONIBLES = [
+    'ImpExe', 'ImpGrav', 'Imponible',
+    'Reembolso', 'NoGraIva'
+]
+
 
 class AccountInvoice(models.Model):
     _inherit = ['account.invoice']
 
-    def normalize_text(self, s, co="unicode"):
-        if co == 'unicode':
-            return ''.join((c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn'))
+    def normalize_text(self, s, result='unicode'):
+        remove = ['Mn', 'Po', 'Pc', 'Pd', 'Pf', 'Pi', 'Ps']
+        res = ''.join((
+            c for c in unicodedata.normalize('NFD', s)
+            if unicodedata.category(c) not in remove
+        ))
+
+        return res
 
     def normalize_date(self, date, fmt='dmy'):
         if fmt == 'dmy':
@@ -83,7 +103,19 @@ class AccountInvoice(models.Model):
         # TODO: permitir elegir el impuesto por defecto en la configuración de la compañía.
         for inv in self:
             for line in inv.invoice_line_ids:
-                base = sum(t.base for t in line.sri_tax_line_ids if t.group == 'RetAir')
+
+                # Agregamos el 332 solo si hay una base imponible.
+                if not any(
+                    tax.tax_group_id.name in BASES_IMPONIBLES
+                    for tax in line.invoice_line_tax_ids):
+                    continue
+
+                # La base es la diferencia entre las bases existentes
+                # y el subtotal para cubrir casos como el 322.
+                base = sum(
+                    t.base for t in line.sri_tax_line_ids
+                    if t.group == 'RetAir'
+                )
                 residual = line.price_subtotal - base
                 if round(residual, 2) > 0:
                     self.env['l10n_ec_sri.tax.line'].create({
@@ -107,7 +139,11 @@ class AccountInvoice(models.Model):
 
             # Hacemos una lista de los sustentos de la factura.
             sustentos = inv.invoice_line_ids.mapped(
-                'invoice_line_tax_ids').mapped('sustento_id.code') or ['NA']
+                'invoice_line_tax_ids').mapped('sustento_id.code')
+
+            if not sustentos and inv.type in ['out_invoice', 'out_refund']:
+                # Utilizamos 'NA' para generar líneas del ATS en ventas.
+                sustentos = ['NA']
 
             # Diccionario para crear la línea de ATS en la factura.
             sri_ats_lines = []
@@ -219,6 +255,11 @@ class AccountInvoice(models.Model):
     @api.multi
     def button_prepare_sri_declaration(self):
         for inv in self:
+
+            # No calculamos impuestos sin comprobante válido.
+            if inv.comprobante_id.code in ('NA', False):
+                return
+
             # Genera las lineas de impuestos y ats en compras y ventas.
             lines = inv.get_sri_tax_lines()
             for line in lines:
@@ -290,7 +331,6 @@ class AccountInvoice(models.Model):
         for inv in self:
             partner = inv.partner_id
             fiscal = partner.property_account_position_id
-
             # La fecha de registro debe ser del mismo mes que la factura,
             # si es un mes distinto, se declara la fecha de la factura.
             # TODO según el SRI debería ser el último día del mes.
@@ -348,10 +388,22 @@ class AccountInvoice(models.Model):
                 ]))
 
             # Formas de pago.
-            formasDePago = []
-            if inv.amount_total > 1000:
-                formasDePago = inv.payment_ids.mapped('formapago_id.code')
+            formaPago = []
+            if inv.total > 1000:
+                # Si el total de la factura es mayor a 1000
+                # debe tener forma de pago.
 
+                # Por ello, agregamos el código de todos los pagos.
+                formaPago = inv.payment_ids.mapped('formapago_id.code')
+                if not formaPago:
+                    # O la forma por defecto en el partner.
+                    formaPago.append(partner.formapago_id.code)
+                if not formaPago:
+                    # O la forma por defecto en el diario de compra.
+                    formaPago.append(inv.journal_id.formapago_id.code)
+                if not formaPago:
+                    # O "con utilización del sistema financiero".
+                    formaPago.append('20')
             detalleCompras = []
 
             for line in inv.sri_ats_line_ids:
@@ -394,9 +446,9 @@ class AccountInvoice(models.Model):
                     ('pagoExterior', pagoExterior),
                 ]))
 
-                if formasDePago:
+                if formaPago:
                     vals.update(OrderedDict([
-                        ('formasDePago', {'formasDePago': formasDePago}),
+                        ('formasDePago', {'formaPago': formaPago}),
                     ]))
 
                 vals.update(OrderedDict([
@@ -733,7 +785,9 @@ class AccountInvoice(models.Model):
             ('E', 'Facturación electrónica'),
         ],
         string='Tipo de emisión',
-        default='F', )  # Default F es importante para que las facturas actuales sean todas físicas.
+        default='F', )
+        # Default F es importante para que las
+        # facturas actuales sean todas físicas.
 
     def get_autorizacion(self):
         """
@@ -746,8 +800,13 @@ class AccountInvoice(models.Model):
         if self.type == 'out_invoice':
             aut = u.autorizacion_facturas_id or c.autorizacion_facturas_id
             tipo = 'f'
-            self.comprobante_id = aut.comprobante_id
         elif self.type == 'in_invoice':
+            if self.comprobante_id.code == '03':
+                liq = u.autorizacion_liquidaciones_id or c.autorizacion_liquidaciones_id
+                if liq.tipoem == 'E':
+                    raise UserError(_(u"Las liquidaciones de compras no pueden ser electrónicas"))
+                self.set_liquidacion(liq)
+
             aut = u.autorizacion_retenciones_id or c.autorizacion_retenciones_id
             tipo = 'r'
             # Validamos si el valor de retenciones es mayor que cero.
@@ -759,13 +818,30 @@ class AccountInvoice(models.Model):
                 # Retornamos False para evitar
                 # la generación de una retención.
                 return False, False
-            self.r_comprobante_id = aut.comprobante_id
         elif self.type == 'out_refund':
             aut = u.autorizacion_notas_credito_id or c.autorizacion_notas_credito_id
             tipo = 'nc'
-            self.comprobante_id = aut.comprobante_id
 
         return aut, tipo
+
+    @api.multi
+    def set_liquidacion(self, aut):
+        """
+        Registra los valores en caso de liquidaciones de compra.
+        Se realiza en un proceso independiente puesto que cuando
+        existe una liquidación pueden haber dos documentos, la
+        liquidación y la retención y la liquidación siempre es física.
+        """
+        secuencial = aut.secuencia_actual + 1
+        self.update({
+            'autorizacion_id': aut.id,
+            'puntoemision': aut.puntoemision,
+            'establecimiento': aut.establecimiento,
+            'secuencial': secuencial,
+            'tipoem': aut.tipoem,
+            'comprobante_id': aut.comprobante_id.id,
+        })
+        aut.update({'secuencia_actual': secuencial})
 
     @api.multi
     def set_autorizacion(self):
@@ -792,6 +868,8 @@ class AccountInvoice(models.Model):
                 'puntoemision': aut.puntoemision,
                 'establecimiento': aut.establecimiento,
                 'secuencial': secuencial,
+                'tipoem': aut.tipoem,
+                'comprobante_id': aut.comprobante_id.id,
             })
         elif tipo == 'r' and aut:
             # Por defecto, ponemos la fecha de la retención
@@ -804,6 +882,7 @@ class AccountInvoice(models.Model):
                 'estabretencion1': aut.establecimiento,
                 'secretencion1': secuencial,
                 'fechaemiret1': fecha,
+                'r_comprobante_id': aut.comprobante_id.id,
             })
 
         # Actualizamos la sencuencia en la autorización.

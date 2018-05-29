@@ -10,7 +10,7 @@
     <t t-extend='ClientLine'>
         <t t-jquery='.client-line' t-operation='append'>
             <td>
-                <t t-esc='partner.vat_ec' />
+                <t t-esc='partner.vat' />
             </td>
         </t>
     </t>
@@ -18,7 +18,7 @@
     <t t-extend="ClientDetailsEdit">
         <t t-jquery='.client-name' t-operation='before'>
             <div>
-                <input class='detail client-vat_ec' name='vat_ec' t-att-value='partner.vat_ec' placeholder='C.I. / R.U.C. / Pasaporte'></input>
+                <input class='detail client-vat' name='vat' t-att-value='partner.vat' placeholder='C.I. / R.U.C. / Pasaporte'></input>
             </div>
         </t>
     </t>

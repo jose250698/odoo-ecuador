@@ -117,7 +117,7 @@
                     </div>
                     FECHA: <t t-esc="moment().format('ll')"/><br/>
                     CLIENTE: <t t-esc="widget.pos.get_client().name"/><br/>
-                    R.U.C / C.I.: <t t-esc="widget.pos.get_client().vat_ec"/><br/>
+                    R.U.C / C.I.: <t t-esc="widget.pos.get_client().vat"/><br/>
                     DIRECCIÓN: <t t-esc=" widget.pos.get_client().street || '' "/><br/>
                     <table class='receipt-orderlines' style="margin-top: 2px; border-top: solid 1px black;">
                         <colgroup>

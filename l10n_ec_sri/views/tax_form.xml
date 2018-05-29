@@ -281,6 +281,19 @@
                             </tree>
                         </field>
                     </page>
+                    <page string="NO DECLARADO">
+                        <field name="no_declarado_ids" nolabel="1" readonly="1">
+                            <tree limit="5">
+                                <field name="type"/>
+                                <field name="secuencial"/>
+                                <field name="number"/>
+                                <field name="date"/>
+                                <field name="date_invoice"/>
+                                <field name="amount_total"/>
+                                <field name="state"/>
+                            </tree>
+                        </field>
+                    </page>
                     </notebook>
                 </sheet>
             </form>
@@ -369,10 +382,12 @@
                         type="action" />
 
                 </header>
+                <sheet>
                     <group>
                         <field name="formulario"/>
                     </group>
                     <group attrs="{'invisible': [('formulario', '!=', 'ats')]}">
+                        <field name="declarar_facturas_electronicas"/>
                         <div>
                             <button name="get_ats_xml" string="Generar xml" type="object" class="btn-primary"/>
                             <p>XML:
@@ -392,6 +407,7 @@
                             <field name="move_ids" nolabel="1" readonly="1"/>
                         </page>
                     </notebook>
+                </sheet>
             </form>
         </field>
     </record>

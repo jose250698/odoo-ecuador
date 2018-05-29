@@ -2,7 +2,7 @@
 {
     'name': "Ecuador's SRI",
     'summary': """Incluye todas las funcinalidades del SRI.""",
-    'version': '9.0.4.0.1',
+    'version': '9.0.4.0.2',
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
     'maintainer': 'Fabrica de Software Libre',
     'website': 'http://www.libre.ec',

@@ -7,7 +7,7 @@
         parent="l10n_ec_sri.menu_sri"
         sequence="20"
         />
-    
+
 
     <record id="documento_electronico_form_view" model="ir.ui.view">
         <field name="name">SRI documento electronico form view</field>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from openerp import api, fields, models
 
 
 class AccountInvoice(models.Model):
@@ -16,7 +16,7 @@ class AccountInvoice(models.Model):
 
     @api.multi
     def get_ats_errors(self):
-        retenciones = ('RetIr', 'RetIva', 'RetBien10',
+        retenciones = ('RetAir', 'RetIva', 'RetBien10',
                        'RetBienes', 'RetServ50', 'RetServ100',
                        'RetServ20', 'RetServicios')
         impuestos = ('ImpExe', 'ImpGrav', 'Imponible',
@@ -24,79 +24,118 @@ class AccountInvoice(models.Model):
 
         for inv in self:
             errors = ''
-            if inv.state != 'cancelled':
 
-                # DOCUMENTOS DUPLICADOS.
-                # Buscamos sencuenciales duplicadas.
-                duplicados = self.search([
-                    ('type', '=', inv.type),
-                    ('secuencial', '=', inv.secuencial),
-                ])
+            # DOCUMENTOS DUPLICADOS.
+            # Buscamos sencuenciales duplicadas.
+            # duplicados = self.search([
+            #    ('type', '=', inv.type),
+            #    ('secuencial', '=', inv.secuencial),
+            #])
 
-                # Si el secuencial está duplicado aplicamos los demás filtros.
-                duplicados = duplicados.search([
-                    ('autorizacion', '=', inv.autorizacion),
-                    ('establecimiento', '=', inv.establecimiento),
-                    ('puntoemision', '=', inv.puntoemision),
-                    ('company_id', '=', inv.company_id.id),
-                    ('id', '!=', inv.id)])
+            # Si el secuencial está duplicado aplicamos los demás filtros.
+            # duplicados = duplicados.search([
+            #    ('autorizacion', '=', inv.autorizacion),
+            #    ('establecimiento', '=', inv.establecimiento),
+            #    ('puntoemision', '=', inv.puntoemision),
+            #    ('company_id', '=', inv.company_id.id),
+            #    ('id', '!=', inv.id)])
 
-                # Si es documento de tercero, comprobamos el partner.
-                if inv.type in ('in_invoice', 'in_refund'):
-                    duplicados = duplicados.search([('partner_id', inv.partner_id.id)])
+            # Si es documento de tercero, comprobamos el partner.
+            # if inv.type in ('in_invoice', 'in_refund'):
+            #    duplicados = duplicados.search([('partner_id', inv.partner_id.id)])
 
-                if duplicados:
-                    errors += 'La factura parece ser duplicada de %s. ' % duplicados
+            # if duplicados:
+            #    errors += 'La factura parece ser duplicada de %s. ' % duplicados
 
-                # VALIDACIONES DEL TIPO DE COMPROBANTE
-                if not inv.comprobante_id.code:
-                    if inv.tax_line_ids:
-                        errors += 'El documento registra impuestos pero no tiene un comprobante válido. '
-                    else:
-                        errors += 'Este documento no se considerará en sus declaraciones. '
+            # VALIDACIONES DEL TIPO DE COMPROBANTE
 
-                # VALIDACIONES DE LA RETENCIÓN
-                if any(tax.tax_id.tax_group_id.name in retenciones for tax in inv.tax_line_ids):
-                    if not inv.estabretencion1 or len(inv.estabretencion1) != 3:
-                        errors += 'El establecimiento del comprobante de retención dete tener 3 dígitos. '
-                    if not inv.ptoemiretencion1 or len(inv.ptoemiretencion1) != 3:
-                        errors += 'El punto de emisión del comprobante de retención debe tener 3 dígitos. '
-                    if not inv.autretencion1 or len(inv.autretencion1) not in (10, 37):
-                        errors += 'La autorización del comprobante de retención debe tener 10 o 37 dígitos. '
-                    if not inv.fechaemiret1 or inv.date_invoice > inv.fechaemiret1:
-                        errors += 'La fecha del comprobante de retención debe ser mayor a la fecha del comprobante. '
-                    if not inv.secretencion1 or len(inv.secretencion1) > 9 or int(inv.secretencion1) == 0:
-                        errors += 'El secuencial debe tener menos de 10 caracteres y ser distinto de cero. '
-                    # Si tiene retenciones debe haber un registro con la base
-                    for line in inv.invoice_line_ids:
-                        if not any(tax.tax_group_id.name in impuestos for tax in line.invoice_line_tax_ids):
-                            errors += 'Si registra una retención debe registrar el código de la base imponible. '
+            if inv.comprobante_id.code in ('NA', False):
+                # Si la factura no tiene un comprobante válido no puede tener impuestos.
+                if inv.tax_line_ids:
+                    errors += '- El documento registra impuestos pero no registra un comprobante con valor tributario.'
+                else:
+                    errors += '- Este documento no se considerará en sus declaraciones. '
+            else:
+                # Si tiene un comprobante válido, debe tener al menos un impuesto a declarar.
+                if not inv.invoice_line_ids.mapped('invoice_line_tax_ids'):
+                    errors += '- El documento registra un comprobante con valor tributario, pero no registra impuestos.'
+
+            # VALIDACIONES DE LA RETENCIÓN
+            ret_amount = sum(inv.sri_tax_line_ids.filtered(lambda x: x.group in retenciones).mapped('amount'))
+
+            # Los datos del comprobante de retención son necesarios solo cuando hay valor de retención.
+            if ret_amount > 0:
+
+                # TODO: Borrar una vez que el sistema esté registrando bien estos datos.
+                # En caso de que no haya valores en la factura, pero haya una autorización
+                # agregamos los datos de la autorización pues es un error por el onchange.
+                if inv.r_autorizacion_id:
+                    if not inv.estabretencion1:
+                        inv.estabretencion1 = inv.r_autorizacion_id.establecimiento
+                    if not inv.ptoemiretencion1:
+                        inv.ptoemiretencion1 = inv.r_autorizacion_id.puntoemision
+                    if not inv.autretencion1:
+                        inv.autretencion1 = inv.r_autorizacion_id.autorizacion
+                    if not inv.r_comprobante_id:
+                        inv.r_comprobante_id = inv.r_autorizacion_id.comprobante_id
+                # TODO: END
+
+                if not inv.estabretencion1 or len(inv.estabretencion1) != 3 or int(inv.estabretencion1) < 1:
+                    errors += '- Establecimiento del comprobante de retención inválido.\n'
+                if not inv.ptoemiretencion1 or len(inv.ptoemiretencion1) != 3 or int(inv.ptoemiretencion1) < 1:
+                    errors += '- Punto de emisión del comprobante de retención inválido.\n'
+                if not inv.autretencion1 or len(inv.autretencion1) not in (10, 37, 49):
+                    errors += '- La autorización del comprobante de retención debe tener 10, 37 o 49 dígitos.\n'
+                if not inv.fechaemiret1 or inv.date_invoice > inv.fechaemiret1:
+                    errors += '- La fecha del comprobante de retención debe ser mayor a la fecha del comprobante.\n '
+                if not inv.secretencion1 or len(inv.secretencion1) > 9 or int(inv.secretencion1) < 1:
+                    errors += '- El secuencial de la retención debe tener menos de 10 caracteres y ser distinto de cero.\n '
+
+            for line in inv.invoice_line_ids:
+                # Si tiene retenciones, aunque esten en cero, debe haber un registro con la base.
+                if any(tax.tax_group_id.name in retenciones for tax in line.invoice_line_tax_ids):
+                    if not any(tax.tax_group_id.name in impuestos for tax in line.invoice_line_tax_ids):
+                        errors += '- Si registra una retención debe registrar el impuesto de la base imponible.\n'
+
+            # TODO: Borrar una vez que el sistema esté registrando bien estos datos.
+            # En caso de que no haya valores en la factura, pero haya una autorización
+            # agregamos los datos de la autorización pues es un error por el onchange.
+            if inv.autorizacion_id:
+                if not inv.establecimiento:
+                    inv.establecimiento = inv.autorizacion_id.establecimiento
+                if not inv.puntoemision:
+                    inv.puntoemision = inv.autorizacion_id.puntoemision
+                if not inv.autorizacion:
+                    inv.autorizacion = inv.autorizacion_id.autorizacion
+                if not inv.comprobante_id:
+                    inv.comprobante_id = inv.autorizacion_id.comprobante_id
+            # TODO END.
+
+            if not inv.establecimiento or len(inv.establecimiento) != 3 or int(inv.establecimiento) < 1:
+                errors += '- Establecimiento inválido.\n'
+            if not inv.puntoemision or len(inv.puntoemision) != 3 or int(inv.puntoemision) < 1:
+                errors += '- Punto de emisión inválido.\n'
+            if not inv.autorizacion or len(inv.autorizacion) not in (10, 37, 49):
+                errors += '- La autorización debe tener 10, 37 o 49 dígitos.\n'
+            if not inv.secuencial or len(inv.secuencial) > 9 or int(inv.secuencial) < 1:
+                errors += '- El secuencial debe tener menos de 10 caracteres y ser distinto de cero.\n'
 
             # VALIDACIÓN DE REEMBOLSOS
-
             # Si tiene sustento tributario de reembolso.
-            r = ['08', '06']
-            if any(x in inv.codsustento for x in r) and not inv.reembolso_ids:
-                errors += 'El documento registra sustentos tributarios de reembolso (06 o 08) pero no registra documentos reembolsados. '
+            #r = ['08', '06']
+            # if any(x in inv.codsustento for x in r) and not inv.reembolso_ids:
+            #    errors += 'El documento registra sustentos tributarios de reembolso (06 o 08) pero no registra documentos reembolsados. '
 
             # Si tiene una base imponible de reembolso.
-            if inv.basereembolso:
-                if inv.comprobante_id.code != '41':
-                    errors += 'Los comprobantes de venta emitidos por reembolso deben tener código 41. '
-                if not inv.documento_reembolsado_ids:
-                    errors += 'El documento contiene valores por reembolso pero no se registra el comprobante que fué reembolsado. '
+            # if inv.basereembolso:
+            #    if inv.comprobante_id.code != '41':
+            #        errors += 'Los comprobantes de venta emitidos por reembolso deben tener código 41. '
+            #    if not inv.documento_reembolsado_ids:
+            #        errors += 'El documento contiene valores por reembolso pero no se registra el comprobante que fué reembolsado. '
 
             # Valida datos del partner
             if not inv.partner_id.vat:
-                errors += 'El tercero no tiene registrado ruc o cédula. '
+                errors += '- El cliente o proveedor no tiene registrado ruc o cédula.\n'
             if not inv.partner_id.property_account_position_id:
-                errors += 'El tercero no tiene registrado el tipo de contribuyente. '
-
-            if len(inv.establecimiento) != 3:
-                errors += 'Existe un error en la autorización el establecimiento es incorrecto. '
-            if len(inv.puntoemision) != 3:
-                errors += 'Existe un error en la autorización el punto de impresión es incorrecto. '
-            if int(inv.secuencial) == 0:
-                errors += 'El secuencial de la factura es 0. '
-
+                errors += '- El cliente o proveedor no tiene registrado el tipo de contribuyente.\n'
             inv.invoice_ats_errors = errors
