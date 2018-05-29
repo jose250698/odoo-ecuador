@@ -82,11 +82,11 @@ class BiMrpReportWizard(models.TransientModel):
 
         else:
             if self.done \
-                or self.confirmed \
-                or self.ready \
-                or self.in_production \
-                or self.canceled \
-                or self.draft:
+                    or self.confirmed \
+                    or self.ready \
+                    or self.in_production \
+                    or self.canceled \
+                    or self.draft:
 
                 states = []
 
@@ -116,9 +116,11 @@ class BiMrpReportWizard(models.TransientModel):
             if self.product_ids:
                 productions = mo.filtered(lambda x: x.product_id in self.product_ids)
             if self.template_ids:
-                productions = productions | mo.filtered(lambda x: x.product_tmpl_id in self.template_ids)
+                productions = productions | mo.filtered(
+                    lambda x: x.product_tmpl_id in self.template_ids)
             if self.category_ids:
-                productions = productions | mo.filtered(lambda x: x.product_tmpl_id.categ_id in self.category_ids)
+                productions = productions | mo.filtered(
+                    lambda x: x.product_tmpl_id.categ_id in self.category_ids)
 
             productions = productions or mo
 
@@ -245,8 +247,8 @@ class BiMrpReportWizard(models.TransientModel):
                 bom_uom = p.bom_id.product_uom
                 # unidad de medida de referencia.
                 ref_uom = r_uom.search(
-                    [('category_id','=', r_uom.category_id.id),
-                     ('uom_type','=','reference')
+                    [('category_id', '=', r_uom.category_id.id),
+                     ('uom_type', '=', 'reference')
                      ]
                 )
                 # No procesar el reporte si las unidades de medida son incompatibles.
@@ -265,7 +267,8 @@ class BiMrpReportWizard(models.TransientModel):
                 scrapped_moves = produced_moves.filtered(
                     lambda l: l.scrapped)
                 scrapped_qty = sum(scrapped_moves.mapped('product_uom_qty'))
-                scrapped_valuation = sum(scrapped_moves.mapped('quant_ids').mapped('inventory_value'))
+                scrapped_valuation = sum(scrapped_moves.mapped(
+                    'quant_ids').mapped('inventory_value'))
 
                 vals = [
                     wh,
@@ -316,13 +319,14 @@ class BiMrpReportWizard(models.TransientModel):
                     raw_real_moves = raw_move_lines.filtered(
                         lambda l: not l.scrapped)
                     raw_real_qty = sum(raw_real_moves.mapped('product_uom_qty'))
-                    raw_real_valuation = sum(raw_real_moves.mapped('quant_ids').mapped('inventory_value'))
+                    raw_real_valuation = sum(raw_real_moves.mapped(
+                        'quant_ids').mapped('inventory_value'))
                     raw_scrapped_moves = raw_move_lines.filtered(
                         lambda l: l.scrapped)
 
                     raw_scrapped_qty = abs(sum(raw_scrapped_moves.mapped('product_uom_qty')))
-                    raw_scrapped_valuation = sum(raw_scrapped_moves.mapped('quant_ids').mapped('inventory_value'))
-
+                    raw_scrapped_valuation = sum(raw_scrapped_moves.mapped(
+                        'quant_ids').mapped('inventory_value'))
 
                     raw_discrepancy_qty = raw_real_qty - raw_standard_qty
                     # Si se incrementa un campo en esta lista es necesario incrementar un espacio en blanco
@@ -338,15 +342,15 @@ class BiMrpReportWizard(models.TransientModel):
                         line.extend([raw_real_valuation])
 
                     line.extend([
-                            raw_scrapped_qty
+                        raw_scrapped_qty
                     ])
 
                     if self.valuation:
                         line.extend([raw_scrapped_valuation])
 
                     line.extend([
-                            raw_discrepancy_qty
-                        ])
+                        raw_discrepancy_qty
+                    ])
                     if self.valuation:
                         line.extend([raw_discrepancy_qty * raw.standard_price])
                     ws.append(line)
@@ -359,7 +363,7 @@ class BiMrpReportWizard(models.TransientModel):
                     by_line = p.bom_id.sub_products.filtered(lambda l: l.product_id == by)
                     if len(by_line) > 1:
                         raise UserError(
-                            _('El subproducto debe estar en una sola línea de la Lista de Materiales'))
+                            _('La lista de Materiales para el Producto {}, tiene inconsistencias con el sub producto {}'.format(p.bom_id.name_get()[0][1], by.name_get()[0][1])))
 
                     by_standard_qty = by_line.product_qty
                     if by_line.subproduct_type == 'variable':
@@ -375,10 +379,12 @@ class BiMrpReportWizard(models.TransientModel):
                         and l.state == 'done')
 
                     by_real_qty = sum(by_real_moves.mapped('product_uom_qty'))
-                    by_real_valuation = sum(by_real_moves.mapped('quant_ids').mapped('inventory_value'))
+                    by_real_valuation = sum(by_real_moves.mapped(
+                        'quant_ids').mapped('inventory_value'))
                     by_discrepancy_qty = by_real_qty - by_standard_qty
 
                     line.extend([
+                        '',
                         '',
                         '',
                         '',

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api, _
+from openerp import _, api, fields, models
 
 
 class MaterialPlanWizard(models.TransientModel):
@@ -23,10 +23,10 @@ class MaterialPlanWizard(models.TransientModel):
             p_lines = lines.filtered(lambda x: x.product_id == product)
             p_uom = product.uom_id
             qty = sum(p_lines.mapped(lambda line: uom_obj._compute_qty(
-                    line.product_uom.id,
-                    line.product_uom_qty,
-                    p_uom.id
-                )))
+                line.product_uom.id,
+                line.product_uom_qty,
+                p_uom.id
+            )))
             print 'Quantity', qty, p_uom
             self.env['mrp.plan.wizard.line'].create({
                 'wizard_id': self.id,

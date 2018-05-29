@@ -277,7 +277,7 @@
     <template id="invoicing_session_portrait_report">
         <t t-call="report.html_container">
             <t t-foreach="docs" t-as="doc">
-                <t t-set="format_id" t-value="user.company_id.default_format_id"/>
+                <t t-set="format_id" t-value="user.session_format_id"/>
 		        <div class="page" t-att-style="format_id.page_style">
                     <t t-call="account_invoicing_session.invoicing_session_content_report"/>
 		            <t t-if="int(format_id.copies) > 1">
@@ -295,7 +295,7 @@
     <report
             id="account_invoicing_session.invoicing_session_portrait_report_id"
             model="account.invoicing.session"
-            string="Reporte de sessión (vertical)"
+            string="Reporte de sessión"
             name="account_invoicing_session.invoicing_session_portrait_report"
             file="reporte_de_sesion"
             report_type="qweb-pdf"/>

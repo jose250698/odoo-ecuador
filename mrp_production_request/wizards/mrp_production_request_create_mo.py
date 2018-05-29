@@ -2,8 +2,8 @@
 # Copyright 2017 Eficent Business and IT Consulting Services S.L.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import api, fields, models
 import openerp.addons.decimal_precision as dp
+from openerp import api, fields, models
 
 
 class MrpProductionRequestCreateMo(models.TransientModel):
@@ -75,7 +75,7 @@ class MrpProductionRequestCreateMo(models.TransientModel):
     def _prepare_manufacturing_order(self):
         self.ensure_one()
         request_id = self.mrp_production_request_id
-        return {
+        vals = {
             'product_id': request_id.product_id.id,
             'bom_id': request_id.bom_id.id,
             'product_qty': self.mo_qty,
@@ -89,6 +89,10 @@ class MrpProductionRequestCreateMo(models.TransientModel):
             'date_planned': request_id.date_planned,
             'company_id': request_id.company_id.id,
         }
+        if request_id.wave_id:
+            vals.update({'wave_id': request_id.wave_id.id})
+        print vals
+        return vals
 
     @api.multi
     def create_mo(self):

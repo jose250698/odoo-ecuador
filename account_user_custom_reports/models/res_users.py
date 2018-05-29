@@ -8,4 +8,3 @@ class ResUsers(models.Model):
     check_format_id = fields.Many2one('report.custom.format', string="Check", )
     payment_voucher_format_id = fields.Many2one('report.custom.format', string="Payment voucher", )
     journal_voucher_format_id = fields.Many2one('report.custom.format', string="Journal", )
-

@@ -84,10 +84,10 @@ class PickReturnWizard(models.TransientModel):
                 out_return = in_type
 
                 # If the pickings have return types defined, use them instead.
-                if out_type.return_picking_type_id:
-                    in_return = out_type.return_picking_type_id
-                if in_type.return_picking_type_id:
-                    out_return = in_type.return_picking_type_id
+                if out_type.sudo().return_picking_type_id:
+                    in_return = out_type.sudo().return_picking_type_id
+                if in_type.sudo().return_picking_type_id:
+                    out_return = in_type.sudo().return_picking_type_id
 
                 in_type = in_return
                 out_type = out_return
@@ -109,7 +109,7 @@ class PickReturnWizard(models.TransientModel):
             raise UserError(_('You need at least one move line to process'))
         out_picking = self.env['stock.picking']
         if trans:
-            name = self.out_picking_type_id.sequence_id.next_by_id()
+            name = self.sudo().out_picking_type_id.sequence_id.next_by_id()
             out_picking = out_picking.create({
                 'name': name,
                 'origin': self.origin,
@@ -118,8 +118,9 @@ class PickReturnWizard(models.TransientModel):
                 'priority': self.priority,
                 'location_dest_id': trans.id,
                 'location_id': src.id,
+                'min_date': self.min_date
             })
-        name = self.in_picking_type_id.sequence_id.next_by_id()
+        name = self.sudo().in_picking_type_id.sequence_id.next_by_id()
         in_picking = self.env['stock.picking']
         in_picking = in_picking.create({
             'name': name,
@@ -129,33 +130,37 @@ class PickReturnWizard(models.TransientModel):
             'priority': self.priority,
             'location_dest_id': dest.id,
             'location_id': trans.id if trans else src.id,
+            'min_date': self.min_date
         })
         for move in moves:
-            in_move = self.env['stock.move'].create({
-                'location_id': in_picking.location_id.id,
-                'location_dest_id': in_picking.location_dest_id.id,
-                'product_id': move.product_id.id,
-                'product_uom': move.product_uom.id,
-                'product_uom_qty': move.product_uom_qty,
-                'name': _('Supply move for: ') + self.origin,
-                'state': 'draft',
-                'picking_id': in_picking.id,
-            })
-            if out_picking:
-                out_move = self.env['stock.move'].create({
-                    'location_id': out_picking.location_id.id,
-                    'location_dest_id': out_picking.location_dest_id.id,
+            if move.product_uom_qty > 0:
+                in_move = self.env['stock.move'].create({
+                    'location_id': in_picking.location_id.id,
+                    'location_dest_id': in_picking.location_dest_id.id,
                     'product_id': move.product_id.id,
                     'product_uom': move.product_uom.id,
                     'product_uom_qty': move.product_uom_qty,
                     'name': _('Supply move for: ') + self.origin,
                     'state': 'draft',
-                    'picking_id': out_picking.id,
-                    'move_dest_id': in_move.id
+                    'picking_id': in_picking.id,
+                    'date_expected': self.min_date
                 })
-        in_picking.action_confirm()
+                if out_picking:
+                    out_move = self.env['stock.move'].create({
+                        'location_id': out_picking.location_id.id,
+                        'location_dest_id': out_picking.location_dest_id.id,
+                        'product_id': move.product_id.id,
+                        'product_uom': move.product_uom.id,
+                        'product_uom_qty': move.product_uom_qty,
+                        'name': _('Supply move for: ') + self.origin,
+                        'state': 'draft',
+                        'picking_id': out_picking.id,
+                        'move_dest_id': in_move.id,
+                        'date_expected': self.min_date
+                    })
+        in_picking.sudo().action_confirm()
         if out_picking:
-            out_picking.action_confirm()
+            out_picking.sudo().action_confirm()
 
         return in_picking, out_picking
 

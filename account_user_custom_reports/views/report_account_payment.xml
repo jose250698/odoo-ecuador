@@ -2,10 +2,10 @@
 <odoo>
     <!-- CHEQUE -->
     <template id="report.check_content_report">
-        <table class="table-condensed">
+        <table class="table-condensed" >
             <tbody>
                 <tr>
-                    <td style="width:110mm;padding-left:15mm;">
+                    <td style="width:115mm;padding-left:15mm;">
                         <div style="overflow:hidden; max-height: 1.5em;">
                             <t t-if="not doc.check_receiver">
                                 <t t-if="not doc.check_usetradename">
@@ -20,10 +20,10 @@
                             </t>
                         </div>
                     </td>
-                    <td style="min-width:35mm; text-align:right;">
+                    <td style="min-width:40mm; text-align:right;">
                         <span t-esc="'%.2f'%(doc.amount)"/>
                     </td>
-                </tr>
+                </tr >
                 <tr>
                     <td colspan="2" style="padding-left: 15mm;">
                         <div style="height: 3em;width: 100%; overflow:hidden;">
@@ -42,7 +42,6 @@
             </tbody>
         </table>
     </template>
-
     <template id="report.check_portrait_report">
         <t t-call="report.html_container">
             <t t-foreach="docs" t-as="doc">

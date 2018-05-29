@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import base64
+import logging
 from cStringIO import StringIO
 
-import logging
+from openerp import _, api, fields, models
+from openerp.exceptions import UserError
+
 _logger = logging.getLogger(__name__)
 
-from openerp import models, fields, api, _
-from openerp.exceptions import UserError
 
 try:
     import openpyxl
@@ -39,15 +40,16 @@ class ReportStockLocationKardex(models.TransientModel):
         string='Location', )
 
     type = fields.Selection([
-            ('by_location','By Location'),
-            ('consolidated','Consolidated'),
-        ], default="by_location",
+        ('by_location', 'By Location'),
+        ('consolidated', 'Consolidated'),
+    ], default="by_location",
         string='Type',
     )
 
     @api.multi
     def get_report_data(self):
-        locations = self.location_ids or self.env['stock.location'].search([('usage','=','internal')])
+        locations = self.location_ids or self.env['stock.location'].search(
+            [('usage', '=', 'internal')])
 
         for location in locations:
             location.button_update_kardex()
@@ -116,10 +118,10 @@ class ReportStockLocationKardex(models.TransientModel):
                 vals = [
                     l.date,
                     l.name,
-                    l.move_id.name,
-                    l.kardex_id.location_id.name,
-                    l.counterpart_location_id.name,
-                    l.transit_location_id.name,
+                    l.picking_id.name_get()[0][1] if l.picking_id else '',
+                    l.kardex_id.location_id.name_get()[0][1] if l.kardex_id.location_id else '',
+                    l.transit_location_id.name_get()[0][1] if l.transit_location_id else '',
+                    l.counterpart_location_id.name_get()[0][1] if l.counterpart_location_id else '',
                     l.previous_balance_qty,
                     previous_balance_qty,
                     l.in_qty,
@@ -159,16 +161,16 @@ class ReportStockLocationKardex(models.TransientModel):
                 }
                 rows = []
                 header = [
-                        _(u'FECHA'),
-                        _(u'NOMBRE'),
-                        _(u'MOVIMIENTO'),
-                        _(u'UBICACIÓN RELACIONADA'),
-                        _(u'UBICACIÓN DE TRÁNSITO'),
-                        _(u'CANTIDAD ANTERIOR'),
-                        _(u'ENTRADAS'),
-                        _(u'SALIDAS'),
-                        _(u'CANTIDAD FINAL')
-                    ]
+                    _(u'FECHA'),
+                    _(u'NOMBRE'),
+                    _(u'MOVIMIENTO'),
+                    _(u'UBICACIÓN DE TRÁNSITO'),
+                    _(u'UBICACIÓN RELACIONADA'),
+                    _(u'CANTIDAD ANTERIOR'),
+                    _(u'ENTRADAS'),
+                    _(u'SALIDAS'),
+                    _(u'CANTIDAD FINAL')
+                ]
 
                 if self.costing:
 
@@ -185,9 +187,10 @@ class ReportStockLocationKardex(models.TransientModel):
                     vals = [
                         l.date,
                         l.name,
-                        l.move_id.name,
-                        l.transit_location_id.name,
-                        l.counterpart_location_id.name,
+                        l.picking_id.name_get()[0][1] if l.picking_id else '',
+                        l.transit_location_id.name_get()[0][1] if l.transit_location_id else '',
+                        l.counterpart_location_id.name_get(
+                        )[0][1] if l.counterpart_location_id else '',
                         l.previous_balance_qty,
                         l.in_qty,
                         l.out_qty,
@@ -196,11 +199,11 @@ class ReportStockLocationKardex(models.TransientModel):
 
                     if self.costing:
                         vals.extend([
-                                l.previous_balance_value,
-                                l.in_value,
-                                l.out_value,
-                                l.balance_value
-                            ])
+                            l.previous_balance_value,
+                            l.in_value,
+                            l.out_value,
+                            l.balance_value
+                        ])
                     rows.append(vals)
                 sheet.update({
                     'rows': rows,
@@ -223,7 +226,7 @@ class ReportStockLocationKardex(models.TransientModel):
         sheets = data.get('sheets', [])
         for s in sheets:
             name = s.get('name', 'sheet %s' % sheets.index(s))
-            ws = wb.create_sheet(name)
+            ws = wb.create_sheet(name.replace('/', '-'))
             rows = s.get('rows', [])
             for row in rows:
                 ws.append(row)
@@ -246,4 +249,3 @@ class ReportStockLocationKardex(models.TransientModel):
             'target': 'new',
             'context': self._context,
         }
-

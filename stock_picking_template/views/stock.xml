@@ -1,60 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record id="view_picking_form" model="ir.ui.view">
-        <field name="name">Stock picking template inherit</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
+    <record model="ir.ui.view" id="template_form_view">
+        <field name="name">stock_picking_template_form_view</field>
+        <field name="model">stock.picking.template</field>
         <field name="arch" type="xml">
-            <field name="origin" position="after">
-                <field name="picking_template_id"/>
-            </field>
-            <field name="move_lines" position="before">
-                <button name="create_move_lines_from_template" string="Complete from template"
-                        type="object" attrs="{'invisible':[('state','!=','draft')]}"/>
-                <button name="clean_cero_qty_move_lines" string="Clean picking"
-                        type="object" attrs="{'invisible':[('state','!=','draft')]}"/>
-            </field>
+            <form string="Stock picking template">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="location_src_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Picking lines">
+                        <field name="template_line_ids" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
         </field>
     </record>
 
-        <record model="ir.ui.view" id="template_form_view">
-            <field name="name">stock_picking_template_form_view</field>
-            <field name="model">stock.picking.template</field>
-            <field name="arch" type="xml">
-                <form string="Stock picking template.">
-                    <sheet>
-                        <group>
-                            <field name="name"/>
-                        </group>
-                        <group string="Picking lines">
-                            <field name="template_line_ids" nolabel="1"/>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
+    <record id="template_tree_view" model="ir.ui.view">
+        <field name="name">stock_picking_template_tree_view</field>
+        <field name="model">stock.picking.template</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
 
-        <record id="template_tree_view" model="ir.ui.view">
-            <field name="name">stock_picking_template_tree_view</field>
-            <field name="model">stock.picking.template</field>
-            <field name="arch" type="xml">
-                <tree>
-                    <field name="name"/>
-                </tree>
-            </field>
-        </record>
-
-        <record id="template_line_tree_view" model="ir.ui.view">
-            <field name="name">stock_picking_template_tree_view</field>
-            <field name="model">stock.picking.template.line</field>
-            <field name="arch" type="xml">
-                <tree editable="buttom">
-                    <field name="product_id"/>
-                    <field name="product_uom"/>
-                    <field name="product_uom_qty"/>
-                </tree>
-            </field>
-        </record>
+    <record id="template_line_tree_view" model="ir.ui.view">
+        <field name="name">stock_picking_template_tree_view</field>
+        <field name="model">stock.picking.template.line</field>
+        <field name="arch" type="xml">
+            <tree editable="buttom">
+                <field name="product_uom_qty"/>
+                <field name="product_id"/>
+                <field name="product_uom"/>
+            </tree>
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="action_stock_picking_template">
         <field name="name">Picking template</field>

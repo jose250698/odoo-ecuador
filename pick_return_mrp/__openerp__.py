@@ -12,8 +12,8 @@
     'data': [
         'wizards/mrp_pick_return_wizard_view.xml',
         'views/mrp.xml',
-        ],
-    'qweb': [
+        'views/stock.xml',
     ],
+    'qweb': [],
     'installable': True,
 }

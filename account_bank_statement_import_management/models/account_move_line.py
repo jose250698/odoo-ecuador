@@ -20,8 +20,8 @@ class AccountMoveLine(models.Model):
 
         elif self.matched_debit_ids:
             vals['amount'] = (self.credit - sum(self.matched_debit_ids.mapped('amount'))) * -1
-        
+
         vals.update({'source_move_line_id': self.id,})
-        
+
         return vals
 

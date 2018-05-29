@@ -55,10 +55,10 @@ class AccountStatementLineCreate(models.TransientModel):
     @api.multi
     def _prepare_move_line_domain(self):
         self.ensure_one()
-        domain = [('reconciled', '=', False),
-                  ('account_id.internal_type', 'in', ('payable',
-                                                      'receivable')),
-                  ('company_id', '=', self.env.user.company_id.id)]
+        domain = [
+            ('reconciled', '=', False),
+            ('account_id.internal_type', 'not in', ('payable','receivable')),
+            ('company_id', '=', self.env.user.company_id.id)]
         if self.journal_ids:
             domain += [('journal_id', 'in', self.journal_ids.ids)]
         else:
@@ -79,12 +79,12 @@ class AccountStatementLineCreate(models.TransientModel):
             domain.append(('date', '<=', self.move_date))
         if self.invoice:
             domain.append(('invoice_id', '!=', False))
-        paylines = self.env['account.payment'].search([
-            ('state', 'in', ('draft', 'posted', 'sent')),
-            ('move_line_ids', '!=', False)])
-        if paylines:
-            move_in_payment_ids = paylines.mapped('move_line_ids.id')
-            domain += [('id', 'not in', move_in_payment_ids)]
+        #paylines = self.env['account.payment'].search([
+        #    ('state', 'in', ('draft', 'posted', 'sent')),
+        #    ('move_line_ids', '!=', False)])
+        #if paylines:
+        #    move_in_payment_ids = paylines.mapped('move_line_ids.id')
+        #    domain += [('id', 'not in', move_in_payment_ids)]
         return domain
 
     @api.multi

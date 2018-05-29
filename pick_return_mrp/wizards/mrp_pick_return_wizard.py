@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import openerp.addons.decimal_precision as dp
 from openerp import _, api, exceptions, fields, models
+from openerp.tools.float_utils import float_round
 
 
 class MrpPickReturnWizard(models.TransientModel):
@@ -48,7 +49,7 @@ class MrpPickReturnWizard(models.TransientModel):
             raw_pickings = self.mo_id.raw_picking_ids.filtered(lambda x: x.state == 'done')
 
             product_ids = raw_pickings.mapped('pack_operation_product_ids.product_id')
-            finished_ids = self.move_created_ids2.mapped('product_id')
+            finished_ids = mo.move_created_ids2.mapped('product_id')
             raw_ids = product_ids - finished_ids
             pick_ids = raw_pickings.filtered(lambda x: x.location_dest_id == mo.location_src_id)
             return_ids = raw_pickings.filtered(lambda x: x.location_id == mo.location_src_id)
@@ -104,6 +105,7 @@ class MrpPickReturnWizard(models.TransientModel):
                     'product_uom': line.product_uom.id,
                     'product_uom_qty': line.product_uom_qty,
                     'mrp_wizard_id': self.id,
+                    'type': type,
                 })
 
         self.create_pick_return_lines(lines=lines)
@@ -126,3 +128,18 @@ class PickReturnWizardLine(models.TransientModel):
     _inherit = "pick.return.wizard.line"
 
     mrp_wizard_id = fields.Many2one('mrp.pick.return.wizard', string='Pick return wizard', )
+    product_unreserved = fields.Float(
+        compute='_compute_product_qty_unreserved', string=('Product Available'), defaults=0.00, digits=dp.get_precision('Product Unit of Measure'))
+    type = fields.Char('Type')
+
+    @api.multi
+    def _compute_product_qty_unreserved(self):
+        quant_obj = self.env['stock.quant']
+        for row in self:
+            location = row.mrp_wizard_id.location_dest_id.id if row.type == 'raw' else row.mrp_wizard_id.location_src_id.id
+            quant_data = quant_obj.search(
+                [('product_id', '=', row.product_id.id),
+                 ('location_id', '=', location),
+                 ('reservation_id', '=', False)])
+            quant = sum([x.qty for x in quant_data]) if len(quant_data) > 0 else 0.00
+            row.product_unreserved = quant

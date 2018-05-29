@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-import base64
-from cStringIO import StringIO
-
 import logging
+
+from openerp import _, api, fields, models
+
 _logger = logging.getLogger(__name__)
 
-from openerp import models, fields, api, _
-from openerp.exceptions import UserError
-
-try:
-    import openpyxl
-except ImportError:
-    _logger.error("The module openpyxl can't be loaded, try: pip install openpyxl")
 
 class BiInvoiceReport(models.TransientModel):
     _name = 'bi.invoice.report'
@@ -19,9 +12,9 @@ class BiInvoiceReport(models.TransientModel):
     _description = 'Bi Invoice Report'
 
     type = fields.Selection([
-            ('invoices','Invoices'),
-            ('invoice_lines','Invoice lines'),
-        ], default="invoices",
+        ('invoices', 'Invoices'),
+        ('invoice_lines', 'Invoice lines'),
+    ], default="invoices",
         string='Type',
     )
 
@@ -33,12 +26,12 @@ class BiInvoiceReport(models.TransientModel):
     consu = fields.Boolean(string='Consumable', )
 
     group_by = fields.Selection([
-            ('user','User'),
-            ('partner','Partner'),
-            ('none','None'),
-        ], default="none",
+        ('user', 'User'),
+        ('partner', 'Partner'),
+        ('none', 'None'),
+    ], default="none",
         string='Group by',
-        )
+    )
 
     user_ids = fields.Many2many(
         'res.users',
@@ -55,29 +48,38 @@ class BiInvoiceReport(models.TransientModel):
         string='Partners', )
 
     in_invoice = fields.Boolean(string='In invoice', )
-    out_invoice = fields.Boolean(string='Out invoice', )
+    out_invoice = fields.Boolean(
+        string='Out invoice', default=lambda x: x._context.get('sales', False))
     in_refund = fields.Boolean(string='In refund', )
-    out_refund = fields.Boolean(string='Out refund', )
+    out_refund = fields.Boolean(
+        string='Out refund', default=lambda x: x._context.get('sales', False))
 
     def get_invoice_vals(self, i):
+        try:
+            days = (fields.Date.from_string(i.date_due) -
+                    fields.Date.from_string(fields.Date.today())).days
+        except TypeError:
+            days = 0
         vals = [
             i.number,
+            'SI' if i.secretencion1 else 'NO',
             i.origin,
             i.partner_id.name,
             i.secuencial,
             i.date_invoice,
             i.date_due,
-            (fields.Date.from_string(i.date_due) - fields.Date.from_string(fields.Date.today())).days,
+            days,
             i.total,
             i.total - i.residual,
             i.residual,
-            i.user_id.name,
+            i.partner_id.user_id.name,
         ]
         return vals
 
     def get_invoice_header(self):
         return [
             _(u'FACTURA'),
+            _(u'RETENCION'),
             _(u'ORIGEN'),
             _(u'CLIENTE'),
             _(u'SECUENCIAL'),
@@ -88,7 +90,7 @@ class BiInvoiceReport(models.TransientModel):
             _(u'VALOR PAGADO'),
             _(u'VALOR PENDIENTE'),
             _(u'VENDEDOR'),
-            ]
+        ]
 
     def get_invoice_line_header(self):
         return [
@@ -107,7 +109,7 @@ class BiInvoiceReport(models.TransientModel):
             _(u'CÓDIGO PRODUCTO'),
             _(u'TIPO DE PRODUCTO'),
             _(u'CATEGORÍA DE PRODUCTO'),
-            _(u'PRODUCTO'),
+            _(u'DETALLE'),
             _(u'CANTIDAD'),
             _(u'UOM'),
             _(u'PRECIO UNITARIO'),
@@ -115,8 +117,7 @@ class BiInvoiceReport(models.TransientModel):
             _(u'SUBTOTAL SIN IMPUESTOS'),
             _(u'IVA'),
             _(u'TOTAL'),
-            ]
-
+        ]
 
     def get_invoice_line_vals(self, l):
         inv = l.invoice_id
@@ -131,22 +132,22 @@ class BiInvoiceReport(models.TransientModel):
         vals = [
             inv.type,
             inv.number,
-            inv.origin,
-            inv.secuencial,
+            inv.origin or '',
+            inv.secuencial or '',
             pa.name,
             pa.vat,
-            pa.country_id.name,
-            pa.state_id.name,
+            pa.country_id.name or '',
+            pa.state_id.name or '',
             inv.date_invoice,
             inv.date_invoice[:4],
             inv.date_invoice[5:7],
             inv.user_id.name,
-            pr.default_code,
+            pr.default_code or '',
             pr.default_code and pr.default_code[:2] or '',
-            pr.categ_id.name,
-            pr.name,
+            pr.categ_id.name or '',
+            pr.name or l.name,
             l.quantity,
-            l.uom_id.name,
+            l.uom_id.name or '',
             l.price_unit,
             l.price_discount,
             l.price_subtotal,
@@ -179,7 +180,7 @@ class BiInvoiceReport(models.TransientModel):
         return {
             'name': sheetname,
             'rows': rows,
-            }
+        }
 
     @api.multi
     def get_report_data(self):
@@ -203,10 +204,10 @@ class BiInvoiceReport(models.TransientModel):
         if self.partner_ids:
             report_filter.append(('partner_id', 'in', self.partner_ids.ids))
         if self.date_from:
-            report_filter.append(('date_invoice','>=', self.date_from))
+            report_filter.append(('date_invoice', '>=', self.date_from))
         if self.date_to:
-            report_filter.append(('date_invoice','<=', self.date_to))
-
+            report_filter.append(('date_invoice', '<=', self.date_to))
+        report_filter.append(('state', 'not in', ['draft', 'cancel']))
         inv = inv_obj.search(report_filter)
 
         if not self.local:
@@ -253,4 +254,3 @@ class BiInvoiceReport(models.TransientModel):
         }
 
         return data
-
