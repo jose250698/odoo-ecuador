@@ -100,7 +100,7 @@ PosModels.PosModel = PosModels.PosModel.extend({
     add_new_order: function(){
         var order = _super_posmodel.add_new_order.call(this);
         if (order) {
-            order.establecer_secuencial(this.get_next_sequential());
+            order.establecer_secuencial(this.get_sequential());
             order.asignar_establecimiento(this.get_establishment());
             order.asignar_tipoemision(this.get_tipoemision());
             order.asignar_puntoemision(this.get_emission_point());

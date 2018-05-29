@@ -57,4 +57,23 @@ var _t = core._t;
 
     });
 
+
+    PosScreens.PaymentScreenWidget.include({
+
+        validate_order: function(force_validation) {
+            var self = this;
+
+            var order = self.pos.get_order();
+            if (order){
+                order.establecer_secuencial(this.pos.get_sequential());
+            }
+
+            this._super(force_validation);
+
+            if (order){
+                this.pos.get_next_sequential();
+            }
+        },
+    });
+
 });
