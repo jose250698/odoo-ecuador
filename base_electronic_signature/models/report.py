@@ -102,40 +102,47 @@ class Report(models.Model):
         cont = False
 
         for cert in certificates:
+            if not cert.p12:
+                raise UserError(_("Certificate: %s has a wrong p12 certificate." % cert.name))
+            if not cert.password:
+                raise UserError(_("Certificate: %s has an empty password." % cert.name))
 
             p12 = _normalize_filepath(cert.path)
-
             data_dir = config['data_dir']
             db = self.env.cr.dbname
 
             passwd = tempfile.NamedTemporaryFile()
             passwd = tempfile.NamedTemporaryFile(suffix=".txt", prefix="pass_", dir=''.join(
                 [data_dir, '/filestore/', db]), delete=False)  # TODO Cambiar la ruta
-            passwd.write(cert.password)
-            passwd.seek(0)
-            passwd = _normalize_filepath(passwd.name)
+            try:
+                passwd.write(cert.password)
+                passwd.seek(0)
+                passwd = _normalize_filepath(passwd.name)
+            except:
+                os.remove(passwd)
+                return False
 
-
-            if not (p12 and passwd):
-                raise UserError(
-                    _('Signing report (PDF): '
-                      'Certificate or password file not found'))
             signer_opts = '"%s" "%s" "%s" "%s"' % (p12, pdf, pdfsigned, passwd)
             signer = self._signer_bin(signer_opts)
             process = subprocess.Popen(
                 signer, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             out, err = process.communicate()
+            os.remove(passwd)
             if process.returncode:
-                raise UserError(
-                    _('Signing report (PDF): jPdfSign failed (error code: %s). '
-                      'Message: %s. Output: %s') %
-                    (process.returncode, err, out))
+                if 'keystore password was incorrect' in err:
+                    raise UserError(
+                        _('Incorrect password for certificate: %s.') % cert.name
+                    )
+                else:
+                    raise UserError(
+                        _('Signing report (PDF): jPdfSign failed (error code: %s). '
+                            'Message: %s. Output: %s') %
+                            (process.returncode, err, out)
+                    )
             pdf = pdfsigned
             if cont == False:
                 pdfsigned = pdfsigned + 'signed.pdf'
                 cont = True
-
-            os.remove(passwd)
 
         return pdfsigned
 
