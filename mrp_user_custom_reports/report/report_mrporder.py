@@ -1,0 +1,54 @@
+# -*- coding: utf-8 -*-
+
+import time
+from openerp import api, models
+
+class ReportMRPOrder(models.AbstractModel):
+    _name = 'report.mrp_user_custom_reports.report_mrporder'
+
+    def get_resume_lines(self, mporder):
+        lines = []
+        if not (mporder is None):
+            for li in mporder.product_lines:
+                line = {
+                    'product_id': li.product_id.id,
+                    'product_name': li.product_id.name,
+                    'uom_name': li.product_uom.name,
+                    'planned_qty': li.product_qty,
+                    'product_uom_qty': 0.0,
+                    'diff_qty': 0.0
+                }
+                by_products = mporder.move_lines.filtered(
+                    lambda l: l.product_id == li.product_id)
+
+                if len(by_products) > 0:
+                    for li2 in by_products:
+                        line['diff_qty'] += li2.product_uom_qty
+
+                    line['product_uom_qty'] = line['planned_qty'] - line['diff_qty']
+                else:
+                    by_products = mporder.move_lines2.filtered(
+                        lambda l: l.product_id != li.product_id)
+
+                    for li2 in by_products:
+                        line['diff_product_uom_qtyqty'] += li2.product_uom_qty
+
+                    line['diff_qty'] = line['planned_qty'] - line['product_uom_qty']
+
+                lines.append(line);
+        return lines;
+
+    @api.multi
+    def render_html(self, data=None):
+        report_obj = self.env['report']
+        report = report_obj._get_report_from_name('mrp_user_custom_reports.report_mrporder')
+        docs = self.env[report.model].browse(self.id)
+
+        resume_lines = self.get_resume_lines(docs);
+        docargs = {
+            'doc_ids': self._ids,
+            'doc_model': report.model,
+            'docs': docs,
+            'resume_lines': resume_lines,
+        }
+        return report_obj.render('mrp_user_custom_reports.report_mrporder', docargs)

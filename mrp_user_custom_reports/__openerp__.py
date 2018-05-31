@@ -14,6 +14,8 @@
     ],
     'data': [
         'views/res_users.xml',
+        'views/report_mrporder.xml',
+        'report/mrp_report.xml',
     ],
     'demo': [],
     'test': [],
