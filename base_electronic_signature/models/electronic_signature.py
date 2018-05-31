@@ -45,8 +45,10 @@ class ElectronicSignature(models.Model):
 
     @api.multi
     def unlink(self):
-        os.remove(self.path)
-        return super(ElectronicSignature, self).unlink()
+        for r in self:
+            if r.path != '':
+                os.remove(self.path)
+            return super(ElectronicSignature, self).unlink()
 
     @api.multi
     def button_reset(self):
