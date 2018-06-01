@@ -74,6 +74,206 @@ class BiMrpReportWizard(models.TransientModel):
     date_from = fields.Datetime(string='Date from', )
     date_to = fields.Datetime(string='Date to', )
 
+    @api.model
+    def get_production_report_detail(self, p):
+        lines = []
+
+        # Warehouse
+        wh = p.location_src_id.location_id.name
+
+        # product.product
+        required = p.product_id
+
+        # mrp.production.product.line
+        planned = p.product_lines
+
+        # stock.move
+        done = p.move_created_ids2
+        to_do = p.move_created_ids
+        consumed = p.move_lines2
+        to_consume = p.move_lines
+
+        # Raw materials.
+        raw_moves = consumed + to_consume
+        raw_products = raw_moves.mapped('product_id')
+
+        # Finished move lines.
+        finished_moves = done + to_do
+
+        # Byproducts
+        by_products = finished_moves.filtered(
+            lambda l: l.product_id != required).mapped('product_id')
+
+        # Production uoms
+        p_uom = p.product_uom
+        # Unidad del producto principal required
+        r_uom = required.uom_id
+
+        bom_uom = p.bom_id.product_uom
+        # unidad de medida de referencia.
+        ref_uom = r_uom.search(
+            [('category_id', '=', r_uom.category_id.id),
+             ('uom_type', '=', 'reference')
+             ]
+        )
+        # No procesar el reporte si las unidades de medida son incompatibles.
+        if p_uom.category_id != r_uom.category_id or p_uom.category_id != bom_uom.category_id:
+            # ws.append([p.name, required.name, 'UOM INCOMPATIBLE'])
+            return [[p.name, required.name, 'UOM INCOMPATIBLE']]
+
+        produced_moves = finished_moves.filtered(
+            lambda l: l.product_id == required
+                      and l.state == 'done')
+        real_moves = produced_moves.filtered(
+            lambda l: not l.scrapped)
+        real_qty = sum(real_moves.mapped('product_uom_qty'))
+        real_valuation = sum(real_moves.mapped('quant_ids').mapped('inventory_value'))
+        discrepancy_qty = real_qty - p.product_qty
+        scrapped_moves = produced_moves.filtered(
+            lambda l: l.scrapped)
+        scrapped_qty = sum(scrapped_moves.mapped('product_uom_qty'))
+        scrapped_valuation = sum(scrapped_moves.mapped(
+            'quant_ids').mapped('inventory_value'))
+
+        vals = [
+            wh,
+            p.name,
+            p.bom_id.code or '',
+            p.state,
+            p.date_planned or None,
+            p.create_date or None,
+            p.date_start or None,
+            p.date_finished or None,
+            required.default_code or '',
+            required.name or '',
+            p.product_uom.name,
+            p.product_qty,
+            real_qty
+        ]
+
+        if self.valuation:
+            vals.extend([real_valuation])
+
+        vals.extend([
+            discrepancy_qty,
+            scrapped_qty,
+        ])
+
+        if self.valuation:
+            vals.extend([scrapped_valuation])
+
+        vals.extend([
+            r_uom.name,
+            p.product_uom._compute_qty(p_uom.id, p.product_qty, r_uom.id),
+            ref_uom.name,
+            p.product_uom._compute_qty(p_uom.id, p.product_qty, ref_uom.id),
+        ])
+
+        for raw in raw_products:
+            # # Si usamos line = vals se actualiza vals en cada línea.
+            line = []
+            line.extend(vals)
+
+            # Reiniciamos los valores
+            raw_real_qty = raw_scrapped_qty = 0
+            raw_discrepancy_qty = raw_standard_qty = 0
+            raw_standard_qty = sum(planned.filtered(
+                lambda l: l.product_id == raw).mapped('product_qty'))
+            raw_move_lines = raw_moves.filtered(
+                lambda l: l.product_id == raw and l.state == 'done')
+            raw_real_moves = raw_move_lines.filtered(
+                lambda l: not l.scrapped)
+            raw_real_qty = sum(raw_real_moves.mapped('product_uom_qty'))
+            raw_real_valuation = sum(raw_real_moves.mapped(
+                'quant_ids').mapped('inventory_value'))
+            raw_scrapped_moves = raw_move_lines.filtered(
+                lambda l: l.scrapped)
+
+            raw_scrapped_qty = abs(sum(raw_scrapped_moves.mapped('product_uom_qty')))
+            raw_scrapped_valuation = sum(raw_scrapped_moves.mapped(
+                'quant_ids').mapped('inventory_value'))
+
+            raw_discrepancy_qty = raw_real_qty - raw_standard_qty
+            # Si se incrementa un campo en esta lista es necesario incrementar un espacio en blanco
+            # en la lista de by_products.
+            line.extend([
+                raw.name or '',
+                raw.default_code or '',
+                raw.uom_id.name,
+                raw_standard_qty,
+                raw_real_qty
+            ])
+            if self.valuation:
+                line.extend([raw_real_valuation])
+
+            line.extend([
+                raw_scrapped_qty
+            ])
+
+            if self.valuation:
+                line.extend([raw_scrapped_valuation])
+
+            line.extend([
+                raw_discrepancy_qty
+            ])
+            if self.valuation:
+                line.extend([raw_discrepancy_qty * raw.standard_price])
+            lines.append(line)
+
+        for by in by_products:
+            # Si usamos line = vals se actualiza vals en cada línea.
+            line = []
+            line.extend(vals)
+
+            by_line = p.bom_id.sub_products.filtered(lambda l: l.product_id == by)
+            if len(by_line) > 1:
+                raise UserError(
+                    _('La lista de Materiales para el Producto {}, tiene inconsistencias con el sub producto {}'.format(
+                        p.bom_id.name_get()[0][1], by.name_get()[0][1])))
+
+            by_standard_qty = by_line.product_qty
+            if by_line.subproduct_type == 'variable':
+                uom_qty = p.product_uom._compute_qty(
+                    p.product_uom.id, p.product_qty, p.bom_id.product_uom.id)
+                uom_factor = uom_qty / (p.bom_id.product_qty or 1.0)
+
+                by_standard_qty *= uom_factor
+
+            by_real_moves = finished_moves.filtered(
+                lambda l: l.product_id == by
+                          and not l.scrapped
+                          and l.state == 'done')
+
+            by_real_qty = sum(by_real_moves.mapped('product_uom_qty'))
+            by_real_valuation = sum(by_real_moves.mapped(
+                'quant_ids').mapped('inventory_value'))
+            by_discrepancy_qty = by_real_qty - by_standard_qty
+
+            line.extend([
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                by.name or '',
+                by.default_code or '',
+                by.uom_id.name,
+                by_standard_qty,
+                by_real_qty,
+            ])
+
+            if self.valuation:
+                line.extend([by_real_valuation])
+
+            line.extend([
+                by_discrepancy_qty,
+            ])
+            lines.append(line)
+
+        return lines
+
     @api.multi
     def get_production_report(self):
         production_filter = []
@@ -213,198 +413,11 @@ class BiMrpReportWizard(models.TransientModel):
             ws.append(header)
 
             for p in productions:
-                # Warehouse
-                wh = p.location_src_id.location_id.name
+                new_lines = self.get_production_report_detail(p)
 
-                # product.product
-                required = p.product_id
-
-                # mrp.production.product.line
-                planned = p.product_lines
-
-                # stock.move
-                done = p.move_created_ids2
-                to_do = p.move_created_ids
-                consumed = p.move_lines2
-                to_consume = p.move_lines
-
-                # Raw materials.
-                raw_moves = consumed + to_consume
-                raw_products = raw_moves.mapped('product_id')
-
-                # Finished move lines.
-                finished_moves = done + to_do
-
-                # Byproducts
-                by_products = finished_moves.filtered(
-                    lambda l: l.product_id != required).mapped('product_id')
-
-                # Production uoms
-                p_uom = p.product_uom
-                # Unidad del producto principal required
-                r_uom = required.uom_id
-
-                bom_uom = p.bom_id.product_uom
-                # unidad de medida de referencia.
-                ref_uom = r_uom.search(
-                    [('category_id', '=', r_uom.category_id.id),
-                     ('uom_type', '=', 'reference')
-                     ]
-                )
-                # No procesar el reporte si las unidades de medida son incompatibles.
-                if p_uom.category_id != r_uom.category_id or p_uom.category_id != bom_uom.category_id:
-                    ws.append([p.name, required.name, 'UOM INCOMPATIBLE'])
-                    continue
-
-                produced_moves = finished_moves.filtered(
-                    lambda l: l.product_id == required
-                    and l.state == 'done')
-                real_moves = produced_moves.filtered(
-                    lambda l: not l.scrapped)
-                real_qty = sum(real_moves.mapped('product_uom_qty'))
-                real_valuation = sum(real_moves.mapped('quant_ids').mapped('inventory_value'))
-                discrepancy_qty = real_qty - p.product_qty
-                scrapped_moves = produced_moves.filtered(
-                    lambda l: l.scrapped)
-                scrapped_qty = sum(scrapped_moves.mapped('product_uom_qty'))
-                scrapped_valuation = sum(scrapped_moves.mapped(
-                    'quant_ids').mapped('inventory_value'))
-
-                vals = [
-                    wh,
-                    p.name,
-                    p.bom_id.code or '',
-                    p.state,
-                    p.date_planned or None,
-                    p.create_date or None,
-                    p.date_start or None,
-                    p.date_finished or None,
-                    required.default_code or '',
-                    required.name or '',
-                    p.product_uom.name,
-                    p.product_qty,
-                    real_qty
-                ]
-
-                if self.valuation:
-                    vals.extend([real_valuation])
-
-                vals.extend([
-                    discrepancy_qty,
-                    scrapped_qty,
-                ])
-
-                if self.valuation:
-                    vals.extend([scrapped_valuation])
-
-                vals.extend([
-                    r_uom.name,
-                    p.product_uom._compute_qty(p_uom.id, p.product_qty, r_uom.id),
-                    ref_uom.name,
-                    p.product_uom._compute_qty(p_uom.id, p.product_qty, ref_uom.id),
-                ])
-
-                for raw in raw_products:
-                    # # Si usamos line = vals se actualiza vals en cada línea.
-                    line = []
-                    line.extend(vals)
-
-                    # Reiniciamos los valores
-                    raw_real_qty = raw_scrapped_qty = 0
-                    raw_discrepancy_qty = raw_standard_qty = 0
-                    raw_standard_qty = sum(planned.filtered(
-                        lambda l: l.product_id == raw).mapped('product_qty'))
-                    raw_move_lines = raw_moves.filtered(
-                        lambda l: l.product_id == raw and l.state == 'done')
-                    raw_real_moves = raw_move_lines.filtered(
-                        lambda l: not l.scrapped)
-                    raw_real_qty = sum(raw_real_moves.mapped('product_uom_qty'))
-                    raw_real_valuation = sum(raw_real_moves.mapped(
-                        'quant_ids').mapped('inventory_value'))
-                    raw_scrapped_moves = raw_move_lines.filtered(
-                        lambda l: l.scrapped)
-
-                    raw_scrapped_qty = abs(sum(raw_scrapped_moves.mapped('product_uom_qty')))
-                    raw_scrapped_valuation = sum(raw_scrapped_moves.mapped(
-                        'quant_ids').mapped('inventory_value'))
-
-                    raw_discrepancy_qty = raw_real_qty - raw_standard_qty
-                    # Si se incrementa un campo en esta lista es necesario incrementar un espacio en blanco
-                    # en la lista de by_products.
-                    line.extend([
-                        raw.name or '',
-                        raw.default_code or '',
-                        raw.uom_id.name,
-                        raw_standard_qty,
-                        raw_real_qty
-                    ])
-                    if self.valuation:
-                        line.extend([raw_real_valuation])
-
-                    line.extend([
-                        raw_scrapped_qty
-                    ])
-
-                    if self.valuation:
-                        line.extend([raw_scrapped_valuation])
-
-                    line.extend([
-                        raw_discrepancy_qty
-                    ])
-                    if self.valuation:
-                        line.extend([raw_discrepancy_qty * raw.standard_price])
+                for line in new_lines:
                     ws.append(line)
 
-                for by in by_products:
-                    # Si usamos line = vals se actualiza vals en cada línea.
-                    line = []
-                    line.extend(vals)
-
-                    by_line = p.bom_id.sub_products.filtered(lambda l: l.product_id == by)
-                    if len(by_line) > 1:
-                        raise UserError(
-                            _('La lista de Materiales para el Producto {}, tiene inconsistencias con el sub producto {}'.format(p.bom_id.name_get()[0][1], by.name_get()[0][1])))
-
-                    by_standard_qty = by_line.product_qty
-                    if by_line.subproduct_type == 'variable':
-                        uom_qty = p.product_uom._compute_qty(
-                            p.product_uom.id, p.product_qty, p.bom_id.product_uom.id)
-                        uom_factor = uom_qty / (p.bom_id.product_qty or 1.0)
-
-                        by_standard_qty *= uom_factor
-
-                    by_real_moves = finished_moves.filtered(
-                        lambda l: l.product_id == by
-                        and not l.scrapped
-                        and l.state == 'done')
-
-                    by_real_qty = sum(by_real_moves.mapped('product_uom_qty'))
-                    by_real_valuation = sum(by_real_moves.mapped(
-                        'quant_ids').mapped('inventory_value'))
-                    by_discrepancy_qty = by_real_qty - by_standard_qty
-
-                    line.extend([
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        '',
-                        by.name or '',
-                        by.default_code or '',
-                        by.uom_id.name,
-                        by_standard_qty,
-                        by_real_qty,
-                    ])
-
-                    if self.valuation:
-                        line.extend([by_real_valuation])
-
-                    line.extend([
-                        by_discrepancy_qty,
-                    ])
-                    ws.append(line)
         elif self.type == 'consumption':
             header = [
                 _(u'CODIGO'),
