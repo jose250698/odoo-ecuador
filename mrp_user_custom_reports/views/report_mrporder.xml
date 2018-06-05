@@ -58,12 +58,7 @@
                                 <!--<th class="text-right" t-if="o.move_lines2"><strong>Planned</strong></th>-->
                                 <th class="text-right" t-if="o.move_lines2"><strong>Produced</strong></th>
                                 <th class="text-right" t-if="o.move_lines2"><strong>Difference</strong></th>
-                                <th class="text-center" groups="stock.group_locations">
-                                    <strong>Source Location</strong>
-                                </th>
-                                <th class="text-center" groups="stock.group_locations">
-                                    <strong>Destination Location</strong>
-                                </th>
+                                <th class="text-right" t-if="o.move_lines2"><strong>Scrap</strong></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,6 +82,10 @@
                                     </td>
                                     <td class="text-right">
                                         <span t-esc="line2['diff_qty']"/>
+                                        <span t-esc="line2['uom_name']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="line2['scrap_qty']"/>
                                         <span t-esc="line2['uom_name']"/>
                                     </td>
                                 </tr>

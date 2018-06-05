@@ -6,36 +6,54 @@ from openerp import api, models
 class ReportMRPOrder(models.AbstractModel):
     _name = 'report.mrp_user_custom_reports.report_mrporder'
 
+    _inherit = 'bi.mrp.report.wizard'
+
+    @api.multi
     def get_resume_lines(self, mporder):
         lines = []
         if not (mporder is None):
-            for li in mporder.product_lines:
-                line = {
-                    'product_id': li.product_id.id,
-                    'product_name': li.product_id.name,
-                    'uom_name': li.product_uom.name,
-                    'planned_qty': li.product_qty,
-                    'product_uom_qty': 0.0,
-                    'diff_qty': 0.0
-                }
-                by_products = mporder.move_lines.filtered(
-                    lambda l: l.product_id == li.product_id)
 
-                if len(by_products) > 0:
-                    for li2 in by_products:
-                        line['diff_qty'] += li2.product_uom_qty
+            mp_production_lines, mp_positions = self.get_production_report_detail(mporder, False)
 
-                    line['product_uom_qty'] = line['planned_qty'] - line['diff_qty']
-                else:
-                    by_products = mporder.move_lines2.filtered(
-                        lambda l: l.product_id != li.product_id)
+            for li in mp_production_lines:
+                lines.append({
+                    # 'product_id': li.product_id.id,
+                    'product_name': li[mp_positions['mp_name']],
+                    'product_code': li[mp_positions['mp_code']],
+                    'uom_name': li[mp_positions['mp_uom_name']],
+                    'planned_qty': li[mp_positions['mp_planificada']],
+                    'product_uom_qty': li[mp_positions['mp_consumida']],
+                    'diff_qty': li[mp_positions['mp_diferencia']],
+                    'scrap_qty': li[mp_positions['mp_desechada']]
+                });
 
-                    for li2 in by_products:
-                        line['diff_product_uom_qtyqty'] += li2.product_uom_qty
-
-                    line['diff_qty'] = line['planned_qty'] - line['product_uom_qty']
-
-                lines.append(line);
+            # for li in mporder.product_lines:
+            #     line = {
+            #         'product_id': li.product_id.id,
+            #         'product_name': li.product_id.name,
+            #         'uom_name': li.product_uom.name,
+            #         'planned_qty': li.product_qty,
+            #         'product_uom_qty': 0.0,
+            #         'diff_qty': 0.0
+            #     }
+            #     by_products = mporder.move_lines.filtered(
+            #         lambda l: l.product_id == li.product_id)
+            #
+            #     if len(by_products) > 0:
+            #         for li2 in by_products:
+            #             line['diff_qty'] += li2.product_uom_qty
+            #
+            #         line['product_uom_qty'] = line['planned_qty'] - line['diff_qty']
+            #     else:
+            #         by_products = mporder.move_lines2.filtered(
+            #             lambda l: l.product_id != li.product_id)
+            #
+            #         for li2 in by_products:
+            #             line['product_uom_qty'] += li2.product_uom_qty
+            #
+            #         line['diff_qty'] = line['planned_qty'] - line['product_uom_qty']
+            #
+            #     lines.append(line);
         return lines;
 
     @api.multi
