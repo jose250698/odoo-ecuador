@@ -74,9 +74,15 @@ class BiMrpReportWizard(models.TransientModel):
     date_from = fields.Datetime(string='Date from', )
     date_to = fields.Datetime(string='Date to', )
 
-    @api.model
-    def get_production_report_detail(self, p):
+    @api.multi
+    def get_production_report_detail(self, p, valuation):
         lines = []
+
+        # Por defecto el campo 'valuation' es false. Tomando esto como base, la variable 'dict_properties_positions'
+        # presupondrá una posición para cada campo, pero en caso de que el campo 'valuation' sea modificado, se va
+        # a usar esta variable (sumar_posicion) para sumar la cantidad de campos que se ubicaron antes
+        sumar_posicion = 0
+        dict_properties_positions = {}
 
         # Warehouse
         wh = p.location_src_id.location_id.name
@@ -151,16 +157,18 @@ class BiMrpReportWizard(models.TransientModel):
             real_qty
         ]
 
-        if self.valuation:
+        if valuation:
             vals.extend([real_valuation])
+            sumar_posicion += 1
 
         vals.extend([
             discrepancy_qty,
             scrapped_qty,
         ])
 
-        if self.valuation:
+        if valuation:
             vals.extend([scrapped_valuation])
+            sumar_posicion += 1
 
         vals.extend([
             r_uom.name,
@@ -168,6 +176,17 @@ class BiMrpReportWizard(models.TransientModel):
             ref_uom.name,
             p.product_uom._compute_qty(p_uom.id, p.product_qty, ref_uom.id),
         ])
+
+
+        dict_properties_positions = {
+            'mp_name': 19 + sumar_posicion,
+            'mp_code': 20 + sumar_posicion,
+            'mp_uom_name': 21 + sumar_posicion,
+            'mp_planificada': 22 + sumar_posicion,
+            'mp_consumida': 23 + sumar_posicion,
+            'mp_desechada': 24 + sumar_posicion,
+            'mp_diferencia': 25 + sumar_posicion
+        }
 
         for raw in raw_products:
             # # Si usamos line = vals se actualiza vals en cada línea.
@@ -203,20 +222,20 @@ class BiMrpReportWizard(models.TransientModel):
                 raw_standard_qty,
                 raw_real_qty
             ])
-            if self.valuation:
+            if valuation:
                 line.extend([raw_real_valuation])
 
             line.extend([
                 raw_scrapped_qty
             ])
 
-            if self.valuation:
+            if valuation:
                 line.extend([raw_scrapped_valuation])
 
             line.extend([
                 raw_discrepancy_qty
             ])
-            if self.valuation:
+            if valuation:
                 line.extend([raw_discrepancy_qty * raw.standard_price])
             lines.append(line)
 
@@ -264,7 +283,7 @@ class BiMrpReportWizard(models.TransientModel):
                 by_real_qty,
             ])
 
-            if self.valuation:
+            if valuation:
                 line.extend([by_real_valuation])
 
             line.extend([
@@ -272,7 +291,7 @@ class BiMrpReportWizard(models.TransientModel):
             ])
             lines.append(line)
 
-        return lines
+        return lines, dict_properties_positions
 
     @api.multi
     def get_production_report(self):
@@ -413,7 +432,7 @@ class BiMrpReportWizard(models.TransientModel):
             ws.append(header)
 
             for p in productions:
-                new_lines = self.get_production_report_detail(p)
+                new_lines = self.get_production_report_detail(p, self.valuation)
 
                 for line in new_lines:
                     ws.append(line)
