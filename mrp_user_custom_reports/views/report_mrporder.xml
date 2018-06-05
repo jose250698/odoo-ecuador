@@ -50,7 +50,7 @@
                         </div>
                     </div>
 
-                    <table class="table table-condensed" t-if="o.move_lines or o.move_lines2">
+                    <table class="table table-condensed" t-if="resume_lines or subproduct_lines">
                         <thead>
                             <tr>
                                 <th><strong>Product</strong></th>
@@ -86,6 +86,30 @@
                                     </td>
                                     <td class="text-right">
                                         <span t-esc="line2['scrap_qty']"/>
+                                        <span t-esc="line2['uom_name']"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <t t-if="subproduct_lines">
+                                <tr>
+                                    <td colspan="4"><strong>Sub-Products</strong></td>
+                                </tr>
+                                <tr t-foreach="subproduct_lines" t-as="line2">
+                                    <td>
+                                        <!--<span t-field="line2.product_code"/>-->
+                                        <span t-esc="line2['product_name']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="line2['planned_qty']"/>
+                                        <span t-esc="line2['uom_name']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="line2['product_uom_qty']"/>
+                                        <span t-esc="line2['uom_name']"/>
+                                    </td>
+                                    <td class="text-right">
+                                        <span t-esc="line2['diff_qty']"/>
                                         <span t-esc="line2['uom_name']"/>
                                     </td>
                                 </tr>

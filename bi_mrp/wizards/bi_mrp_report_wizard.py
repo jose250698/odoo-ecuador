@@ -82,6 +82,7 @@ class BiMrpReportWizard(models.TransientModel):
         # presupondrá una posición para cada campo, pero en caso de que el campo 'valuation' sea modificado, se va
         # a usar esta variable (sumar_posicion) para sumar la cantidad de campos que se ubicaron antes
         sumar_posicion = 0
+        sumar_posicion_para_scrap = 0
         dict_properties_positions = {}
 
         # Warehouse
@@ -216,7 +217,7 @@ class BiMrpReportWizard(models.TransientModel):
             # Si se incrementa un campo en esta lista es necesario incrementar un espacio en blanco
             # en la lista de by_products.
             line.extend([
-                raw.name or '',
+                raw.name or '',# position 19 in the line
                 raw.default_code or '',
                 raw.uom_id.name,
                 raw_standard_qty,
@@ -224,6 +225,9 @@ class BiMrpReportWizard(models.TransientModel):
             ])
             if valuation:
                 line.extend([raw_real_valuation])
+                sumar_posicion_para_scrap = sumar_posicion + 1
+
+            dict_properties_positions['mp_desechada'] = 24 + sumar_posicion_para_scrap
 
             line.extend([
                 raw_scrapped_qty
@@ -231,13 +235,25 @@ class BiMrpReportWizard(models.TransientModel):
 
             if valuation:
                 line.extend([raw_scrapped_valuation])
+                sumar_posicion_para_scrap = sumar_posicion + 2
 
+            dict_properties_positions['mp_diferencia'] = 25 + sumar_posicion_para_scrap
             line.extend([
                 raw_discrepancy_qty
             ])
             if valuation:
                 line.extend([raw_discrepancy_qty * raw.standard_price])
             lines.append(line)
+
+        if valuation:
+            sumar_posicion += 3
+
+        dict_properties_positions['subproducto_nombre'] = 26 + sumar_posicion
+        dict_properties_positions['subproducto_codigo'] = 27 + sumar_posicion
+        dict_properties_positions['subproducto_uom'] = 28 + sumar_posicion
+        dict_properties_positions['subproducto_plan'] = 29 + sumar_posicion
+        dict_properties_positions['subproducto_real'] = 30 + sumar_posicion
+        dict_properties_positions['subproducto_diff'] = 31 + sumar_posicion
 
         for by in by_products:
             # Si usamos line = vals se actualiza vals en cada línea.
@@ -276,7 +292,7 @@ class BiMrpReportWizard(models.TransientModel):
                 '',
                 '',
                 '',
-                by.name or '',
+                by.name or '',# position 26 in the line
                 by.default_code or '',
                 by.uom_id.name,
                 by_standard_qty,
