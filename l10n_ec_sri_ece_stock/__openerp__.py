@@ -17,7 +17,6 @@
         'base_mail_custom_attachment',
     ],
     'data': [
-        'data/stock_action_data.xml',
         'views/res_company.xml',
         'views/res_users.xml',
         'views/delivery.xml',
@@ -25,6 +24,7 @@
         'views/stock_picking.xml',
         'views/stock_picking_report.xml',
         'security/ir.model.access.csv',
+        'data/stock_action_data.xml',
     ],
     'demo': [],
     'test': [],
