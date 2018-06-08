@@ -12,7 +12,7 @@ chrome.Chrome
     chrome.Chrome.include({
         mostrar_menu_autorizacion: function(){
             var self = this;
-            self.pos.gui.show_popup('selection',{
+            self.pos.gui.show_popup('sri_pos_selection',{
                    title: _t('Authorization'),
                    list: self.get_authorization_options(self),
                    confirm: function(item) {
