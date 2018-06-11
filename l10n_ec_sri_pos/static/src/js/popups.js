@@ -10,16 +10,6 @@ odoo.define('l10n_ec_pos_sri.popups', function (require) {
             this._super(parent, args);
             this.options = {};
         },
-        events: {
-            'click .button.cancel':  'click_cancel',
-            'click .button.confirm': 'click_confirm',
-            'click .selection-item': 'click_item',
-            'click .button.sri_pos_confirm': 'click_sri_pos_confirm',
-        },
-        click_sri_pos_confirm: function(options){
-            console.log('FUNCION: click_sri_pos_confirm');
-            console.log('CONFIRMANDO LOS CAMBIOS...');
-        },
         show: function(options){
             options = options || {};
             var self = this;

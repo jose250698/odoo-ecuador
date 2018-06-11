@@ -1,34 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates id="template" xml:space="preserve">
 
-
-    <!--<t t-extend="SelectionPopupWidget">-->
-        <!--<t t-jquery="div[class='button cancel']" t-operation="after">-->
-            <!--<div class="button">-->
-                <!--Ok-->
-            <!--</div>-->
-        <!--</t>-->
-    <!--</t>-->
-
-    <!--
-    <t t-name="TextInputPopupWidget">
-        <div class="modal-dialog">
-            <div class="popup popup-textinput">
-                <p class="title"><t t-esc=" widget.options.title || '' " /></p>
-                <input type='text' t-att-value="widget.options.value || ''"></input>
-                <div class="footer">
-                    <div class="button confirm">
-                        Ok
-                    </div>
-                    <div class="button cancel">
-                        Cancel
-                    </div>
-                </div>
-            </div>
-        </div>
-    </t>
-    -->
-
     <t t-name="SRIPosSelectionPopupWidget">
         <div class="modal-dialog">
             <div class="popup popup-selection">
@@ -42,9 +14,6 @@
                 </div>
                 <div class="footer">
                     <div class="button cancel">
-                        Cancel
-                    </div>
-                    <div class="button sri_pos_confirm">
                         Ok
                     </div>
                 </div>
