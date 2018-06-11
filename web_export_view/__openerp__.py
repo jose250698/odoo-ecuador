@@ -12,6 +12,7 @@
     'license': 'AGPL-3',
     'depends': [
         'web',
+        'web_restrict_export'
     ],
     'data': [
         'view/web_export_view.xml',

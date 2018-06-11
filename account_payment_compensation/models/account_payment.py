@@ -24,17 +24,18 @@ class AccountPayment(models.Model):
                 return
             journal = self.journal_id
             if journal.default_credit_account_id != journal.default_credit_account_id:
-                raise UserError(_("Debit and credit account must be equal for payment compensation"))
+                raise UserError(_(
+                    "Debit and credit account must be equal for payment compensation"))
             r.compensation_account_id = journal.default_credit_account_id
 
     @api.multi
     def post(self):
-        res = super(AccountPayment, self).post()
         for rec in self:
+            res = super(AccountPayment, self).post()
             moves = rec.compensation_ids
             moves += rec.move_line_ids.filtered(lambda m: m.account_id == rec.compensation_account_id)
             moves.reconcile()
-        return res
+            return res
 
 
 class AccountRegisterPayments(models.Model):

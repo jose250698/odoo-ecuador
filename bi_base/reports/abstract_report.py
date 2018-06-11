@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import base64
+import logging
 from cStringIO import StringIO
 
-import logging
+from openerp import _, api, fields, models
+from openerp.exceptions import UserError
+
 _logger = logging.getLogger(__name__)
 
-from openerp import models, fields, api, _
-from openerp.exceptions import UserError
 
 try:
     import openpyxl
@@ -26,10 +27,8 @@ class BiAbstractReport(models.AbstractModel):
         required=True,
         default=fields.Datetime.now(), )
 
-
     @api.multi
     def get_report_data(self):
-
         """
         return: diccionario con:
         data = {
@@ -81,4 +80,3 @@ class BiAbstractReport(models.AbstractModel):
             'target': 'new',
             'context': self._context,
         }
-

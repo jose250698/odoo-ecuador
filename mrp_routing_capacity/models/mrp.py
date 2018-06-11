@@ -56,6 +56,9 @@ class MrpBom(models.Model):
         capacity_lines = capacity_lines.filtered(lambda x: x.product_uom_id.category_id == bom_uom_categ)
 
         # Search for lines matching the product.
+        for line in capacity_lines:
+            print product, self.product_id, line.product_tmpl_ids, line.product_ids, line.product_category_ids
+
         if product:
             capacity = capacity_lines.filtered(lambda line: product in line.product_ids)
 

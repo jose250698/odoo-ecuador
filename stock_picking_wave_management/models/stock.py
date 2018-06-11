@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
 import openerp.addons.decimal_precision as dp
+from openerp import api, fields, models
 
 
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
-    procurement_ok = fields.Boolean('Procurement processed', )
+    procurement_ok = fields.Boolean('Procurement processed', copy=False)
 
     # as wave_id is refered to the pickings to supply
     procurement_wave_id = fields.Many2one(
-        'stock.picking.wave', 'Picking Wave', )
+        'stock.picking.wave', 'Picking Wave', copy=False)
 
 
 class MrpProduction(models.Model):
@@ -66,7 +66,7 @@ class ProcurementOrder(models.Model):
             active_id = self._context.get('active_id', False)
             wave = self.env['stock.picking.wave'].browse(active_id)
             return wave
-    
+
     wave_id = fields.Many2one(
         'stock.picking.wave', 'Picking Wave', default=default_wave_id, )
 
@@ -100,7 +100,8 @@ class StockPickingWave(models.Model):
         copy=False, )
 
     procurement_ids = fields.One2many('procurement.order', 'wave_id', string='Procurements', )
-    make_procurement_ids = fields.One2many('make.procurement', 'wave_id', string='Make Procurement', )
+    make_procurement_ids = fields.One2many(
+        'make.procurement', 'wave_id', string='Make Procurement', )
 
     warehouse_id = fields.Many2one('stock.warehouse', 'Warehouse', required=True, )
     date_planned = fields.Datetime('Date planned', default=lambda self: fields.datetime.now(), )
@@ -151,43 +152,43 @@ class StockPickingWave(models.Model):
 
     @api.multi
     def supply_production_orders(self, target=''):
-            productions = self.procurement_production_ids.filtered(lambda x: x.state == 'confirmed')
-            if target == 'raw':
-                productions = productions.filtered(lambda x: not x.raw_ok)
-            elif target == 'semifinished':
-                productions = productions.filtered(lambda x: not x.semifihished_ok)
+        productions = self.procurement_production_ids.filtered(lambda x: x.state == 'confirmed')
+        if target == 'raw':
+            productions = productions.filtered(lambda x: not x.raw_ok)
+        elif target == 'semifinished':
+            productions = productions.filtered(lambda x: not x.semifinished_ok)
 
-            products = {}
-            for p in productions:
-                check_loc = p.location_src_id
-                wh = check_loc.get_warehouse(check_loc)
-                moves = p.mapped('move_lines')
-                if target == '':
+        products = {}
+        for p in productions:
+            check_loc = p.location_src_id
+            wh = check_loc.get_warehouse(check_loc)
+            moves = p.mapped('move_lines')
+            if target == '':
+                p.write({
+                    'raw_ok': True,
+                    'semifinished_ok': True,
+                })
+            else:
+                raw, semifinished = self._separate_raw_and_semifinished(moves)
+                if target == 'raw':
+                    moves = raw
                     p.write({
                         'raw_ok': True,
+                    })
+                elif target == 'semifinished':
+                    moves = semifinished
+                    p.write({
                         'semifinished_ok': True,
                     })
+
+            for m in moves:
+                key, product = self.get_move_dict(m, wh)
+
+                if key not in products:
+                    products[key] = product
                 else:
-                    raw, semifinished = self._separate_raw_and_semifinished(moves)
-                    if target == 'raw':
-                        moves = raw
-                        p.write({
-                            'raw_ok': True,
-                        })
-                    elif target == 'semifinished':
-                        moves = semifinished
-                        p.write({
-                            'semifinished_ok': True,
-                        })
-
-                for m in moves:
-                    key, product = self.get_move_dict(m, wh)
-
-                    if key not in products:
-                        products[key] = product
-                    else:
-                        products[key]['product_uom_qty'] += product['product_uom_qty']
-            self.create_procurements(products)
+                    products[key]['product_uom_qty'] += product['product_uom_qty']
+        self.create_procurements(products)
 
     @api.multi
     def _separate_raw_and_semifinished(self, moves):
@@ -245,13 +246,24 @@ class StockPickingWave(models.Model):
         }
         return key, product
 
-
     def create_procurements(self, products):
+        quant_obj = self.env['stock.quant']
+        prod_obj = self.env['product.product']
         procurements = []
         for product in products.values():
+            prod_data = prod_obj.browse([product['product_id']])
+            qty = product['product_uom_qty']
+            if prod_data.mapped('mrp_mts_mto_location_ids'):
+                location_ids = prod_data.mapped('mrp_mts_mto_location_ids').mapped('id')
+                quant_data = quant_obj.search(
+                    [('product_id', '=', prod_data.id),
+                     ('location_id', 'in', location_ids),
+                     ('reservation_id', '=', False)])
+                quant = sum([x.qty for x in quant_data]) if len(quant_data) > 0 else 0.00
+                qty -= quant
             procurements.append({
                 'wave_id': self.id,
-                'qty': product['product_uom_qty'],
+                'qty': qty,
                 'product_id': product['product_id'],
                 'product_tmpl_id': product['product_tmpl_id'],
                 'product_variant_count': product['product_variant_count'],

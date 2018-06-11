@@ -2,8 +2,8 @@
 # Copyright 2017 Eficent Business and IT Consulting Services S.L.
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import api, fields, models, _
 import openerp.addons.decimal_precision as dp
+from openerp import _, api, fields, models
 from openerp.exceptions import UserError
 
 
@@ -72,6 +72,7 @@ class MrpProductionRequest(models.Model):
                 lambda mo: mo.state in valid_states).mapped('product_qty')
             req.manufactured_qty = sum(valid_mo)
             req.pending_qty = max(req.product_qty - req.manufactured_qty, 0.0)
+            req.progress = (sum(done_mo) * 100) / req.product_qty if req.product_qty else 0
 
     name = fields.Char(
         default="/", required=True,
@@ -145,6 +146,9 @@ class MrpProductionRequest(models.Model):
         readonly=True,
         help="Quantity pending to add to Manufacturing Orders "
              "to fulfill the Manufacturing Request requirement.")
+    progress = fields.Float('Progress', compute=_compute_manufactured_qty,
+                            store=True, digits_compute=dp.get_precision('Product Unit of Measure'),
+                            readonly=True,)
     bom_id = fields.Many2one(
         comodel_name="mrp.bom", string="Bill of Materials", required=True,
         readonly=True, states={'draft': [('readonly', False)]})

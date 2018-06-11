@@ -36,7 +36,7 @@ class res_partner(osv.osv):
             partner['property_account_payable_id'] = receivable
             partner['property_account_receivable_id'] = payable
             partner['property_account_position_id'] = int(property_account_id)
-            partner['do_check_vat_ec'] = False
+            partner['do_check_vat'] = False
 
         partner_id = partner.pop('id', False)
         if partner_id:  # Modifying existing partner
@@ -46,37 +46,37 @@ class res_partner(osv.osv):
 
         return partner_id
 
-    def sri_check_vat_ec_from_ui_pos(self, cr, uid, partner, context=None):
+    def sri_check_vat_from_ui_pos(self, cr, uid, partner, context=None):
         log_error = False
 
         if partner.get('property_account_position_id', False):
             property_account_id = partner.get('property_account_position_id', False)
             fiscal = self.pool.get('account.fiscal.position').browse(cr, uid, [int(property_account_id)],
                                                                      context=context)
-            partner['do_check_vat_ec'] = True
+            partner['do_check_vat'] = True
 
-        if partner['do_check_vat_ec']:
+        if partner['do_check_vat']:
 
             persona = fiscal.persona_id.code
             identificacion = fiscal.identificacion_id.code
-            if partner['vat_ec'] and fiscal:
+            if partner['vat'] and fiscal:
                 try:
                     if identificacion == 'R':
                         # Verificación de tipo de contribuyente
-                        if persona == '6' and partner['vat_ec'][2:3] < '6':
+                        if persona == '6' and partner['vat'][2:3] < '6':
                             pass
-                        elif persona == '9' and partner['vat_ec'][2:3] == '6' and fiscal.es_publica:
+                        elif persona == '9' and partner['vat'][2:3] == '6' and fiscal.es_publica:
                             pass
-                        elif persona == '9' and partner['vat_ec'][2:3] == '9' and not fiscal.es_publica:
+                        elif persona == '9' and partner['vat'][2:3] == '9' and not fiscal.es_publica:
                             pass
                         else:
                             return (_("El numero de R.U.C. o C.I. no concuerda con el tipo de "
                                               "contribuyente, por favor verifique que el numero sea correcto "
                                               "en la página www.sri.gob.ec"))
                         # Verificación del documento
-                        ruc.validate(partner['vat_ec'])
+                        ruc.validate(partner['vat'])
                     elif identificacion == 'C':
-                        ci.validate(partner['vat_ec'])
+                        ci.validate(partner['vat'])
                 except InvalidChecksum:
                     return (_("El numero de R.U.C. o C.I. no concuerda con el proceso de validacion "
                                       "del S.R.I., por favor verifique que el numero sea correcto en la "
@@ -104,29 +104,29 @@ class res_partner(osv.osv):
         else:
             return log_error
 
-    # def check_vat_ec_from_ui(self, cr, uid, property_account_position_id, vat_ec, context=None):
+    # def check_vat_from_ui(self, cr, uid, property_account_position_id, vat, context=None):
     #     fiscal = self.pool.get('account.fiscal.position').browse(cr, uid, [int(property_account_position_id)],
     #                                                              context=context)
     #     persona = fiscal.persona_id.code
     #     identificacion = fiscal.identificacion_id.code
-    #     if vat_ec and fiscal:
+    #     if vat and fiscal:
     #         try:
     #             if identificacion == 'R':
     #                 # Verificación de tipo de contribuyente
-    #                 if persona == '6' and vat_ec[2:3] < '6':
+    #                 if persona == '6' and vat[2:3] < '6':
     #                     pass
-    #                 elif persona == '9' and vat_ec[2:3] == '6' and fiscal.es_publica:
+    #                 elif persona == '9' and vat[2:3] == '6' and fiscal.es_publica:
     #                     pass
-    #                 elif persona == '9' and vat_ec[2:3] == '9' and not fiscal.es_publica:
+    #                 elif persona == '9' and vat[2:3] == '9' and not fiscal.es_publica:
     #                     pass
     #                 else:
     #                     return "El numero de R.U.C. o C.I. no concuerda con el tipo de \
     #                     contribuyente, por favor verifique que el numero sea correcto \
     #                     en la página www.sri.gob.ec"
     #                     # Verificación del documento
-    #             ruc.validate(vat_ec)
+    #             ruc.validate(vat)
     #             if identificacion == 'C':
-    #                 ci.validate(vat_ec)
+    #                 ci.validate(vat)
     #         except InvalidChecksum:
     #             return "El numero de R.U.C. o C.I. no concuerda con el proceso de validacion del S.R.I., por favor verifique que el numero sea correcto en la página www.sri.gob.ec"
     #         except InvalidComponent:

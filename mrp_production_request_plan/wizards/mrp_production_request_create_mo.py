@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from dateutil.relativedelta import relativedelta
 
 from openerp import _, api, fields, models
+
+from dateutil.relativedelta import relativedelta
 
 
 class MrpProductionRequestCreateMo(models.TransientModel):

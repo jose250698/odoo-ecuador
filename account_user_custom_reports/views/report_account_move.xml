@@ -91,7 +91,9 @@
                 </tr>
                 <tr>
                     <td style="border: solid black 1px;">
-                        <div style="height: 2em;" />
+                        <div style="height: 2em;">
+                            <span t-esc="doc.create_uid.name.upper()" />
+                        </div>
                     </td>
                     <td style="border: solid black 1px;"/>
                     <td style="border: solid black 1px;"/>

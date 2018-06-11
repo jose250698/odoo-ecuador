@@ -15,9 +15,11 @@ class AccountStatementLineCreate(models.TransientModel):
             'account.bank.statement'].browse(self.env.context['active_id'])
         res.update({
             'due_date': statement.date,
+            'journal_ids': [statement.journal_id.id],
+            'invoice': False,
         })
         return res
-    
+
     @api.multi
     def create_statement_lines(self):
         res = super(AccountStatementLineCreate, self).create_statement_lines()
@@ -28,15 +30,15 @@ class AccountStatementLineCreate(models.TransientModel):
                 counterpart_aml_dicts = []
                 payment_aml_rec = self.env['account.move.line']
                 if aml.account_id.internal_type == 'liquidity':
-                    payment_aml_rec = aml 
+                    payment_aml_rec = aml
                 else:
                     # usamos el amount de la línea puesto que fué creada calculando el residual.
                     amount = line.amount
-                
+
                     counterpart_aml_dicts.append({
                         'name': aml.name if aml.name != '/' else aml.move_id.name,
                         'debit': amount < 0 and -amount or 0,
                         'credit': amount > 0 and amount or 0,
                         'move_line': aml
                     })
-                line.process_reconciliation(counterpart_aml_dicts=counterpart_aml_dicts, payment_aml_rec=payment_aml_rec) 
+                line.process_reconciliation(counterpart_aml_dicts=counterpart_aml_dicts, payment_aml_rec=payment_aml_rec)

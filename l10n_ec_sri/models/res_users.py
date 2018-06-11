@@ -4,12 +4,18 @@
 # Licencia AGPL-v3                                 #
 ####################################################
 
-from openerp import models, fields
+from openerp import fields, models
+
+
 class ResUsers(models.Model):
     _inherit = 'res.users'
 
     # Autorizaciones por usuario.
-    autorizacion_facturas_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion facturas', )
-    autorizacion_notas_credito_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion en notas de crédito', )
-    autorizacion_retenciones_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion en retenciones', )
-
+    autorizacion_facturas_id = fields.Many2one(
+        'l10n_ec_sri.autorizacion', string='Autorizacion facturas', )
+    autorizacion_notas_credito_id = fields.Many2one(
+        'l10n_ec_sri.autorizacion', string='Autorizacion en notas de crédito', )
+    autorizacion_retenciones_id = fields.Many2one(
+        'l10n_ec_sri.autorizacion', string='Autorizacion en retenciones', )
+    # autorizacion_liquidaciones_id = fields.Many2one(
+    #     'l10n_ec_sri.autorizacion', string='Autorizacion en liquidaciones', )

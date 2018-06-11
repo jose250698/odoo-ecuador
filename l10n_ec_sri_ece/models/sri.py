@@ -419,4 +419,6 @@ class SriDocumentosElectronicosQueueLine(models.Model):
     estado = fields.Selection(string='State', related="documento_electronico_id.estado", )
     documento_electronico_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', string='Documento electronico', )
+    reference = fields.Reference(
+        related='documento_electronico_id.reference', string=_('Reference'))
     queue_id = fields.Many2one('l10n_ec_sri.documento.electronico.queue', string='Queue', )

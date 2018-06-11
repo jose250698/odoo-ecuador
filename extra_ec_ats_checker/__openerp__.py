@@ -13,6 +13,7 @@
     ],
     'data': [
         'views/account_invoice.xml',
+        'views/tax_form.xml',
     ],
     'demo': [],
     'test': [],

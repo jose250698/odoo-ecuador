@@ -12,8 +12,8 @@ var PosDB = PosDB.include({
         if(partner.address){
             str += '|' + partner.address;
         }
-        if(partner.vat_ec){
-            str += '|' + partner.vat_ec;
+        if(partner.vat){
+            str += '|' + partner.vat;
         }
         if(partner.phone){
             str += '|' + partner.phone.split(' ').join('');

@@ -28,8 +28,7 @@
                 <xpath expr="//field[@name='partner_id']" position="after">
                     <field name="comprobante_id"
                            domain="[('en_compras','=',True)]"
-                           options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"
-                           attrs="{'readonly':[('move_name','!=',False)]}"/>
+                           options="{'no_create_edit': True, 'no_create': True, 'no_open': True}"/>
                     <field name="comprobante_code" invisible="1"/>
                     <field name="comprobante_aut" invisible="1"/>
                     <field name="autorizacion_id"

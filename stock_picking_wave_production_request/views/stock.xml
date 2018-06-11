@@ -6,13 +6,17 @@
         <field name="inherit_id" ref="stock_picking_wave_management.view_picking_wave_form"/>
         <field name="arch" type="xml">
             <group name="productions" position="before">
-                <group string="Production Request" name="request">
+                <button name="%(plan_production_request)d" string="Generate/Import Plan Request Production" type="action" groups="mrp.group_mrp_manager"/>
+                <group string="Production Request" name="request" colspan="4">
                     <field name="procurement_production_request_ids" nolabel="1">
                         <tree>
                             <field name="name"/>
                             <field name="product_id"/>
                             <field name="requested_by"/>
                             <field name="date_planned"/>
+                            <field name="product_qty"/>
+                            <field name="done_qty"/>
+                            <field name="progress" widget="progressbar"/>
                             <field name="state"/>
                         </tree>
                     </field>

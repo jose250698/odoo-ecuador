@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from openerp import models, fields
 
 
 class ResUsers(models.Model):
@@ -10,7 +10,7 @@ class ResUsers(models.Model):
         'Default sale Document',
     )
 
-    default_c_autorizacion_id = fields.Many2one(
+    default_autorizacion_id = fields.Many2one(
         'l10n_ec_sri.autorizacion',
         'Default sale authorization',
     )

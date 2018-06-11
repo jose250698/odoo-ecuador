@@ -28,13 +28,13 @@ class SriTaxFormSet(models.Model):
     @api.multi
     def get_invoices(self):
         for s in self:
-            # Obtenejos todas las facturas abiertas y pagadas del periodo.
+            # Obtenemos todas las facturas abiertas y pagadas del periodo.
             invoices = self.env['account.invoice'].search([
                 ('state', 'in', ('open', 'paid')),
                 ('date_invoice', ">=", self.date_from),
                 ('date_invoice', '<=', self.date_to),
             ])
-            no_declarado = invoices.filtered(lambda x: x.comprobante_id.code == 'NA')
+            no_declarado = invoices.filtered(lambda x: x.comprobante_id.code in ('NA', False))
             invoices -= no_declarado
 
             out_invoice = invoices.filtered(lambda x: x.type == 'out_invoice')
@@ -86,16 +86,12 @@ class SriTaxFormSet(models.Model):
     in_reembolso_ids = fields.One2many(
         'account.invoice', string='Reembolsos en compras',
         compute='_compute_reembolsos', readonly=True, )
-    out_reembolso_ids = fields.One2many(
-        'account.invoice', string='Reembolsos en ventas',
-        compute='_compute_reembolsos', readonly=True, )
 
     @api.multi
     @api.depends('in_invoice_ids', 'out_invoice_ids')
     def _compute_reembolsos(self):
         for f in self:
             f.in_reembolso_ids = f.in_invoice_ids.mapped("reembolso_ids")
-            f.out_reembolso_ids = f.out_invoice_ids.mapped("reembolso_ids")
 
 
 class SriTaxForm(models.Model):
@@ -140,6 +136,8 @@ class SriTaxForm(models.Model):
     xml_file = fields.Binary('Archivo XML', attachment=True, readonly=True, )
     xml_filename = fields.Char(string="Archivo XML")
 
+    declarar_facturas_electronicas = fields.Boolean(string='Declarar facturas electronicas', )
+
     @api.multi
     def prepare_ats(self):
         """
@@ -152,9 +150,15 @@ class SriTaxForm(models.Model):
 
             # Para generar los datos de ventas
             ventas = form_set.out_invoice_ids
-            devoluciones = form_set.out_refund_ids
-            detalleVentas = []
 
+            if not f.declarar_facturas_electronicas:
+                ventas = ventas.filtered(lambda x: x.tipoem == 'F')
+
+            devoluciones = form_set.out_refund_ids
+            if not f.declarar_facturas_electronicas:
+                devoluciones = devoluciones.filtered(lambda x: x.tipoem == 'F')
+
+            detalleVentas = []
             establecimientos = set((ventas + devoluciones).mapped('establecimiento'))
             establecimientos = establecimientos - set(['999', False])
             ventaEst = []
@@ -171,7 +175,7 @@ class SriTaxForm(models.Model):
                 ]))
 
             totalVentas = sum(float(v['ventasEstab']) for v in ventaEst)
-            numEstabRuc = len(ventaEst)
+            numEstabRuc = str(len(ventaEst)).zfill(3)
 
             partners = (ventas + devoluciones).mapped('partner_id')
 
@@ -197,14 +201,25 @@ class SriTaxForm(models.Model):
                 if not formaPago:
                     formaPago.append(p.formapago_id.code or '01')
 
+                tpidcliente = identificacion.tpidcliente
                 vals = OrderedDict([
-                    ('tpIdCliente', identificacion.tpidcliente),
+                    ('tpIdCliente', tpidcliente),
                     ('idCliente', p.vat),
-                    ('parteRel', p.parterel and 'SI' or 'NO'),
-                    ('tipoCliente', None),  # TODO
-                    ('DenoCli', inv.normalize_text(p.name)),
+                    ('parteRelVtas', p.parterel and 'SI' or 'NO')
+                ])
+
+                if tpidcliente == '06':
+                    vals.update(OrderedDict([
+                        ('tipoCliente', fiscal.persona_id.tpidprov),
+                        # TODO: consultar las especificaciones de DenoCli en el SRI.
+                        # Denocli es condicional a tpidcliente == 03 pero ese código
+                        # corresponde a compras, por lo que nunca ocurriría.
+                        #('DenoCli', inv.normalize_text(p.name))
+                    ]))
+
+                vals.update(OrderedDict([
                     ('tipoComprobante', '18'),  # En ventas siempre usamos 18
-                    ('tipoEm', 'F'),  # TODO
+                    ('tipoEmision', 'F'),  # Las facturas electrónicas no se declaran.
                     ('numeroComprobantes', len(p_ventas) + len(p_devoluciones)),
                     ('baseNoGraIva', '{:.2f}'.format(
                         sum(t.basenograiva for t in t_ventas) - sum(
@@ -218,8 +233,9 @@ class SriTaxForm(models.Model):
                     ('montoIva', '{:.2f}'.format(
                         sum(t.montoiva for t in t_ventas) - sum(
                             t.montoiva for t in t_devoluciones) or 0.00)),
-                    ('tipoCompe', ''),  # TODO
-                    ('monto', '{:.2f}'.format(0)),  # TODO
+                    # TODO: Tipo y monto de compensaciones, por desarrollar.
+                    #('tipoCompe', ''),
+                    #('monto', '{:.2f}'.format(0)),
                     ('montoIce', '{:.2f}'.format(
                         sum(t.montoice for t in t_ventas) - sum(
                             t.montoice for t in t_devoluciones) or 0.00)),
@@ -229,7 +245,7 @@ class SriTaxForm(models.Model):
                     ('valorRetRenta', '{:.2f}'.format(
                         sum(t.valorretrenta for t in t_ventas) - sum(
                             t.valorretrenta for t in t_devoluciones) or 0.00)),
-                ])
+                ]))
 
                 if formaPago:
                     vals.update([
@@ -251,17 +267,27 @@ class SriTaxForm(models.Model):
             company = self.env.user.company_id
             informante = company.partner_id
             fiscal = informante.property_account_position_id
-
             iva = OrderedDict([
                 ('TipoIDInformante', fiscal.identificacion_id.code),
-                ('Anio', datetime.strptime(date, '%Y-%m-%d').strftime('%Y')),
-                ('Mes', datetime.strptime(date, '%Y-%m-%d').strftime('%m')),
                 ('IdInformante', informante.vat),
                 ('razonSocial', inv.normalize_text(informante.name)),
-                ('numEstabRuc', numEstabRuc),
-                ('totalVentas', totalVentas),
-                ('codigoOperativo', 'IVA'),
+                ('Anio', datetime.strptime(date, '%Y-%m-%d').strftime('%Y')),
+                ('Mes', datetime.strptime(date, '%Y-%m-%d').strftime('%m'))
             ])
+
+            if numEstabRuc != '000':
+                iva.update(OrderedDict([
+                    ('numEstabRuc', numEstabRuc)
+                ]))
+
+            if totalVentas != 0:
+                iva.update(OrderedDict([
+                    ('totalVentas', totalVentas)
+                ]))
+
+            iva.update(OrderedDict([
+                ('codigoOperativo', 'IVA')
+            ]))
 
             # Diccionario de compras
             compras = form_set.in_invoice_ids + form_set.in_refund_ids
@@ -294,13 +320,15 @@ class SriTaxForm(models.Model):
                 ('compras', vals['compras'])
             ])
 
-            data['iva'].update([
-                ('ventas', vals['ventas'])
-            ])
+            if vals['ventas']['detalleVentas']:
+                data['iva'].update([
+                    ('ventas', vals['ventas'])
+                ])
 
-            data['iva'].update([
-                ('ventasEstablecimiento', vals['ventasEstablecimiento'])
-            ])
+            if vals['ventasEstablecimiento']['ventaEst']:
+                data['iva'].update([
+                    ('ventasEstablecimiento', vals['ventasEstablecimiento'])
+                ])
 
             xml_data = decl + xmltodict.unparse(data, pretty=True, full_document=False)
             f.write({'xml_filename': 'ATS.xml',

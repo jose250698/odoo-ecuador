@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api
+from openerp import models, fields
 
 
 class AccountInvoice(models.Model):
@@ -12,22 +12,23 @@ class AccountInvoice(models.Model):
             comprobante = user.default_comprobante_id
             return comprobante
 
-    def _default_c_autorizacion_id(self):
+    def _default_autorizacion_id(self):
         user = self.env.user
-        if user.default_c_autorizacion_id:
-            autorizacion = user.default_c_autorizacion_id
+        if user.default_autorizacion_id:
+            autorizacion = user.default_autorizacion_id
             return autorizacion
 
     def _default_secuencial(self):
         user = self.env.user
         secuencial = ''
-        if user.default_c_autorizacion_id:
-            autorizacion = user.default_c_autorizacion_id
+        if user.default_autorizacion_id:
+            autorizacion = user.default_autorizacion_id
             secuencial = str(autorizacion.secuencia_actual + 1)
             if secuencial <= autorizacion.secuencia_final:
-                autorizacion.write({'secuencia_actual': int(secuencial)})
+                autorizacion.sudo().write({'secuencia_actual': int(secuencial)})
         return secuencial
 
+
     comprobante_id = fields.Many2one(default=_default_comprobante_id, )
-    c_autorizacion_id = fields.Many2one(default=_default_c_autorizacion_id, )
+    autorizacion_id = fields.Many2one(default=_default_autorizacion_id, )
     secuencial = fields.Char(default=_default_secuencial, )

@@ -53,6 +53,7 @@
                         <field name="done_qty"/>
                         <field name="manufactured_qty"/>
                         <field name="pending_qty"/>
+                        <field name="progress" widget="progressbar"/>
                         <field name="product_uom" groups="product.group_uom"/>
                         <field name="category_uom_id" invisible="1"/>
                     </group>

@@ -42,6 +42,7 @@ class AccountInvoice(models.Model):
             attachments.append(
                 (attachment_id.xml_filename, attachment_id.xml_file)
             )
+
         return attachments
 
     @api.multi
@@ -70,7 +71,6 @@ class AccountInvoice(models.Model):
         """ Open a window to compose an email, with the edi invoice template
            message loaded by default
         """
-
         if self.tipoem == 'E':
             self.ensure_one()
 
@@ -168,7 +168,7 @@ class AccountInvoice(models.Model):
     # FACTURA ELECTRÓNICA
     factura_electronica_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
-        string="Factura electrónica", )
+        string="Factura electrónica", copy=False, )
 
     @api.multi
     def get_propina(self):
@@ -390,7 +390,7 @@ class AccountInvoice(models.Model):
     # RETENCIÓN ELECTRÓNICA.
     retencion_electronica_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
-        string="Retención electronica", )
+        string="Retención electronica", copy=False, )
 
     @api.multi
     def get_retencion_dict(self):
@@ -456,7 +456,7 @@ class AccountInvoice(models.Model):
 
         for i in self.sri_tax_line_ids.filtered(lambda l: l.group in (
             'RetAir', 'RetBien10', 'RetServ20', 'RetServ50', 'RetBienes',
-            'RetServicios', 'RetServ100')):
+                'RetServicios', 'RetServ100')):
             impuestos['impuesto'].append(
                 OrderedDict([
                     ('codigo', i.codigo),  # TODO: es con tílde como en las especificaciones?
@@ -514,7 +514,7 @@ class AccountInvoice(models.Model):
     # NOTA DE CRÉDITO ELECTRÓNICA.
     nota_credito_electronica_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
-        string="Nota de crédito electronica", )
+        string="Nota de crédito electronica", copy=False, )
 
     @api.multi
     def get_nota_credito_dict(self):
@@ -673,7 +673,7 @@ class AccountInvoice(models.Model):
                 ('campoAdicional', []),
             ])
             for c in camposAdicionales:
-                InfoAdicional['campoAdicional'].append(OrderedDict([
+                infoAdicional['campoAdicional'].append(OrderedDict([
                     ('@nombre', i[0]),
                     ('#text', i[1]),
                 ]))
@@ -706,4 +706,3 @@ class AccountInvoice(models.Model):
         # self.send_email_de()
 
         return True
-

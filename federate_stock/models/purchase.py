@@ -18,7 +18,7 @@ class StockPicking(models.Model)
                 if '' in odoo.env:
                     Order = odoo.env['sale.order']
                     company = self.env.user.company_id.partner_id
-                    client = odoo.env['res.partner'].search([('vat_ec', '=', company.vat_ec)], limit=1)
+                    client = odoo.env['res.partner'].search([('vat', '=', company.vat)], limit=1)
                     delivery = self.picking_type_id.warehouse_id.name
 
                     if not client:

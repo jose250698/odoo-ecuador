@@ -14,7 +14,7 @@ class SaleOrderLine(models.Model):
         self.mapped('procurement_ids') \
             .mapped('move_ids') \
             .filtered(
-                lambda x: x.state == 'done' and
+                lambda x: x.state in ['confirmed', 'assigned', 'done'] and
                 not x.invoice_line_id and
                 not x.location_dest_id.scrap_location and
                 x.location_dest_id.usage == 'customer') \

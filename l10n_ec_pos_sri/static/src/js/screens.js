@@ -61,22 +61,22 @@ PosScreens.ClientListScreenWidget.include({
         fields.country_id   = fields.country_id || false;
         fields.property_account_position_id   = fields.property_account_position_id || false;
         fields.barcode      = fields.barcode || '';
-        fields.vat_ec   = fields.vat_ec || false;
-        if (fields.vat_ec) {
-            fields.vat = 'EC' + String(fields.vat_ec)
+        fields.vat   = fields.vat || false;
+        if (fields.vat) {
+            fields.vat = 'EC' + String(fields.vat)
         }
         
         if($(".Validar-la-identificación").is(':checked')) 
-            fields.do_check_vat_ec = 1;
+            fields.do_check_vat = 1;
         else
-            fields.do_check_vat_ec = 0;
+            fields.do_check_vat = 0;
         
         fields.state_id   = fields.state_id || false;
         var property_account_position_id = fields.property_account_position_id 
-        var vat_ec = fields.vat_ec
+        var vat = fields.vat
         // if(property_account_position_id !== false){
-        //     if(vat_ec !== false){
-        //         new Model('res.partner').call('check_vat_ec_from_ui',[property_account_position_id, vat_ec]).then(function(error_title){
+        //     if(vat !== false){
+        //         new Model('res.partner').call('check_vat_from_ui',[property_account_position_id, vat]).then(function(error_title){
         //             self.gui.show_popup('error',{
         //             'title': _t('Error: Could not Save Changes'),
         //             'body': _t(error_title),
