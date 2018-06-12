@@ -129,7 +129,7 @@ PosModels.PosModel = PosModels.PosModel.extend({
             dict_field[campo] = valor;
             if (dict_field) {
                 (new Model('pos.config'))
-                    .call('write', [config_id, dict_field])
+                    .call('save_config_from_pos', [config_id, dict_field])
                         .then(function () {
                             if (callback){
                                 callback();
