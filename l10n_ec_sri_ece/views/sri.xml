@@ -47,18 +47,20 @@
                     <group name="queue_lines" string="Queue lines">
                         <field name="queue_line_ids" nolabel="1" readonly="1">
                             <tree>
+                                <field name="reference"/>
                                 <field name="documento_electronico_id"/>
                                 <field name="sent"/>
                                 <field name="estado"/>
                             </tree>
                             <form>
+                                <field name="reference"/>
                                 <field name="documento_electronico_id"/>
                                 <field name="sent"/>
                                 <field name="estado"/>
                             </form>
                         </field>
                     </group>
-                </sheet> 
+                </sheet>
             </form>
         </field>
     </record>
@@ -72,7 +74,7 @@
             </tree>
         </field>
     </record>
-    
+
     <record id="action_documento_electronico_queue" model="ir.actions.act_window">
         <field name="name">Documento electronico queue</field>
         <field name="res_model">l10n_ec_sri.documento.electronico.queue</field>
@@ -87,5 +89,5 @@
         sequence="100"
         action="action_documento_electronico_queue"
         />
-    
+
 </odoo>
