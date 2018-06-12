@@ -14,6 +14,8 @@ class PosConfig(models.Model):
     # BORRAR
     # autorizacion_id = fields.Many2one('l10n_ec_sri.autorizacion', string='Autorizacion', )
 
+    def save_config_from_pos(self, cr, uid, config_id, to_write, context=None):
+        self.browse(cr, uid, config_id, context=context).sudo().write(to_write)
 
 class PosOrder(models.Model):
     _inherit = 'pos.order'
@@ -48,6 +50,6 @@ class PosOrder(models.Model):
             if config:
                 if config.secuencial > to_write['secuencial']:
                     to_write['secuencial'] = config.secuencial
-                config.write(to_write)
+                config.sudo().write(to_write)
         return order_id
 

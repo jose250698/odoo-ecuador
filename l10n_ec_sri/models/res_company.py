@@ -8,7 +8,8 @@ class ResCompany(models.Model):
     vat = fields.Char(
         'Identificacion fiscal', related='partner_id.vat', )
 
-    contribuyenteespecial = fields.Integer('Nro. de resolución como contribuyente especial', )
+    contribuyenteespecial = fields.Integer(
+        'Nro. de resolución como contribuyente especial', )
 
     property_account_position_id = fields.Many2one(
         'account.fiscal.position', 'Posición fiscal',

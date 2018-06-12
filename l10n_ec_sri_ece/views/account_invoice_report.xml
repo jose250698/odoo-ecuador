@@ -12,7 +12,7 @@
                         <tbody>
                             <tr>
                                 <td style="width:50%; vertical-align: top;">
-                                    <img style="width:100%; height: 50%" src="l10n_ec_dimabru_base/static/description/logo.jpg"/>
+                                <img t-if="o.company_id.logo" t-att-src="'data:image/png;base64, %s' % o.company_id.logo" style="width:60%; height:50%; align:center;"/>
                                     <!-- <img t-if="o.company_id.logo" t-att-src=" 'data:image/png;base64, %s' % o.company_id.logo" -->
                                     <!-- style="max-width: 100%; height: 270px; text-aling=center; margin-top: -1.5cm;"/> -->
                                     <br />
