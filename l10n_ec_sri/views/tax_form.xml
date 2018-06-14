@@ -230,8 +230,8 @@
                         </field>
                     </page>
                     <page string="Compras">
-                        <field name="in_invoice_ids" nolabel="1" readonly="1">
-                            <tree limit="5">
+                        <field name="in_invoice_ids" nolabel="1" >
+                            <tree limit="5" create="0">
                                 <field name="type"/>
                                 <field name="secuencial"/>
                                 <field name="number"/>
@@ -243,8 +243,8 @@
                         </field>
                     </page>
                     <page string="Ventas">
-                        <field name="out_invoice_ids" nolabel="1" readonly="1">
-                            <tree limit="5">
+                        <field name="out_invoice_ids" nolabel="1">
+                            <tree limit="5" create="0">
                                 <field name="type"/>
                                 <field name="secuencial"/>
                                 <field name="number"/>
@@ -256,8 +256,8 @@
                         </field>
                     </page>
                     <page string="Devoluciones en compras">
-                        <field name="in_refund_ids" nolabel="1" readonly="1">
-                            <tree limit="5">
+                        <field name="in_refund_ids" nolabel="1">
+                            <tree limit="5" create="0">
                                 <field name="type"/>
                                 <field name="secuencial"/>
                                 <field name="number"/>
@@ -269,8 +269,8 @@
                         </field>
                     </page>
                     <page string="Devoluciones en ventas">
-                        <field name="out_refund_ids" nolabel="1" readonly="1">
-                            <tree limit="5">
+                        <field name="out_refund_ids" nolabel="1">
+                            <tree limit="5" create="0">
                                 <field name="type"/>
                                 <field name="secuencial"/>
                                 <field name="number"/>
@@ -282,8 +282,8 @@
                         </field>
                     </page>
                     <page string="NO DECLARADO">
-                        <field name="no_declarado_ids" nolabel="1" readonly="1">
-                            <tree limit="5">
+                        <field name="no_declarado_ids" nolabel="1">
+                            <tree limit="5" create="0">
                                 <field name="type"/>
                                 <field name="secuencial"/>
                                 <field name="number"/>
@@ -368,7 +368,7 @@
         <field name="arch" type="xml">
             <form string="Tax form">
                 <header>
-                    <button 
+                    <button
                         name="get_tax_form_lines" string="GET LINES"
                         attrs="{'invisible': [('formulario', '=', 'ats')]}"
                         type="object" class="btn-primary"/>

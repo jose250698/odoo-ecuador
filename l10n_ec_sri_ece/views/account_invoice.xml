@@ -10,9 +10,18 @@
                         type="object" class="btn-primary"/>
             </xpath>
             <field name="payment_term_id" position="after">
-                <field name="factura_electronica_id"/>
-                <field name="retencion_electronica_id"/>
-                <field name="nota_credito_electronica_id"/>
+                <field
+                     name="factura_electronica_id"
+                     attrs="{'invisible': [('factura_electronica_id', '=', False)]}"
+                />
+                <field
+                    name="retencion_electronica_id"
+                    attrs="{'invisible': [('retencion_electronica_id', '=', False)]}"
+                />
+                <field
+                    name="nota_credito_electronica_id"
+                    attrs="{'invisible': [('nota_credito_electronica_id', '=', False)]}"
+                />
             </field>
         </field>
     </record>
@@ -27,8 +36,14 @@
                         type="object" class="btn-primary"/>
             </xpath>
             <field name="reference" position="after">
-                <field name="factura_electronica_id"/>
-                <field name="retencion_electronica_id"/>
+                <field
+                    name="factura_electronica_id"
+                    attrs="{'invisible': [('factura_electronica_id', '=', False)]}"
+                />
+                <field
+                    name="retencion_electronica_id"
+                    attrs="{'invisible': [('retencion_electronica_id', '=', False)]}"
+                />
             </field>
         </field>
     </record>

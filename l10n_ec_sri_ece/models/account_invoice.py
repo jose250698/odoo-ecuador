@@ -42,7 +42,6 @@ class AccountInvoice(models.Model):
             attachments.append(
                 (attachment_id.xml_filename, attachment_id.xml_file)
             )
-
         return attachments
 
     @api.multi
@@ -421,8 +420,13 @@ class AccountInvoice(models.Model):
         puntoemision = self.ptoemiretencion1
         tipoemision = '1'  # offline siempre es normal.
         secuencial = self.secretencion1.zfill(9)
+
         # Se refiere al documento del proveedor.
-        numdocsustento = establecimiento + puntoemision + secuencial
+        numdocsustento = ''.join([
+            (self.establecimiento).zfill(3),
+            (self.puntoemision).zfill(3),
+            (self.secuencial).zfill(9)
+            ])
 
         partner = self.partner_id
         fiscal = partner.property_account_position_id
