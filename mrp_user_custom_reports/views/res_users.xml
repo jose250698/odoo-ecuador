@@ -6,8 +6,8 @@
         <field name="inherit_id" ref="base.view_users_form"/>
         <field name="arch" type="xml">
             <notebook position="after">
-                <group string="MRP report formats">
-                    <field name="mrp_format_id"/>
+                <group string="Production report formats">
+                    <field name="production_format_id"/>
                 </group>
             </notebook>
         </field>
