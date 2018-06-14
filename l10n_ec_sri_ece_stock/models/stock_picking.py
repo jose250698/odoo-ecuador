@@ -45,6 +45,18 @@ class StockPicking(models.Model):
     fechafintransporte = fields.Date('Fecha Fin Transporte')
 
     @api.multi
+    def get_sri_secuencial_completo_guia(self):
+        nro_guia = ''
+        # No presentamos guias no legalizadas.
+        if p.secuencial and p.puntoemision and p.establecimiento:
+            nro_guia = '-'.join([
+                p.estabretencion1 or '0',
+                p.ptoemiretencion1 or '0',
+                (p.secretencion1 or '0').zfill(9)
+            ])
+        return nro_guia
+
+    @api.multi
     def _get_custom_attachments(self):
         """
         return: recordset

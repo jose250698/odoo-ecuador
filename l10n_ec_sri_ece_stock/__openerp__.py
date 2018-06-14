@@ -25,7 +25,6 @@
         'views/stock_picking_report.xml',
         'security/ir.model.access.csv',
         'data/stock_action_data.xml',
-        'views/account_invoice_report.xml',
     ],
     'demo': [],
     'test': [],

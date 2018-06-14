@@ -67,6 +67,19 @@ class AccountInvoice(models.Model):
         ])
 
     @api.multi
+    def get_sri_secuencial_completo_guia(self):
+        nro_guia = ''
+
+        # Falla sin el modulo stock_picking_invoice_link.
+        try:
+            nro_guia = ' '.join([
+                p.get_sri_secuencial_completo_guia for p in self.picking_ids
+            ])
+        except:
+            pass
+        return nro_guia
+
+    @api.multi
     def get_sri_cero_iva(self):
         """
         Si la linea no tiene retención de IVA creamos un impuesto con

@@ -104,8 +104,8 @@
 								</span>
 							</td>
 							<td style="border: none;">
-								<strong>Guía Remisión</strong>
-								<span id="id_guia_remision_value"></span>
+                                <strong>Guía Remisión: </strong>
+                                <span t-esc="o.get_sri_secuencial_completo_guia()"/>
 							</td>
 							<td style="border: none;" class="text-left">
 

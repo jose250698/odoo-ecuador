@@ -27,7 +27,8 @@
                 <td style="width:50%; border: solid 1px black;">
                     <strong>R.U.C: </strong><t t-esc="o.company_id.vat"/><br/>
                     <strong>GUÍA DE REMISIÓN</strong><br/>
-                    <strong>Nro: </strong><t t-esc="o.establecimiento"/>-<t t-esc="o.puntoemision"/>-<t t-esc="o.secuencial"/><br/>
+                    <strong>Nro: </strong><br/>
+                    <span t-esc="o.get_sri_secuencial_completo_guia()"/>
                     <strong>NÚMERO DE AUTORIZACIÓN:</strong><br/>
                     <t t-esc="o.autorizacion"/><br/>
                     <strong>FECHA Y HORA DE AUTORIZACIÓN:</strong><br/>
