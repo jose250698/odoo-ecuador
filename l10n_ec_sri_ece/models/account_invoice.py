@@ -57,9 +57,11 @@ class AccountInvoice(models.Model):
     @api.multi
     def get_email_template(self):
         if self.type == 'out_invoice':
-            template = self.env.ref('l10n_ec_sri_ece.email_template_factura_electronica', False)
+            template = self.env.ref(
+                'l10n_ec_sri_ece.email_template_factura_electronica', False)
         elif self.type == 'in_invoice':
-            template = self.env.ref('l10n_ec_sri_ece.email_template_retencion_electronica', False)
+            template = self.env.ref(
+                'l10n_ec_sri_ece.email_template_retencion_electronica', False)
         elif self.type == 'out_refund':
             template = self.env.ref(
                 'l10n_ec_sri_ece.email_template_nota_de_credito_electronica', False)
@@ -76,7 +78,8 @@ class AccountInvoice(models.Model):
             # Seleccionamos la plantilla de acuerdo al tipo.
             template = self.get_email_template()
 
-            compose_form = self.env.ref('mail.email_compose_message_wizard_form', False)
+            compose_form = self.env.ref(
+                'mail.email_compose_message_wizard_form', False)
             ctx = dict(
                 default_model='account.invoice',
                 default_res_id=self.id,
@@ -138,14 +141,16 @@ class AccountInvoice(models.Model):
             ('ambiente', ambiente_id.ambiente),
             ('tipoEmision', tipoemision),
             ('razonSocial', self.normalize(company.name)),
-            ('nombreComercial', self.normalize(company.partner_id.tradename or company.name)),
+            ('nombreComercial', self.normalize(
+                company.partner_id.tradename or company.name)),
             ('ruc', ruc),
             ('claveAcceso', claveacceso),
             ('codDoc', comprobante),
             ('estab', establecimiento),
             ('ptoEmi', puntoemision),
             ('secuencial', secuencial),
-            ('dirMatriz', self.normalize(company.street or company.street + company.street2)),
+            ('dirMatriz', self.normalize(
+                company.street or company.street + company.street2)),
         ])
 
         return infoTributaria
@@ -161,7 +166,8 @@ class AccountInvoice(models.Model):
         try:
             res = datetime.strptime(date, '%Y-%m-%d').strftime('%d/%m/%Y')
         except ValueError:
-            res = datetime.strptime(date, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y')
+            res = datetime.strptime(
+                date, '%Y-%m-%d %H:%M:%S').strftime('%d/%m/%Y')
         return res
 
     # FACTURA ELECTRÓNICA
@@ -308,7 +314,8 @@ class AccountInvoice(models.Model):
                 ('cantidad', '{:.6f}'.format(line.quantity)),
                 ('precioUnitario', '{:.6f}'.format(line.price_unit)),
                 ('descuento', '{:.2f}'.format(line.price_discount)),
-                ('precioTotalSinImpuesto', '{:.2f}'.format(line.price_subtotal)),
+                ('precioTotalSinImpuesto',
+                 '{:.2f}'.format(line.price_subtotal)),
             ])
 
             detAdicionales = line.get_detallesadicionales()
@@ -426,7 +433,7 @@ class AccountInvoice(models.Model):
             (self.establecimiento).zfill(3),
             (self.puntoemision).zfill(3),
             (self.secuencial).zfill(9)
-            ])
+        ])
 
         partner = self.partner_id
         fiscal = partner.property_account_position_id
@@ -463,14 +470,15 @@ class AccountInvoice(models.Model):
                 'RetServicios', 'RetServ100')):
             impuestos['impuesto'].append(
                 OrderedDict([
-                    ('codigo', i.codigo),  # TODO: es con tílde como en las especificaciones?
+                    ('codigo', i.codigo),
                     ('codigoRetencion', i.codigoporcentaje),
                     ('baseImponible', i.base),
                     ('porcentajeRetener', i.porcentaje),
                     ('valorRetenido', '{:.2f}'.format(i.amount)),
                     ('codDocSustento', self.comprobante_id.code),
                     ('numDocSustento', numdocsustento),
-                    ('fechaEmisionDocSustento', self.normalize_date(self.date_invoice)),
+                    ('fechaEmisionDocSustento',
+                     self.normalize_date(self.date_invoice)),
                 ]))
 
         retencion_dict = OrderedDict([
@@ -505,6 +513,30 @@ class AccountInvoice(models.Model):
         # self.send_email_de()
 
         return True
+
+    @api.multi
+    def send_de_backend(self):
+        edoc = self.factura_electronica_id or self.retencion_electronica_id or self.nota_credito_electronica_id
+        if edoc:
+            try:
+                edoc.receive_de_offline()
+            except:
+                edoc.send_de_backend()
+            finally:
+                if edoc.estado != 'DEVUELTA':
+                    edoc.receive_de_offline()
+        return True
+
+    @api.multi
+    @api.depends('factura_electronica_id.estado', 'retencion_electronica_id.estado', 'nota_credito_electronica_id.estado')
+    def _get_ce_state(self):
+        for r in self:
+            edoc = r.factura_electronica_id or r.retencion_electronica_id or r.nota_credito_electronica_id
+            if edoc:
+                r.ce_state = edoc.estado
+            return True
+
+    ce_state = fields.Char('ECE State', store=True, compute=_get_ce_state)
 
     @api.multi
     def send_email_de(self):
@@ -592,11 +624,13 @@ class AccountInvoice(models.Model):
             ('razonSocialComprador', self.normalize(partner.name)),
             ('identificacionComprador', partner.vat),
             ('contribuyenteEspecial', company.contribuyenteespecial or '000'),
-            ('obligadoContabilidad', company_fiscal.obligada_contabilidad and 'SI' or 'NO'),
+            ('obligadoContabilidad',
+             company_fiscal.obligada_contabilidad and 'SI' or 'NO'),
             # ('rise', "TODO",
             ('codDocModificado', docmodificado.comprobante_id.code),
             ('numDocModificado', numdocmodificado),
-            ('fechaEmisionDocSustento', self.normalize_date(docmodificado.date_invoice)),
+            ('fechaEmisionDocSustento', self.normalize_date(
+                docmodificado.date_invoice)),
             ('totalSinImpuestos', self.subtotal),
             ('valorModificacion', self.total),
             ('moneda', self.currency_id.name),
@@ -632,7 +666,8 @@ class AccountInvoice(models.Model):
                 ('cantidad', '{:.6f}'.format(line.quantity)),
                 ('precioUnitario', '{:.6f}'.format(line.price_unit)),
                 ('descuento', '{:.2f}'.format(line.price_discount)),
-                ('precioTotalSinImpuesto', '{:.2f}'.format(line.price_subtotal)),
+                ('precioTotalSinImpuesto',
+                 '{:.2f}'.format(line.price_subtotal)),
             ])
 
             detAdicionales = line.get_detallesadicionales()

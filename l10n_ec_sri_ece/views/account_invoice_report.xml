@@ -91,9 +91,13 @@
 						<tr class="active">
 							<td style="border: none;">
 								<strong>Fecha Emisión</strong>
+							</td>
+							<td style="border: none;" class="text-left">
 								<span t-if="o.date_invoice">
-									<strong></strong>
-									<span t-field="o.date_invoice" />
+									<p>
+										<strong></strong>
+										<span t-field="o.date_invoice" />
+									</p>
 								</span>
 							</td>
 							<td style="border: none;">
@@ -104,8 +108,8 @@
 								</span>
 							</td>
 							<td style="border: none;">
-								<strong>Guía Remisión</strong>
-								<span id="id_guia_remision_value"></span>
+                                <strong>Guía Remisión: </strong>
+                                <span t-esc="o.get_sri_secuencial_completo_guia()"/>
 							</td>
 							<td style="border: none;" class="text-left">
 
@@ -428,7 +432,7 @@
                                     <br/>
                                     <strong>CLAVE DE ACCESO:</strong>
                                     <br/>
-                                    <img style="width:100%; height: 40%" t-if="o.factura_electronica_id" t-att-src="'data:image/png;base64,%s' % o.factura_electronica_id.barcode128"/>
+                                    <img style="width:100%; height: 40%" t-if="o.retencion_electronica_id" t-att-src="'data:image/png;base64,%s' % o.retencion_electronica_id.barcode128"/>
                                 </td>
                             </tr>
                         </tbody>

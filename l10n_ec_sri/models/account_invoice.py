@@ -67,6 +67,19 @@ class AccountInvoice(models.Model):
         ])
 
     @api.multi
+    def get_sri_secuencial_completo_guia(self):
+        nro_guia = ''
+
+        # Falla sin el modulo stock_picking_invoice_link.
+        try:
+            nro_guia = ' '.join([
+                p.get_sri_secuencial_completo_guia for p in self.picking_ids
+            ])
+        except:
+            pass
+        return nro_guia
+
+    @api.multi
     def get_sri_cero_iva(self):
         """
         Si la linea no tiene retención de IVA creamos un impuesto con
@@ -77,7 +90,8 @@ class AccountInvoice(models.Model):
         # TODO: permitir elegir el impuesto por defecto en la configuración de la compañía.
         for inv in self:
             for line in inv.invoice_line_ids:
-                base = sum(t.base for t in line.sri_tax_line_ids if t.group == 'RetIva')
+                base = sum(
+                    t.base for t in line.sri_tax_line_ids if t.group == 'RetIva')
                 residual = line.price_subtotal - base
                 if round(residual, 2) > 0:
                     self.env['l10n_ec_sri.tax.line'].create({
@@ -106,8 +120,8 @@ class AccountInvoice(models.Model):
 
                 # Agregamos el 332 solo si hay una base imponible.
                 if not any(
-                    tax.tax_group_id.name in BASES_IMPONIBLES
-                    for tax in line.invoice_line_tax_ids):
+                        tax.tax_group_id.name in BASES_IMPONIBLES
+                        for tax in line.invoice_line_tax_ids):
                     continue
 
                 # La base es la diferencia entre las bases existentes
@@ -341,7 +355,8 @@ class AccountInvoice(models.Model):
 
             # Calcula la fecha de emisión de la retención.
             if inv.fechaemiret1:
-                fechaEmiRet1 = datetime.strptime(inv.fechaemiret1, '%Y-%m-%d').strftime('%d/%m/%Y')
+                fechaEmiRet1 = datetime.strptime(
+                    inv.fechaemiret1, '%Y-%m-%d').strftime('%d/%m/%Y')
             else:
                 fechaEmiRet1 = ''
 
@@ -429,18 +444,26 @@ class AccountInvoice(models.Model):
                     ('secuencial', secuencial),
                     ('fechaEmision', inv.normalize_date(inv.date_invoice)),
                     ('autorizacion', autorizacion),
-                    ('baseNoGraIva', '{:.2f}'.format(line.basenograiva or 0.00)),
-                    ('baseImponible', '{:.2f}'.format(line.baseimponible or 0.00)),
+                    ('baseNoGraIva', '{:.2f}'.format(
+                        line.basenograiva or 0.00)),
+                    ('baseImponible', '{:.2f}'.format(
+                        line.baseimponible or 0.00)),
                     ('baseImpGrav', '{:.2f}'.format(line.baseimpgrav or 0.00)),
                     ('baseImpExe', '{:.2f}'.format(line.baseimpexe or 0.00)),
                     ('montoIce', '{:.2f}'.format(line.montoice or 0.00)),
                     ('montoIva', '{:.2f}'.format(line.montoiva or 0.00)),
-                    ('valRetBien10', '{:.2f}'.format(line.valretbien10 or 0.00)),
-                    ('valRetServ20', '{:.2f}'.format(line.valretserv20 or 0.00)),
-                    ('valorRetBienes', '{:.2f}'.format(line.valorretbienes or 0.00)),
-                    ('valRetServ50', '{:.2f}'.format(line.valretserv50 or 0.00)),
-                    ('valorRetServicios', '{:.2f}'.format(line.valorretservicios or 0.00)),
-                    ('valRetServ100', '{:.2f}'.format(line.valretserv100 or 0.00)),
+                    ('valRetBien10', '{:.2f}'.format(
+                        line.valretbien10 or 0.00)),
+                    ('valRetServ20', '{:.2f}'.format(
+                        line.valretserv20 or 0.00)),
+                    ('valorRetBienes', '{:.2f}'.format(
+                        line.valorretbienes or 0.00)),
+                    ('valRetServ50', '{:.2f}'.format(
+                        line.valretserv50 or 0.00)),
+                    ('valorRetServicios', '{:.2f}'.format(
+                        line.valorretservicios or 0.00)),
+                    ('valRetServ100', '{:.2f}'.format(
+                        line.valretserv100 or 0.00)),
                     # ('pagoLocExt', fiscal.tipopago_id.code), # TODO
                     ('totbasesImpReemb', '{:.2f}'.format(0.00)),  # TODO
                     ('pagoExterior', pagoExterior),
@@ -486,11 +509,15 @@ class AccountInvoice(models.Model):
                             ('establecimientoReemb', r_inv.establecimiento),
                             ('puntoEmisionReemb', r_inv.puntoemision),
                             ('secuencialReemb', r_inv.secuencial),
-                            ('fechaEmisionReemb', r_inv.normalize_date(r_inv.date_invoice)),
+                            ('fechaEmisionReemb', r_inv.normalize_date(
+                                r_inv.date_invoice)),
                             ('autorizacionReemb', r_inv.autorizacion),
-                            ('baseImponibleReemb', '{:.2f}'.format(r.baseimponible)),
-                            ('baseImpGravReemb', '{:.2f}'.format(r.baseimpgrav)),
-                            ('baseNoGraIvaReemb', '{:.2f}'.format(r.basenograiva)),
+                            ('baseImponibleReemb',
+                             '{:.2f}'.format(r.baseimponible)),
+                            ('baseImpGravReemb',
+                             '{:.2f}'.format(r.baseimpgrav)),
+                            ('baseNoGraIvaReemb',
+                             '{:.2f}'.format(r.basenograiva)),
                             ('baseImpExeReemb', '{:.2f}'.format(r.baseimpexe)),
                             ('montoIceRemb', '{:.2f}'.format(r.montoice)),
                             ('montoIvaRemb', '{:.2f}'.format(r.montoiva)),
@@ -531,7 +558,8 @@ class AccountInvoice(models.Model):
             # Seleccionamos una línea por cada impuesto para usarla de base.
             unique_tax_lines = self.env['account.invoice.tax']
             for t in taxes_set:
-                unique_tax_lines += inv.tax_line_ids.filtered(lambda x: x.tax_id == t)[0]
+                unique_tax_lines += inv.tax_line_ids.filtered(
+                    lambda x: x.tax_id == t)[0]
 
             # Obtenemos la información de los impuestos de la factura para hacer el cuadre.
             for tax_line in unique_tax_lines:
@@ -692,7 +720,8 @@ class AccountInvoice(models.Model):
 
         imponible_lines = inv_lines.filtered(
             lambda l: 'Imponible' in l.invoice_line_tax_ids.mapped('tax_group_id.name'))
-        baseimponible = sum(line.price_subtotal for line in imponible_lines) or 0
+        baseimponible = sum(
+            line.price_subtotal for line in imponible_lines) or 0
         inv_lines -= imponible_lines
 
         impexe_lines = inv_lines.filtered(
@@ -705,7 +734,8 @@ class AccountInvoice(models.Model):
         # Desde las líneas de impuesto pues requerimos el valor.
         montoiva = sum(
             line.amount for line in tax_lines if line.tax_id.tax_group_id.name == 'ImpGrav')
-        montoice = sum(line.amount for line in tax_lines if line.tax_id.tax_group_id.name == 'Ice')
+        montoice = sum(
+            line.amount for line in tax_lines if line.tax_id.tax_group_id.name == 'Ice')
 
         # Campos informativos de uso interno.
         subtotal = basenograiva + baseimponible + baseimpgrav + baseimpexe
@@ -996,7 +1026,8 @@ class AccountInvoice(models.Model):
         for inv in self:
             if inv.comprobante_code and inv.secuencial:
                 if len(inv.secuencial) > 9:
-                    raise UserWarning(_("El número de secuencial debe tener menos de 10 dígitos."))
+                    raise UserWarning(
+                        _("El número de secuencial debe tener menos de 10 dígitos."))
             if inv.fechaemiret1 and inv.date_invoice > inv.fechaemiret1:
                 raise UserWarning(
                     _("La fecha de la retención no puede ser menor que la de la factura."))
@@ -1006,9 +1037,11 @@ class AccountInvoice(models.Model):
     def check_number(self):
         for inv in self:
             if inv.secuencial and not inv.secuencial.isdigit():
-                raise UserError('El secuencial de la factura debe contener solo números')
+                raise UserError(
+                    'El secuencial de la factura debe contener solo números')
             if inv.secretencion1 and not inv.secretencion1.isdigit():
-                raise UserError('El secuencial de la retención debe contener solo números')
+                raise UserError(
+                    'El secuencial de la retención debe contener solo números')
 
 
 class AccountInvoiceLine(models.Model):
