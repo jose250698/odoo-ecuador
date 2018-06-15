@@ -20,7 +20,8 @@ _logger = logging.getLogger(__name__)
 try:
     import xmltodict
 except ImportError:
-    _logger.error("The module xmltodict can't be loaded, try: pip install xmltodict")
+    _logger.error(
+        "The module xmltodict can't be loaded, try: pip install xmltodict")
 
 try:
     from zeep import Client
@@ -31,7 +32,8 @@ try:
     from barcode import generate
     from barcode.writer import ImageWriter
 except ImportError:
-    _logger.warning("The module viivakoodi can't be loaded, try: pip install viivakoodi")
+    _logger.warning(
+        "The module viivakoodi can't be loaded, try: pip install viivakoodi")
 
 
 class SriFirma(models.Model):
@@ -86,8 +88,10 @@ class SriAmbiente(models.Model):
             ('2', 'Producción'),
         ],
         string='Ambiente', )
-    recepcioncomprobantes = fields.Char(string='URL de recepción de comprobantes', )
-    autorizacioncomprobantes = fields.Char(string='URL de autorización de comprobantes', )
+    recepcioncomprobantes = fields.Char(
+        string='URL de recepción de comprobantes', )
+    autorizacioncomprobantes = fields.Char(
+        string='URL de autorización de comprobantes', )
 
 
 class SriDocumentoElectronico(models.Model):
@@ -228,10 +232,12 @@ class SriDocumentoElectronico(models.Model):
                 ('fechaAutorizacion', {'@class': 'fechaAutorizacion',
                                        '#text': str(autorizaciones['fechaAutorizacion'])}),
                 ('ambiente', autorizaciones['ambiente']),
-                ('comprobante', u'<![CDATA[{}]]>'.format(autorizaciones['comprobante'])),
+                ('comprobante', u'<![CDATA[{}]]>'.format(
+                    autorizaciones['comprobante'])),
             ]))
         ])
-        comprobante = xml.sax.saxutils.unescape(xmltodict.unparse(autorizacion))
+        comprobante = xml.sax.saxutils.unescape(
+            xmltodict.unparse(autorizacion))
         self.write({
             'estado': autorizaciones['estado'],
             'mensajes': autorizaciones['mensajes'],
@@ -272,8 +278,8 @@ class SriDocumentoElectronico(models.Model):
             'xml_filename': filename,
             'estado': 'NO ENVIADO',
             'mensajes': '',
-            #'estado': envio['estado'],
-            #'mensajes': envio['comprobantes'] or '',
+            # 'estado': envio['estado'],
+            # 'mensajes': envio['comprobantes'] or '',
             'ambiente': ambiente_id.ambiente,
             'tipoemision': tipoemision,
             'claveacceso': claveacceso,
@@ -333,7 +339,8 @@ class SriDocumentoElectronico(models.Model):
             ['|', ('model', '=', 'account.invoice'), ('model', '=', 'stock.picking')])
         return [(record.model, record.name) for record in records] + [('', '')]
 
-    reference = fields.Reference(string='Reference', selection='_get_reference_models')
+    reference = fields.Reference(
+        string='Reference', selection='_get_reference_models')
 
     comprobante_id = fields.Many2one(
         'l10n_ec_sri.comprobante', string='Comprobante', copy=False, )
@@ -416,9 +423,11 @@ class SriDocumentosElectronicosQueueLine(models.Model):
     _order = 'create_date'
 
     sent = fields.Boolean(string='Sent', )
-    estado = fields.Selection(string='State', related="documento_electronico_id.estado", )
+    estado = fields.Selection(
+        string='State', related="documento_electronico_id.estado", )
     documento_electronico_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', string='Documento electronico', )
     reference = fields.Reference(
         related='documento_electronico_id.reference', string=_('Reference'))
-    queue_id = fields.Many2one('l10n_ec_sri.documento.electronico.queue', string='Queue', )
+    queue_id = fields.Many2one(
+        'l10n_ec_sri.documento.electronico.queue', string='Queue', )
