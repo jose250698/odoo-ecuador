@@ -9,7 +9,7 @@
     'license': 'AGPL-3',
     'category': 'MRPs',
     'depends': [
-        'mrp',
+        'bi_mrp',
         'base_report_custom_format',
     ],
     'data': [
