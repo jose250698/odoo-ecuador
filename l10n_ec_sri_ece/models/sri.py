@@ -373,6 +373,7 @@ class SriDocumentoElectronico(models.Model):
     estado = fields.Selection([
         ('NO ENVIADO', 'NO ENVIADO'),  # Documentos fuera de línea.
         ('RECIBIDA', 'RECIBIDA'),
+        ('EN PROCESO', 'NO USAR TEMPORAL'),
         ('DEVUELTA', 'DEVUELTA'),
         ('AUTORIZADO', 'AUTORIZADO'),
         ('NO AUTORIZADO', 'NO AUTORIZADO'),

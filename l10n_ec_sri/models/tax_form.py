@@ -140,7 +140,8 @@ class SriTaxForm(models.Model):
     xml_file = fields.Binary('Archivo XML', attachment=True, readonly=True, )
     xml_filename = fields.Char(string="Archivo XML")
 
-    declarar_facturas_electronicas = fields.Boolean(string='Declarar facturas electronicas', )
+    declarar_facturas_electronicas = fields.Boolean(
+        string='Declarar facturas electronicas', default=True, )
 
     @api.multi
     def prepare_ats(self):
@@ -238,36 +239,54 @@ class SriTaxForm(models.Model):
                 if tpidcliente == '06':
                     vals.update(OrderedDict([
                         ('tipoCliente', fiscal.persona_id.tpidprov),
-                        # TODO: consultar las especificaciones de DenoCli en el SRI.
-                        # Denocli es condicional a tpidcliente == 03 pero ese código
-                        # corresponde a compras, por lo que nunca ocurriría.
+                        # Al declarar el ATS sale un error que indica que se debe
+                        # declarar DenoCli cuando el tipo es 06.
                         # ('DenoCli', inv.normalize_text(p.name))
                     ]))
+
+                # Bases de impuesto para determinar si el balance es positivo o negativo.
+                basenograiva = sum(t_ventas.mapped('basenograiva')) - sum(
+                    t_devoluciones.mapped('basenograiva')) or 0.00
+                baseimponible = sum(t_ventas.mapped('baseimponible')) - sum(
+                    t_devoluciones.mapped('baseimponible'))
+                baseimpgrav = sum(t_ventas.mapped('baseimpgrav')) - sum(
+                    t_devoluciones.mapped('baseimpgrav'))
+                balance = basenograiva + baseimponible + baseimpgrav
+
+                tipoComprobante = '18'
+                if balance < 0:
+                    tipoComprobante = '04'
+
+                montoiva = sum(t_ventas.mapped('montoiva')) - sum(
+                    t_devoluciones.mapped('montoiva')) or 0.00
+                montoice = sum(t_ventas.mapped('montoice')) - sum(
+                    t_devoluciones.mapped('montoice')) or 0.00
+                valorretiva = sum(t_ventas.mapped('valorretiva')) - sum(
+                    t_devoluciones.mapped('valorretiva')) or 0.00
+                valorretrenta = sum(t_ventas.mapped('valorretrenta')) - sum(
+                    t_devoluciones.mapped('valorretrenta')) or 0.00
+
                 vals.update(OrderedDict([
-                    ('tipoComprobante', '18'),  # En ventas siempre usamos 18
+                    # En ventas siempre usamos 18 para las ventas y
+                    # 04 para las notas de crédito.
+                    ('tipoComprobante', tipoComprobante),
                     # Las facturas electrónicas no se declaran.
                     ('tipoEmision', 'F'),
                     ('numeroComprobantes', len(p_ventas) + len(p_devoluciones)),
-                    ('baseNoGraIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('basenograiva')) - sum(t_devoluciones.mapped('basenograiva')) or 0.00)),
-                    ('baseImponible', '{:.2f}'.format(
-                        sum(t_ventas.mapped('baseimponible')) - sum(t_devoluciones.mapped('baseimponible')) or 0.00)),
-                    ('baseImpGrav', '{:.2f}'.format(
-                        sum(t_ventas.mapped('baseimpgrav')) - sum(t_devoluciones.mapped('baseimpgrav')) or 0.00)),
-                    ('montoIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('montoiva')) - sum(t_devoluciones.mapped('montoiva')) or 0.00)),
+                    ('baseNoGraIva', '{:.2f}'.format(abs(basenograiva))),
+                    ('baseImponible', '{:.2f}'.format(abs(baseimponible))),
+                    ('baseImpGrav', '{:.2f}'.format(abs(baseimpgrav))),
+                    ('montoIva', '{:.2f}'.format(abs(montoiva))),
                     # TODO: Tipo y monto de compensaciones, por desarrollar.
                     # ('tipoCompe', ''),
                     # ('monto', '{:.2f}'.format(0)),
-                    ('montoIce', '{:.2f}'.format(
-                        sum(t_ventas.mapped('montoice')) - sum(t_devoluciones.mapped('montoice')) or 0.00)),
-                    ('valorRetIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('valorretiva')) - sum(t_devoluciones.mapped('valorretiva')) or 0.00)),
-                    ('valorRetRenta', '{:.2f}'.format(
-                        sum(t_ventas.mapped('valorretrenta')) - sum(t_devoluciones.mapped('valorretrenta')) or 0.00)),
+                    ('montoIce', '{:.2f}'.format(abs(montoice))),
+                    ('valorRetIva', '{:.2f}'.format(abs(valorretiva))),
+                    ('valorRetRenta', '{:.2f}'.format(abs(valorretrenta))),
                 ]))
 
-                if formaPago:
+                # Solo se declaran formasDePago en comprobantes de venta '18'
+                if formaPago and tipoComprobante == '18':
                     vals.update([
                         ('formasDePago', {'formaPago': formaPago})
                     ])
@@ -302,7 +321,7 @@ class SriTaxForm(models.Model):
 
             if totalVentas != 0:
                 iva.update(OrderedDict([
-                    ('totalVentas', totalVentas)
+                    ('totalVentas', '{:.2f}'.format(totalVentas))
                 ]))
 
             iva.update(OrderedDict([

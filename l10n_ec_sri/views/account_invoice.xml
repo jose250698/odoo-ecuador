@@ -10,6 +10,8 @@
                 <field name="state" position="before">
                     <button name="button_marcar_reembolso" string="REEMBOLSO DE GASTOS"
                             type="object" />
+                    <button name="compute_residual" string="RESIDUAL"
+                            type="object" />
                     <button name="button_prepare_sri_declaration" string="GENERAR IMPUESTOS"
                             type="object" invisible="1" />
                 </field>

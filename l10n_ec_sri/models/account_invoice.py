@@ -834,7 +834,8 @@ class AccountInvoice(models.Model):
             if self.comprobante_id.code == '03':
                 liq = u.autorizacion_liquidaciones_id or c.autorizacion_liquidaciones_id
                 if liq.tipoem == 'E':
-                    raise UserError(_(u"Las liquidaciones de compras no pueden ser electrónicas"))
+                    raise UserError(
+                        _(u"Las liquidaciones de compras no pueden ser electrónicas"))
                 self.set_liquidacion(liq)
 
             aut = u.autorizacion_retenciones_id or c.autorizacion_retenciones_id
@@ -971,8 +972,10 @@ class AccountInvoice(models.Model):
     # r_autorizacion_id no se borra, se usa para las autorizaciones propias de retenciones.
     r_autorizacion_id = fields.Many2one(
         'l10n_ec_sri.autorizacion', string=u'Autorización de la retención', copy=False, )
-    estabretencion1 = fields.Char('Establecimiento de la retención', copy=False, size=3, )
-    ptoemiretencion1 = fields.Char('Punto de emsión de la retención', copy=False, size=3, )
+    estabretencion1 = fields.Char(
+        'Establecimiento de la retención', copy=False, size=3, )
+    ptoemiretencion1 = fields.Char(
+        'Punto de emsión de la retención', copy=False, size=3, )
     autretencion1 = fields.Char('Autorización de la retención', copy=False, )
     secretencion1 = fields.Char('Secuencial de la retención', copy=False, )
     fechaemiret1 = fields.Date('Fecha de la retención', copy=False, )
@@ -1004,24 +1007,53 @@ class AccountInvoice(models.Model):
             })
 
     # Campos informativos del SRI.
-    basenograiva = fields.Monetary(string="Subtotal no grava I.V.A.", )
-    baseimponible = fields.Monetary(string="Subtotal I.V.A. 0%", )
-    baseimpgrav = fields.Monetary(string="Subtotal gravado con I.V.A.", )
-    baseimpexe = fields.Monetary(string="Subtotal excento de I.V.A.", )
-    montoiva = fields.Monetary(string="Monto I.V.A", )
-    montoice = fields.Monetary(string="Monto I.V.A", )
+    basenograiva = fields.Monetary(
+        string="Subtotal no grava I.V.A.",
+        copy=True, )
+    baseimponible = fields.Monetary(
+        string="Subtotal I.V.A. 0%",
+        copy=True, )
+    baseimpgrav = fields.Monetary(
+        string="Subtotal gravado con I.V.A.",
+        copy=True, )
+    baseimpexe = fields.Monetary(
+        string="Subtotal excento de I.V.A.",
+        copy=True, )
+    montoiva = fields.Monetary(
+        string="Monto I.V.A",
+        copy=True, )
+    montoice = fields.Monetary(
+        string="Monto I.V.A",
+        copy=True, )
 
     # Otros campos informativos de uso interno.
     # No se usa los campos propios de Odoo porque estos restan las retenciones.
     total = fields.Monetary(
-        string='TOTAL', )
+        string='TOTAL',
+        copy=True, )
     subtotal = fields.Monetary(
-        string='SUBTOTAL', )
+        string='SUBTOTAL',
+        copy=True, )
     no_declarado = fields.Monetary(
-        string='VALOR NO DECLARADO', readonly=True, )
+        string='VALOR NO DECLARADO',
+        copy=True, )
+
+    # Este campo es necesario para presentarlo en las vistas y usarlo en los reportes
+    # que solo discriminan valores con y sin iva, no el detalle requerido por el SRI.
+    subtotal_sin_iva = fields.Monetary(
+        string="SUBTOTAL SIN IVA", compute="_compute_subtotal_sin_iva", )
 
     @api.multi
-    @api.constrains('secuencial', 'comprobante_code', 'fechaemiret1', 'date_invoice')
+    @api.depends('baseimpexe', 'baseimponible', 'basenograiva')
+    def _compute_subtotal_sin_iva(self):
+        for r in self:
+            r.subtotal_sin_iva = r.baseimpexe + r.baseimponible + r.basenograiva
+
+    @api.multi
+    @api.constrains(
+        'secuencial', 'comprobante_code',
+        'fechaemiret1', 'date_invoice'
+    )
     def check_invoice_values(self):
         for inv in self:
             if inv.comprobante_code and inv.secuencial:
