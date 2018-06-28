@@ -88,7 +88,7 @@
         <field name="arch" type="xml">
             <data>
                 <xpath expr="//filter[@name='group_by_partner_id']" position="before" >
-                    <filter name="group_by_partner_id" string="Estado SRI" context="{'group_by':'ce_state'}"/>
+                    <filter name="group_by_ce_state" string="Estado SRI" context="{'group_by':'ce_state'}"/>
                 </xpath>
             </data>
         </field>

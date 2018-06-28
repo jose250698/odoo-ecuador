@@ -961,10 +961,11 @@ class AccountInvoice(models.Model):
         res = super(AccountInvoice, self).action_date_assign()
 
         # Generamos los valores de impuestos
-        # antes de iniciar al proceso de facturación.
+        # en todas las facturas.
         self.button_prepare_sri_declaration()
 
-        # Calcularmos los totales si no hay total o no_declarado
+        # Calcularmos los totales si no hay datos
+        # en el campo total o no_declarado.
         if not self.total and not self.no_declarado:
             self.compute_sri_invoice_amounts()
 

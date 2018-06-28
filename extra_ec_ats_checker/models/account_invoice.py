@@ -23,7 +23,7 @@ class AccountInvoice(models.Model):
                      'Reembolso', 'NoGraIva',)
 
         for inv in self:
-            errors = ''
+            errors = u''
 
             # DOCUMENTOS DUPLICADOS.
             # Buscamos sencuenciales duplicadas.
@@ -52,13 +52,13 @@ class AccountInvoice(models.Model):
             if inv.comprobante_id.code in ('NA', False):
                 # Si la factura no tiene un comprobante válido no puede tener impuestos.
                 if inv.tax_line_ids:
-                    errors += '- El documento registra impuestos pero no registra un comprobante con valor tributario.'
+                    errors += u'- El documento registra impuestos pero no registra un comprobante con valor tributario.'
                 else:
-                    errors += '- Este documento no se considerará en sus declaraciones. '
+                    errors += u'- Este documento no se considerará en sus declaraciones. '
             else:
                 # Si tiene un comprobante válido, debe tener al menos un impuesto a declarar.
                 if not inv.invoice_line_ids.mapped('invoice_line_tax_ids'):
-                    errors += '- El documento registra un comprobante con valor tributario, pero no registra impuestos.'
+                    errors += u'- El documento registra un comprobante con valor tributario, pero no registra impuestos.'
 
             # VALIDACIONES DE LA RETENCIÓN
             ret_amount = sum(inv.sri_tax_line_ids.filtered(lambda x: x.group in retenciones).mapped('amount'))
@@ -81,21 +81,21 @@ class AccountInvoice(models.Model):
                 # TODO: END
 
                 if not inv.estabretencion1 or len(inv.estabretencion1) != 3 or int(inv.estabretencion1) < 1:
-                    errors += '- Establecimiento del comprobante de retención inválido.\n'
+                    errors += u'- Establecimiento del comprobante de retención inválido.\n'
                 if not inv.ptoemiretencion1 or len(inv.ptoemiretencion1) != 3 or int(inv.ptoemiretencion1) < 1:
-                    errors += '- Punto de emisión del comprobante de retención inválido.\n'
+                    errors += u'- Punto de emisión del comprobante de retención inválido.\n'
                 if not inv.autretencion1 or len(inv.autretencion1) not in (10, 37, 49):
-                    errors += '- La autorización del comprobante de retención debe tener 10, 37 o 49 dígitos.\n'
+                    errors += u'- La autorización del comprobante de retención debe tener 10, 37 o 49 dígitos.\n'
                 if not inv.fechaemiret1 or inv.date_invoice > inv.fechaemiret1:
-                    errors += '- La fecha del comprobante de retención debe ser mayor a la fecha del comprobante.\n '
+                    errors += u'- La fecha del comprobante de retención debe ser mayor a la fecha del comprobante.\n '
                 if not inv.secretencion1 or len(inv.secretencion1) > 9 or int(inv.secretencion1) < 1:
-                    errors += '- El secuencial de la retención debe tener menos de 10 caracteres y ser distinto de cero.\n '
+                    errors += u'- El secuencial de la retención debe tener menos de 10 caracteres y ser distinto de cero.\n '
 
             for line in inv.invoice_line_ids:
                 # Si tiene retenciones, aunque esten en cero, debe haber un registro con la base.
                 if any(tax.tax_group_id.name in retenciones for tax in line.invoice_line_tax_ids):
                     if not any(tax.tax_group_id.name in impuestos for tax in line.invoice_line_tax_ids):
-                        errors += '- Si registra una retención debe registrar el impuesto de la base imponible.\n'
+                        errors += u'- Si registra una retención debe registrar el impuesto de la base imponible.\n'
 
             # TODO: Borrar una vez que el sistema esté registrando bien estos datos.
             # En caso de que no haya valores en la factura, pero haya una autorización
@@ -112,13 +112,13 @@ class AccountInvoice(models.Model):
             # TODO END.
 
             if not inv.establecimiento or len(inv.establecimiento) != 3 or int(inv.establecimiento) < 1:
-                errors += '- Establecimiento inválido.\n'
+                errors += u'- Establecimiento inválido.\n'
             if not inv.puntoemision or len(inv.puntoemision) != 3 or int(inv.puntoemision) < 1:
-                errors += '- Punto de emisión inválido.\n'
+                errors += u'- Punto de emisión inválido.\n'
             if not inv.autorizacion or len(inv.autorizacion) not in (10, 37, 49):
-                errors += '- La autorización debe tener 10, 37 o 49 dígitos.\n'
+                errors += u'- La autorización debe tener 10, 37 o 49 dígitos.\n'
             if not inv.secuencial or len(inv.secuencial) > 9 or int(inv.secuencial) < 1:
-                errors += '- El secuencial debe tener menos de 10 caracteres y ser distinto de cero.\n'
+                errors += u'- El secuencial debe tener menos de 10 caracteres y ser distinto de cero.\n'
 
             # VALIDACIÓN DE REEMBOLSOS
             # Si tiene sustento tributario de reembolso.
@@ -135,7 +135,8 @@ class AccountInvoice(models.Model):
 
             # Valida datos del partner
             if not inv.partner_id.vat:
-                errors += '- El cliente o proveedor no tiene registrado ruc o cédula.\n'
+                errors += u'- El cliente o proveedor no tiene registrado ruc o cédula.\n'
             if not inv.partner_id.property_account_position_id:
-                errors += '- El cliente o proveedor no tiene registrado el tipo de contribuyente.\n'
+                errors += u'- El cliente o proveedor no tiene registrada la posisión fiscal.\n'
+
             inv.invoice_ats_errors = errors

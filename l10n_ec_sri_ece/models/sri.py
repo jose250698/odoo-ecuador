@@ -252,7 +252,7 @@ class SriDocumentoElectronico(models.Model):
         if autorizaciones['estado'] == 'AUTORIZADO':
             try:
                 sent = self.reference.send_email_de()
-                # Si se envía, eliminamos la línea de los pendientes.
+                # Si se envía, marcamos la línea como enviada.
                 if sent:
                     line_obj = self.env['l10n_ec_sri.documento.electronico.queue.line']
                     line = line_obj.search([('documento_electronico_id','=', self.id)], limit=1)
