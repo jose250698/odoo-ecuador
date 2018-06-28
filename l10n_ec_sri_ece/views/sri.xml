@@ -8,15 +8,22 @@
         sequence="20"
         />
 
-
     <record id="documento_electronico_form_view" model="ir.ui.view">
         <field name="name">SRI documento electronico form view</field>
         <field name="model">l10n_ec_sri.documento.electronico</field>
         <field name="arch" type="xml">
             <form>
                 <header>
-                    <button name="receive_de_offline" string="Check response" type="object"/>
-                    <button name="send_de_backend" string="Send electronic document" type="object"/>
+                    <button
+                        attrs="{'invisible':[('estado', 'not in', ('RECIBIDA','EN PROCESO'))]}"
+                        name="receive_de_offline"
+                        string="VERIFICAR RESPUESTA"
+                        type="object"/>
+                    <button
+                        attrs="{'invisible':[('estado', '!=', 'NO ENVIADO')]}"
+                        name="send_de_backend"
+                        string="ENVIAR DOCUMENTO"
+                        type="object"/>
                     <field name="estado" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -41,12 +48,13 @@
         <field name="arch" type="xml">
             <form string="Documento electronico queue">
                 <header>
-                    <button name="process_de_queue" string="Process de queue" type="object"/>
+                    <button name="process_de_queue" string="PROCESAR DOCUMENTO ELECTRÓNICOS" type="object"/>
                 </header>
                 <sheet>
                     <group name="queue_lines" string="Queue lines">
                         <field name="queue_line_ids" nolabel="1" readonly="1">
                             <tree>
+                                <field name="create_date"/>
                                 <field name="reference"/>
                                 <field name="documento_electronico_id"/>
                                 <field name="sent"/>

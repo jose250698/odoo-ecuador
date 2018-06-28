@@ -225,6 +225,9 @@ class SriDocumentoElectronico(models.Model):
             response = client.service.autorizacionComprobante(claveacceso)
 
         autorizaciones = response['autorizaciones']['autorizacion'][0]
+        if not autorizaciones:
+            return False
+
         autorizacion = OrderedDict([
             ('autorizacion', OrderedDict([
                 ('estado', autorizaciones['estado']),
@@ -242,7 +245,21 @@ class SriDocumentoElectronico(models.Model):
             'estado': autorizaciones['estado'],
             'mensajes': autorizaciones['mensajes'],
             'xml_file': base64.b64encode(comprobante.encode('utf-8')),
+            'fechaautorizacion': fields.Datetime.to_string(autorizaciones['fechaAutorizacion']),
         })
+
+        # Enviar correo si el documento es AUTORIZADO.
+        if autorizaciones['estado'] == 'AUTORIZADO':
+            try:
+                sent = self.reference.send_email_de()
+                # Si se envía, eliminamos la línea de los pendientes.
+                if sent:
+                    line_obj = self.env['l10n_ec_sri.documento.electronico.queue.line']
+                    line = line_obj.search([('documento_electronico_id','=', self.id)], limit=1)
+                    line.sent = True
+            except:
+                pass
+        return True
 
     @api.multi
     def get_documento_electronico_dict(
@@ -263,13 +280,6 @@ class SriDocumentoElectronico(models.Model):
             })
         p12 = base64.b64encode(firma.path)
         xml = self.firma_xades_bes(xml, p12, clave)
-        # try:
-        #   envio = self.send_de_offline(ambiente_id, xml)
-        # except:
-        #    envio = {
-        #        'estado': 'NO ENVIADO',
-        #        'comprobantes': ''
-        #    }
         filename = ''.join([claveacceso, '.xml'])
 
         # Creamos el diccionario del documento electrónico.
@@ -278,8 +288,6 @@ class SriDocumentoElectronico(models.Model):
             'xml_filename': filename,
             'estado': 'NO ENVIADO',
             'mensajes': '',
-            # 'estado': envio['estado'],
-            # 'mensajes': envio['comprobantes'] or '',
             'ambiente': ambiente_id.ambiente,
             'tipoemision': tipoemision,
             'claveacceso': claveacceso,
@@ -398,34 +406,46 @@ class SriDocumentosElectronicosQueue(models.Model):
     @api.model
     def process_de_queue(self, ids=None):
         queue = self.env.ref('l10n_ec_sri_ece.documento_electronico_queue')
-        for l in queue.queue_line_ids:
-            de = l.documento_electronico_id
+        procesadas = queue.queue_line_ids.filtered(
+            lambda x: x.sent == True and x.estado == 'AUTORIZADO'
+        )
+
+        if procesadas:
+            # Usamos try porque es posible que el cron se ejecute
+            # al mismo tiempo que una orden manual del usuario
+            # y se intente borrar dos veces el mismo record.
+            try:
+                procesadas.unlink()
+            except:
+                pass
+
+        pendientes = queue.queue_line_ids
+        for p in pendientes:
+            de = p.documento_electronico_id
             if de.estado == 'NO ENVIADO':
                 de.send_de_backend()
 
-            if de.estado == 'RECIBIDA':
+            if de.estado in ('RECIBIDA', 'EN PROCESO'):
                 de.receive_de_offline()
 
-            if not l.sent and l.estado == 'AUTORIZADO':
+            if not p.sent and p.estado == 'AUTORIZADO':
                 try:
                     sent = de.reference.send_email_de()
-                    l.sent = sent
+                    p.sent = sent
                 except:
-                    l.sent = False
-
-            # Eliminamos cuando se ha enviado el correo y está autorizado.
-            if l.estado == 'AUTORIZADO' and l.sent:
-                l.unlink()
+                    p.sent = False
 
 
 class SriDocumentosElectronicosQueueLine(models.Model):
     _name = 'l10n_ec_sri.documento.electronico.queue.line'
     _description = 'Documentos Electronicos queue line'
-    _order = 'create_date'
+    _order = 'create_date desc'
 
     sent = fields.Boolean(string='Sent', )
     estado = fields.Selection(
-        string='State', related="documento_electronico_id.estado", )
+        string='State', related="documento_electronico_id.estado",
+        store=True, )
+
     documento_electronico_id = fields.Many2one(
         'l10n_ec_sri.documento.electronico', string='Documento electronico', )
     reference = fields.Reference(

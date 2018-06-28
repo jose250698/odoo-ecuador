@@ -13,7 +13,7 @@
             <field name="name">Procesar cola de documentos electrónicos</field>
             <field name="active" eval="True"/>
             <field name="user_id" ref="base.user_root"/>
-            <field name="interval_number">5</field>
+            <field name="interval_number">15</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
             <field name="model">l10n_ec_sri.documento.electronico.queue</field>

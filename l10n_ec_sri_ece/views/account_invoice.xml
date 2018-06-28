@@ -18,10 +18,18 @@
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='invoice_open']" position="before" >
-                <button name="send_de_backend" string="AUTORIZAR/VERIFICAR SRI"
-                        type="object" states="open" class="btn-primary"/>
+                <button
+                    name="send_de_backend"
+                    string="AUTORIZAR/VERIFICAR SRI"
+                    attrs="{
+                        'invisible':[
+                            ('ce_state', 'not in', ('NO ENVIADO', 'RECIBIDA', 'EN PROCESO')
+                        )]}"
+                    type="object"
+                    class="btn-primary"/>
             </xpath>
             <field name="payment_term_id" position="after">
+                <field name="ce_state" invisible="1"/>
                 <field
                      name="factura_electronica_id"
                      attrs="{'invisible': [('factura_electronica_id', '=', False)]}"
@@ -72,4 +80,17 @@
         </field>
     </record>
 
+    <record id="view_account_invoice_filter" model="ir.ui.view">
+        <field name="name">Invoice - SRI ECE Search View</field>
+        <field name="model">account.invoice</field>
+        <field name="type">search</field>
+        <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//filter[@name='group_by_partner_id']" position="before" >
+                    <filter name="group_by_partner_id" string="Estado SRI" context="{'group_by':'ce_state'}"/>
+                </xpath>
+            </data>
+        </field>
+    </record>
 </odoo>

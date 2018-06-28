@@ -544,9 +544,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def send_email_de(self):
         self.ensure_one()
-
         template = self.get_email_template()
-
         template.send_mail(self.ids[0], force_send=True)
         return True
 

@@ -270,10 +270,6 @@ class AccountInvoice(models.Model):
     def button_prepare_sri_declaration(self):
         for inv in self:
 
-            # No calculamos impuestos sin comprobante válido.
-            if inv.comprobante_id.code in ('NA', False):
-                return
-
             # Genera las lineas de impuestos y ats en compras y ventas.
             lines = inv.get_sri_tax_lines()
             for line in lines:
@@ -938,13 +934,15 @@ class AccountInvoice(models.Model):
     @api.multi
     def sri_legalizar_documento(self):
         for r in self:
-            # Generamos los valores de impuestos
-            # antes de iniciar al proceso de facturación.
-            r.button_prepare_sri_declaration()
-
             # Calculamos la autorización y el tipo de documento.
-            aut, tipo = r.set_autorizacion()
 
+            # Si existe un comprobante y ese comprobante tiene código
+            # NA o no tiene código, significa que el usuario no desea
+            # declarar ese documento en sus impuestos.
+            if r.comprobante_id and r.comprobante_id.code in ('NA', False):
+                return
+
+            aut, tipo = r.set_autorizacion()
             if not aut:
                 return
 
@@ -961,8 +959,16 @@ class AccountInvoice(models.Model):
         en el proceso de validación.
         """
         res = super(AccountInvoice, self).action_date_assign()
-        if self.comprobante_id.code != 'NA':
-            self.sri_legalizar_documento()
+
+        # Generamos los valores de impuestos
+        # antes de iniciar al proceso de facturación.
+        self.button_prepare_sri_declaration()
+
+        # Calcularmos los totales si no hay total o no_declarado
+        if not self.total and not self.no_declarado:
+            self.compute_sri_invoice_amounts()
+
+        self.sri_legalizar_documento()
         return res
 
     # Determina el tipo de comprobante de retención emitido en compras.
