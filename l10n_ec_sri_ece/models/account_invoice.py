@@ -528,7 +528,10 @@ class AccountInvoice(models.Model):
         return True
 
     @api.multi
-    @api.depends('factura_electronica_id.estado', 'retencion_electronica_id.estado', 'nota_credito_electronica_id.estado')
+    @api.depends(
+        'factura_electronica_id.estado',
+        'retencion_electronica_id.estado',
+        'nota_credito_electronica_id.estado')
     def _get_ce_state(self):
         for r in self:
             edoc = r.factura_electronica_id or r.retencion_electronica_id or r.nota_credito_electronica_id
@@ -541,9 +544,7 @@ class AccountInvoice(models.Model):
     @api.multi
     def send_email_de(self):
         self.ensure_one()
-
         template = self.get_email_template()
-
         template.send_mail(self.ids[0], force_send=True)
         return True
 

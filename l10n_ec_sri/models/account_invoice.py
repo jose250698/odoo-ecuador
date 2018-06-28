@@ -270,10 +270,6 @@ class AccountInvoice(models.Model):
     def button_prepare_sri_declaration(self):
         for inv in self:
 
-            # No calculamos impuestos sin comprobante válido.
-            if inv.comprobante_id.code in ('NA', False):
-                return
-
             # Genera las lineas de impuestos y ats en compras y ventas.
             lines = inv.get_sri_tax_lines()
             for line in lines:
@@ -834,7 +830,8 @@ class AccountInvoice(models.Model):
             if self.comprobante_id.code == '03':
                 liq = u.autorizacion_liquidaciones_id or c.autorizacion_liquidaciones_id
                 if liq.tipoem == 'E':
-                    raise UserError(_(u"Las liquidaciones de compras no pueden ser electrónicas"))
+                    raise UserError(
+                        _(u"Las liquidaciones de compras no pueden ser electrónicas"))
                 self.set_liquidacion(liq)
 
             aut = u.autorizacion_retenciones_id or c.autorizacion_retenciones_id
@@ -937,13 +934,15 @@ class AccountInvoice(models.Model):
     @api.multi
     def sri_legalizar_documento(self):
         for r in self:
-            # Generamos los valores de impuestos
-            # antes de iniciar al proceso de facturación.
-            r.button_prepare_sri_declaration()
-
             # Calculamos la autorización y el tipo de documento.
-            aut, tipo = r.set_autorizacion()
 
+            # Si existe un comprobante y ese comprobante tiene código
+            # NA o no tiene código, significa que el usuario no desea
+            # declarar ese documento en sus impuestos.
+            if r.comprobante_id and r.comprobante_id.code in ('NA', False):
+                return
+
+            aut, tipo = r.set_autorizacion()
             if not aut:
                 return
 
@@ -960,8 +959,17 @@ class AccountInvoice(models.Model):
         en el proceso de validación.
         """
         res = super(AccountInvoice, self).action_date_assign()
-        if self.comprobante_id.code != 'NA':
-            self.sri_legalizar_documento()
+
+        # Generamos los valores de impuestos
+        # en todas las facturas.
+        self.button_prepare_sri_declaration()
+
+        # Calcularmos los totales si no hay datos
+        # en el campo total o no_declarado.
+        if not self.total and not self.no_declarado:
+            self.compute_sri_invoice_amounts()
+
+        self.sri_legalizar_documento()
         return res
 
     # Determina el tipo de comprobante de retención emitido en compras.
@@ -971,8 +979,10 @@ class AccountInvoice(models.Model):
     # r_autorizacion_id no se borra, se usa para las autorizaciones propias de retenciones.
     r_autorizacion_id = fields.Many2one(
         'l10n_ec_sri.autorizacion', string=u'Autorización de la retención', copy=False, )
-    estabretencion1 = fields.Char('Establecimiento de la retención', copy=False, size=3, )
-    ptoemiretencion1 = fields.Char('Punto de emsión de la retención', copy=False, size=3, )
+    estabretencion1 = fields.Char(
+        'Establecimiento de la retención', copy=False, size=3, )
+    ptoemiretencion1 = fields.Char(
+        'Punto de emsión de la retención', copy=False, size=3, )
     autretencion1 = fields.Char('Autorización de la retención', copy=False, )
     secretencion1 = fields.Char('Secuencial de la retención', copy=False, )
     fechaemiret1 = fields.Date('Fecha de la retención', copy=False, )
@@ -1004,24 +1014,53 @@ class AccountInvoice(models.Model):
             })
 
     # Campos informativos del SRI.
-    basenograiva = fields.Monetary(string="Subtotal no grava I.V.A.", )
-    baseimponible = fields.Monetary(string="Subtotal I.V.A. 0%", )
-    baseimpgrav = fields.Monetary(string="Subtotal gravado con I.V.A.", )
-    baseimpexe = fields.Monetary(string="Subtotal excento de I.V.A.", )
-    montoiva = fields.Monetary(string="Monto I.V.A", )
-    montoice = fields.Monetary(string="Monto I.V.A", )
+    basenograiva = fields.Monetary(
+        string="Subtotal no grava I.V.A.",
+        copy=True, )
+    baseimponible = fields.Monetary(
+        string="Subtotal I.V.A. 0%",
+        copy=True, )
+    baseimpgrav = fields.Monetary(
+        string="Subtotal gravado con I.V.A.",
+        copy=True, )
+    baseimpexe = fields.Monetary(
+        string="Subtotal excento de I.V.A.",
+        copy=True, )
+    montoiva = fields.Monetary(
+        string="Monto I.V.A",
+        copy=True, )
+    montoice = fields.Monetary(
+        string="Monto I.V.A",
+        copy=True, )
 
     # Otros campos informativos de uso interno.
     # No se usa los campos propios de Odoo porque estos restan las retenciones.
     total = fields.Monetary(
-        string='TOTAL', )
+        string='TOTAL',
+        copy=True, )
     subtotal = fields.Monetary(
-        string='SUBTOTAL', )
+        string='SUBTOTAL',
+        copy=True, )
     no_declarado = fields.Monetary(
-        string='VALOR NO DECLARADO', readonly=True, )
+        string='VALOR NO DECLARADO',
+        copy=True, )
+
+    # Este campo es necesario para presentarlo en las vistas y usarlo en los reportes
+    # que solo discriminan valores con y sin iva, no el detalle requerido por el SRI.
+    subtotal_sin_iva = fields.Monetary(
+        string="SUBTOTAL SIN IVA", compute="_compute_subtotal_sin_iva", )
 
     @api.multi
-    @api.constrains('secuencial', 'comprobante_code', 'fechaemiret1', 'date_invoice')
+    @api.depends('baseimpexe', 'baseimponible', 'basenograiva')
+    def _compute_subtotal_sin_iva(self):
+        for r in self:
+            r.subtotal_sin_iva = r.baseimpexe + r.baseimponible + r.basenograiva
+
+    @api.multi
+    @api.constrains(
+        'secuencial', 'comprobante_code',
+        'fechaemiret1', 'date_invoice'
+    )
     def check_invoice_values(self):
         for inv in self:
             if inv.comprobante_code and inv.secuencial:
