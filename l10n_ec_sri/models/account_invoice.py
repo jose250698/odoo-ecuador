@@ -971,8 +971,10 @@ class AccountInvoice(models.Model):
     # r_autorizacion_id no se borra, se usa para las autorizaciones propias de retenciones.
     r_autorizacion_id = fields.Many2one(
         'l10n_ec_sri.autorizacion', string=u'Autorización de la retención', copy=False, )
-    estabretencion1 = fields.Char('Establecimiento de la retención', copy=False, size=3, )
-    ptoemiretencion1 = fields.Char('Punto de emsión de la retención', copy=False, size=3, )
+    estabretencion1 = fields.Char(
+        'Establecimiento de la retención', copy=False, size=3, )
+    ptoemiretencion1 = fields.Char(
+        'Punto de emsión de la retención', copy=False, size=3, )
     autretencion1 = fields.Char('Autorización de la retención', copy=False, )
     secretencion1 = fields.Char('Secuencial de la retención', copy=False, )
     fechaemiret1 = fields.Date('Fecha de la retención', copy=False, )

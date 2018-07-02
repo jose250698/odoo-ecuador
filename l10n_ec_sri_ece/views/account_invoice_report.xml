@@ -107,9 +107,10 @@
 									<span t-field="o.date_due" />
 								</span>
 							</td>
+
 							<td style="border: none;">
-                                <strong>Guía Remisión: </strong>
-                                <span t-esc="o.get_sri_secuencial_completo_guia()"/>
+                                                            <strong>Guía Remisión: </strong>
+                                                            <span t-esc="o.get_sri_secuencial_completo_guia()"/>
 							</td>
 							<td style="border: none;" class="text-left">
 

@@ -140,7 +140,8 @@ class SriTaxForm(models.Model):
     xml_file = fields.Binary('Archivo XML', attachment=True, readonly=True, )
     xml_filename = fields.Char(string="Archivo XML")
 
-    declarar_facturas_electronicas = fields.Boolean(string='Declarar facturas electronicas', )
+    declarar_facturas_electronicas = fields.Boolean(
+        string='Declarar facturas electronicas', default=True, )
 
     @api.multi
     def prepare_ats(self):
@@ -174,9 +175,8 @@ class SriTaxForm(models.Model):
 
                 ventaEst.append(OrderedDict([
                     ('codEstab', e),
-                    ('ventasEstab', '{:.2f}'.format(
-                        e_ventas - e_devoluciones)),
-                    ('ivaComp', '{:.2f}'.format(0)),  # TODO: ¿es necesario?
+                    ('ventasEstab', '{:.2f}'.format(e_ventas)),
+                    ('ivaComp', '{:.2f}'.format(0)),
                 ]))
 
             totalVentas = sum(float(v['ventasEstab']) for v in ventaEst)
@@ -194,9 +194,9 @@ class SriTaxForm(models.Model):
 
                 # Filtramos los partners por cédula y RUC
                 vat = p.vat
-                if len(vat) == 13:
+                if vat and len(vat) == 13:
                     id_fiscal = [vat, vat[:9]]
-                elif len(vat) == 10:
+                elif vat and len(vat) == 10:
                     id_fiscal = [vat, vat + '001']
                 else:
                     id_fiscal = [vat]
@@ -205,28 +205,9 @@ class SriTaxForm(models.Model):
                 # Restamos los partners para evitar duplicar el cálculo.
                 pending_partners -= contribuyentes
 
-                p_ventas = ventas.filtered(lambda r: r.partner_id in contribuyentes)
-                p_devoluciones = devoluciones.filtered(
-                    lambda r: r.partner_id in contribuyentes)
-
-                t_ventas = p_ventas.mapped('sri_ats_line_ids')
-                t_devoluciones = p_devoluciones.mapped('sri_ats_line_ids')
-
-                # Restamos de ventas y devoluciones para incrementar eficiencia.
-                ventas -= p_ventas
-                devoluciones -= p_devoluciones
 
                 fiscal = p.property_account_position_id
                 identificacion = fiscal.identificacion_id
-
-                fp_inv = p_ventas.filtered(lambda inv: inv.subtotal >= 1000)
-
-                formaPago = []
-                if fp_inv:
-                    formaPago = list(
-                        set(fp_inv.mapped('payment_ids').mapped('formapago_id.code')))
-                if not formaPago:
-                    formaPago.append(p.formapago_id.code or '01')
 
                 tpidcliente = identificacion.tpidcliente
                 vals = OrderedDict([
@@ -238,41 +219,93 @@ class SriTaxForm(models.Model):
                 if tpidcliente == '06':
                     vals.update(OrderedDict([
                         ('tipoCliente', fiscal.persona_id.tpidprov),
-                        # TODO: consultar las especificaciones de DenoCli en el SRI.
-                        # Denocli es condicional a tpidcliente == 03 pero ese código
-                        # corresponde a compras, por lo que nunca ocurriría.
+                        # Al declarar el ATS sale un error que indica que se debe
+                        # declarar DenoCli cuando el tipo es 06.
                         # ('DenoCli', inv.normalize_text(p.name))
                     ]))
-                vals.update(OrderedDict([
-                    ('tipoComprobante', '18'),  # En ventas siempre usamos 18
-                    # Las facturas electrónicas no se declaran.
-                    ('tipoEmision', 'F'),
-                    ('numeroComprobantes', len(p_ventas) + len(p_devoluciones)),
-                    ('baseNoGraIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('basenograiva')) - sum(t_devoluciones.mapped('basenograiva')) or 0.00)),
-                    ('baseImponible', '{:.2f}'.format(
-                        sum(t_ventas.mapped('baseimponible')) - sum(t_devoluciones.mapped('baseimponible')) or 0.00)),
-                    ('baseImpGrav', '{:.2f}'.format(
-                        sum(t_ventas.mapped('baseimpgrav')) - sum(t_devoluciones.mapped('baseimpgrav')) or 0.00)),
-                    ('montoIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('montoiva')) - sum(t_devoluciones.mapped('montoiva')) or 0.00)),
+
+                # VENTAS
+                p_ventas = ventas.filtered(lambda r: r.partner_id in contribuyentes)
+                t_ventas = p_ventas.mapped('sri_ats_line_ids')
+                ventas -= p_ventas
+                tipoEmision = any(item == 'E' for item in p_ventas.mapped('tipoem')) and 'E' or 'F'
+
+                fp_inv = p_ventas.filtered(lambda inv: inv.subtotal >= 1000)
+                formaPago = []
+                if fp_inv:
+                    formaPago = list(
+                        set(fp_inv.mapped('payment_ids').mapped('formapago_id.code')))
+                if not formaPago:
+                    formaPago.append(p.formapago_id.code or '01')
+
+                basenograiva = sum(t_ventas.mapped('basenograiva'))
+                baseimponible = sum(t_ventas.mapped('baseimponible'))
+                baseimpgrav = sum(t_ventas.mapped('baseimpgrav'))
+                montoiva = sum(t_ventas.mapped('montoiva'))
+                montoice = sum(t_ventas.mapped('montoice'))
+                valorretiva = sum(t_ventas.mapped('valorretiva'))
+                valorretrenta = sum(t_ventas.mapped('valorretrenta'))
+
+                ventas_dict = vals
+                ventas_dict.update(OrderedDict([
+                    ('tipoComprobante', '18'),
+                    ('tipoEmision', tipoEmision),
+                    ('numeroComprobantes', len(p_ventas)),
+                    ('baseNoGraIva', '{:.2f}'.format(abs(basenograiva))),
+                    ('baseImponible', '{:.2f}'.format(abs(baseimponible))),
+                    ('baseImpGrav', '{:.2f}'.format(abs(baseimpgrav))),
+                    ('montoIva', '{:.2f}'.format(abs(montoiva))),
                     # TODO: Tipo y monto de compensaciones, por desarrollar.
                     # ('tipoCompe', ''),
                     # ('monto', '{:.2f}'.format(0)),
-                    ('montoIce', '{:.2f}'.format(
-                        sum(t_ventas.mapped('montoice')) - sum(t_devoluciones.mapped('montoice')) or 0.00)),
-                    ('valorRetIva', '{:.2f}'.format(
-                        sum(t_ventas.mapped('valorretiva')) - sum(t_devoluciones.mapped('valorretiva')) or 0.00)),
-                    ('valorRetRenta', '{:.2f}'.format(
-                        sum(t_ventas.mapped('valorretrenta')) - sum(t_devoluciones.mapped('valorretrenta')) or 0.00)),
+                    ('montoIce', '{:.2f}'.format(abs(montoice))),
+                    ('valorRetIva', '{:.2f}'.format(abs(valorretiva))),
+                    ('valorRetRenta', '{:.2f}'.format(abs(valorretrenta))),
                 ]))
 
+                # Solo se declaran formasDePago en comprobantes de venta '18'
                 if formaPago:
-                    vals.update([
+                    ventas_dict.update([
                         ('formasDePago', {'formaPago': formaPago})
                     ])
 
-                detalleVentas.append(vals)
+                detalleVentas.append(ventas_dict)
+
+                # DEVOLUCIONES
+
+                p_devoluciones = devoluciones.filtered(
+                    lambda r: r.partner_id in contribuyentes)
+
+                if not p_devoluciones:
+                    continue
+
+                t_devoluciones = p_devoluciones.mapped('sri_ats_line_ids')
+                devoluciones -= p_devoluciones
+                tipoEmision = any(item == 'E' for item in p_devoluciones.mapped('tipoem')) and 'E' or 'F'
+
+                basenograiva = sum(t_devoluciones.mapped('basenograiva'))
+                baseimponible = sum(t_devoluciones.mapped('baseimponible'))
+                baseimpgrav = sum(t_devoluciones.mapped('baseimpgrav'))
+                montoiva = sum(t_devoluciones.mapped('montoiva'))
+                montoice = sum(t_devoluciones.mapped('montoice'))
+                valorretiva = sum(t_devoluciones.mapped('valorretiva'))
+                valorretrenta = sum(t_devoluciones.mapped('valorretrenta'))
+
+                devoluciones_dict = vals
+                devoluciones_dict.update(OrderedDict([
+                    ('tipoComprobante', '04'),
+                    ('tipoEmision', tipoEmision),
+                    ('numeroComprobantes', len(p_devoluciones)),
+                    ('baseNoGraIva', '{:.2f}'.format(abs(basenograiva))),
+                    ('baseImponible', '{:.2f}'.format(abs(baseimponible))),
+                    ('baseImpGrav', '{:.2f}'.format(abs(baseimpgrav))),
+                    ('montoIva', '{:.2f}'.format(abs(montoiva))),
+                    ('montoIce', '{:.2f}'.format(abs(montoice))),
+                    ('valorRetIva', '{:.2f}'.format(abs(valorretiva))),
+                    ('valorRetRenta', '{:.2f}'.format(abs(valorretrenta))),
+                ]))
+
+                detalleVentas.append(devoluciones_dict)
 
             ventas = OrderedDict([
                 ('detalleVentas', detalleVentas),
@@ -302,7 +335,7 @@ class SriTaxForm(models.Model):
 
             if totalVentas != 0:
                 iva.update(OrderedDict([
-                    ('totalVentas', totalVentas)
+                    ('totalVentas', '{:.2f}'.format(totalVentas))
                 ]))
 
             iva.update(OrderedDict([
