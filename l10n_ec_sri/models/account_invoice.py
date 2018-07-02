@@ -73,7 +73,7 @@ class AccountInvoice(models.Model):
         # Falla sin el modulo stock_picking_invoice_link.
         try:
             nro_guia = ' '.join([
-                p.get_sri_secuencial_completo_guia for p in self.picking_ids
+                p.get_sri_secuencial_completo_guia() for p in self.picking_ids
             ])
         except:
             pass
