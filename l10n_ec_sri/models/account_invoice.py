@@ -995,6 +995,20 @@ class AccountInvoice(models.Model):
         string='Invoice Date', readonly=True, states={'draft': [('readonly', False)]}, index=True,
         help="Keep empty to use the current date", copy=False, default=_default_date_invoice, )
 
+
+    @api.onchange('autorizacion_id')
+    def _onchange_autorizacion_id(self):
+        self.update({'tipoem': self.autorizacion_id.tipoem,
+            'puntoemision': self.autorizacion_id.puntoemision,
+            'establecimiento': self.autorizacion_id.establecimiento,
+            'autorizacion': self.autorizacion_id.autorizacion})
+
+    @api.onchange('r_autorizacion_id')
+    def _onchange_autorizacion_id(self):
+        self.update({'ptoemiretencion1': self.r_autorizacion_id.puntoemision,
+            'estabretencion1': self.r_autorizacion_id.establecimiento,
+            'autretencion1': self.r_autorizacion_id.autorizacion})
+
     @api.multi
     def button_anular_secuencial(self):
         for inv in self:
