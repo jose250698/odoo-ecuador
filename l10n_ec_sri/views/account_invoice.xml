@@ -49,6 +49,9 @@
                             <field name="r_comprobante_id"/>
                             <field name="fechaemiret1"/>
                             <field name="r_autorizacion_id"/>
+                            <field name="estabretencion1" placeholder="001" class="o_address_city" invisible="1"/>
+                            <field name="ptoemiretencion1" placeholder="001" class="o_address_state" invisible="1"/>
+                            <field name="autretencion1" placeholder="1234567890" class="o_address_zip" invisible="1"/>
                             <field name="secretencion1" placeholder="7890"/>
                         </group>
                         <group string="ANEXOS TRANSACCIONAL">
@@ -113,6 +116,9 @@
                            domain="[('comprobante_id', '=', comprobante_id), ('fechavencimiento','&gt;=', date_invoice)]"
                            attrs="{'invisible':[('comprobante_code', '=', '03')]}"
                            context="{'default_comprobante_id': comprobante_id}"/>
+                    <field name="establecimiento" placeholder="001" class="o_address_city" invisible="1"/>
+                    <field name="puntoemision" placeholder="001" class="o_address_state" invisible="1"/>
+                    <field name="autorizacion" placeholder="1234567890" class="o_address_zip" invisible="1"/>
                     <field name="secuencial" placeholder="7890"/>
                 </xpath>
                 <xpath expr="//field[@name='user_id']" position="before">
