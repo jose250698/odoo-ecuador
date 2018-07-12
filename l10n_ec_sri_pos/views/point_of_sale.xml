@@ -39,6 +39,22 @@
                     </div>
                     <field name="secuencial"/>
                 </xpath>
+
+                <xpath expr="//tree/field[@name='price_subtotal']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//tree/field[@name='price_subtotal_incl']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//form/group/field[@name='price_subtotal']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//form/group/field[@name='price_subtotal_incl']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//group[@name='order_total']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
             </field>
         </record>
 
