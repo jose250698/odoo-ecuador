@@ -26,7 +26,6 @@
         'views/account_invoice_report.xml',
         'data/invoice_action_data.xml',
         'data/data.xml',
-        'data/account_data.xml',
     ],
     'demo': [],
     'test': [],

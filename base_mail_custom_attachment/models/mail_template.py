@@ -23,11 +23,16 @@ class MailTemplate(models.Model):
         r = super(MailTemplate, self).generate_email(res_ids, fields=fields)
 
         try:
-            attachments = self.env[r['model']].browse(r['res_id'])._get_custom_attachments()
+            attachments = self.env[r[res_ids[0]]['model']].browse(
+                r[res_ids[0]]['res_id'])._get_custom_attachments()
             if attachments:
-                r['attachments'].extend(attachments)
+                r[res_ids[0]]['attachments'].extend(attachments)
         except:
-            pass
+            try:
+                attachments = self.env[r['model']].browse(r['res_id'])._get_custom_attachments()
+                if attachments:
+                    r['attachments'].extend(attachments)
+            except:
+                pass
 
         return r
-
