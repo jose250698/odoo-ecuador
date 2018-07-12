@@ -24,4 +24,24 @@
             </xpath>
         </field>
     </record> 
+
+    <!-- model.name inherit form view -->
+    <record id="view_pos_session_form_inherit" model="ir.ui.view">
+        <field name="name">pos.session.inherit.view.form</field>
+        <field name="model">pos.session</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+        <field name="arch" type="xml">
+            <field name="config_id" position="attributes" >
+                <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+            </field>
+
+            <xpath expr="//sheet/separator" position="attributes">
+                <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+            </xpath>
+            <field name="statement_ids" position="attributes" >
+                <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+            </field>
+            
+        </field>
+    </record>
 </odoo>
