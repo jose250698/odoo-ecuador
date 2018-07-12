@@ -15,8 +15,13 @@
                         </group>
                         <group>
                             <field name="group_by"/>
-                            <field name="user_ids" widget="many2many_tags"/>
-                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="user_ids"
+                                   widget="many2many_tags"
+                                   groups="account.group_account_user"
+                                   />
+                            <field name="partner_ids"
+                                   widget="many2many_tags"
+                                   />
                         </group>
                     </group>
 
@@ -32,13 +37,11 @@
                     </group>
 
                     <group name="product_type" string="Product type"
-                        attrs="{'invisible': [('type', '!=', 'invoice_lines')]}">
+                           attrs="{'invisible': [('type', '!=', 'invoice_lines')]}">
                         <field name="consu"/>
                         <field name="service"/>
                         <field name="product"/>
                     </group>
-                    
-                    
                     <!--<group string="Filtros">
                         <group name="states" string="States">
                         <field name="done"/>
