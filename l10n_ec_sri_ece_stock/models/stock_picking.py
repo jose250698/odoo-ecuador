@@ -46,14 +46,16 @@ class StockPicking(models.Model):
 
     @api.multi
     def get_sri_secuencial_completo_guia(self):
+        self.ensure_one()
         nro_guia = ''
         # No presentamos guias no legalizadas.
-        if p.secuencial and p.puntoemision and p.establecimiento:
+        if self.secuencial and self.puntoemision and self.establecimiento:
             nro_guia = '-'.join([
-                p.estabretencion1 or '0',
-                p.ptoemiretencion1 or '0',
-                (p.secretencion1 or '0').zfill(9)
+                self.establecimiento or '0',
+                self.puntoemision or '0',
+                (self.secuencial or '0').zfill(9)
             ])
+
         return nro_guia
 
     @api.multi
