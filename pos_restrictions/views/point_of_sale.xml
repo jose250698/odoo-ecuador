@@ -25,7 +25,22 @@
         </field>
     </record> 
 
-    <!-- model.name inherit form view -->
+    <report id="point_of_sale.action_report_pos_session_summary" 
+            string="Session Summary"
+            model="pos.session"
+            report_type="qweb-pdf"
+            name="point_of_sale.report_sessionsummary"
+            file="point_of_sale.report_sessionsummary"
+            groups="point_of_sale.group_pos_manager"/>
+
+    <act_window
+            id="point_of_sale.act_pos_session_orders"
+            name="Orders"
+            src_model="pos.session"
+            res_model="pos.order"
+            context="{'search_default_session_id': active_id, 'default_session_id' : active_id }" 
+            groups="point_of_sale.group_pos_manager"/>
+
     <record id="view_pos_session_form_inherit" model="ir.ui.view">
         <field name="name">pos.session.inherit.view.form</field>
         <field name="model">pos.session</field>
