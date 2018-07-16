@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models
+from odoo import api, fields, models
 
 
 ADDRESS_FIELDS = ('vat', 'street', 'street2', 'zip', 'city', 'state_id', 'country_id')
@@ -8,7 +8,7 @@ ADDRESS_FIELDS = ('vat', 'street', 'street2', 'zip', 'city', 'state_id', 'countr
 class ResPartner(models.Model):
     _inherit = 'res.partner'
 
-    def _display_address(self, cr, uid, address, without_company=False, context=None):
+    def _display_address(self, without_company=False):
         '''
         The purpose of this function is to build and return an address formatted accordingly to the
         standards of the country where it belongs.
@@ -23,28 +23,28 @@ class ResPartner(models.Model):
         # get the address format
         address_format = """%(vat)s\n%(street)s\n%(street2)s\n%(city)s %(state_code)s %(zip)s\n%(country_name)s \n%(phone)s \n%(mobile)s"""
         args = {
-            'vat': address.vat or '',
-            'street': address.street or '',
-            'street2': address.street2 or '',
-            'city': address.city or '',
-            'zip': address.zip or '',
-            'state_code': address.state_id.code or '',
-            'state_name': address.state_id.name or '',
-            'country_code': address.country_id.code or '',
-            'country_name': address.country_id.name or '',
-            'company_name': address.parent_name or '',
-            'phone': address.phone or '',
-            'mobile': address.mobile or ''
+            'vat': self.vat or '',
+            'street': self.street or '',
+            'street2': self.street2 or '',
+            'city': self.city or '',
+            'zip': self.zip or '',
+            'state_code': self.state_id.code or '',
+            'state_name': self.state_id.name or '',
+            'country_code': self.country_id.code or '',
+            'country_name': self.country_id.name or '',
+            'company_name': self.parent_name or '',
+            'phone': self.phone or '',
+            'mobile': self.mobile or ''
         }
-        for field in self._address_fields(cr, uid, context=context):
-            args[field] = getattr(address, field) or ''
+        for field in self._address_fields():
+            args[field] = getattr(self, field) or ''
         if without_company:
             args['company_name'] = ''
-        elif address.parent_id:
+        elif self.parent_id:
             address_format = '%(company_name)s\n' + address_format
         return address_format % args
 
-    def _address_fields(self, cr, uid, context=None):
+    def _address_fields(self):
         """ Returns the list of address fields that are synced from the parent
         when the `use_parent_address` flag is set. """
         return list(ADDRESS_FIELDS)

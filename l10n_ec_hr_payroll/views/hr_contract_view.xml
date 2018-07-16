@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<openerp>
+<odoo>
     <data>
 
         <menuitem id="root_hr_menu_contract"
                   parent="hr.menu_hr_root"
                   name="Contracts"
                   sequence="4"
-                  groups="base.group_hr_manager"/>
+                  groups="hr.group_hr_manager"/>
 
         <menuitem action="hr_contract.action_hr_contract"
                   id="hr_contract.hr_menu_contract"
                   parent="root_hr_menu_contract"
                   name="Contracts"
                   sequence="1"
-                  groups="base.group_hr_manager"/>
+                  groups="hr.group_hr_manager"/>
 
         <record id="l10n_ec_hr_view_contract_form" model="ir.ui.view">
             <field name="name">l10n_ec_account_view_contract_form</field>
@@ -148,4 +148,4 @@
         </record>
 
     </data>
-</openerp>
+</odoo>

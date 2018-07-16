@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from openerp import _, fields, models
+from odoo import _, fields, models
 
 
 class HrEmployee(models.Model):

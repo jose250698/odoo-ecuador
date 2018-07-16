@@ -74,10 +74,13 @@
                     <field name="montoice" attrs="{'invisible':[('montoice', '==', 0.0)]}" />
                 </xpath>
                 <xpath expr="//field[@name='amount_total']" position="replace" >
-                    <field name="total" class="oe_subtotal_footer_separator" />
-                    <field
+
+                    <!--CD...-->
+                    <!--<field name="total" class="oe_subtotal_footer_separator" />-->
+                    <!--<field
                         name="no_declarado"
-                        attrs="{'invisible':[('no_declarado', '==', 0.0)]}"/>
+                        attrs="{'invisible':[('no_declarado', '==', 0.0)]}"/>-->
+                    <!--CD...-->
                 </xpath>
                 <!--tabla de impuestos-->
                 <xpath expr="//field[@name='tax_line_ids']/tree" position="attributes" >

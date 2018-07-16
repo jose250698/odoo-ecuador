@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import api, fields, models
-from openerp.osv import expression
+from odoo import api, fields, models
+from odoo.osv import expression
 
 
 class Autorizacion(models.Model):

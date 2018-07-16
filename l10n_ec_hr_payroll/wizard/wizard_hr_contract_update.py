@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError, ValidationError
+from odoo import api, fields, models
+from odoo import _
+from odoo.exceptions import UserError, ValidationError
 
 
 class WizardHrContractUpdate(models.TransientModel):

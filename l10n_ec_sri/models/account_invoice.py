@@ -4,8 +4,8 @@ import unicodedata
 from collections import OrderedDict
 from datetime import datetime
 
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 TYPE2REFUND = {
     'out_invoice': 'out_refund',        # Customer Invoice

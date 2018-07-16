@@ -2,9 +2,9 @@
 import time
 from datetime import datetime, timedelta
 
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError
-from openerp.tools import float_compare, float_is_zero
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+from odoo.tools import float_compare, float_is_zero
 
 
 class HrPayslipRun(models.Model):

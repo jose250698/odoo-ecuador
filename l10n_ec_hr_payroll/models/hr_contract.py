@@ -2,8 +2,8 @@
 
 from datetime import datetime
 
-from openerp import _, api, exceptions, fields, models
-from openerp.exceptions import UserError
+from odoo import _, api, exceptions, fields, models
+from odoo.exceptions import UserError
 
 
 class HrContract(models.Model):

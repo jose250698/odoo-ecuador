@@ -10,7 +10,8 @@
                 <field name="property_account_position_id" widget="selection"/>
                 <field name="contribuyenteespecial"/>
             </xpath>
-            <xpath expr="//group[@name='account_grp']" position="inside">
+            <!--CD... preguntar donde y porqueeeee      account_grp-->
+            <xpath expr="//field[@name='sequence']" position="inside">
                 <group name="autorizaciones" string="Autorizaciones">
                     <field name="autorizacion_facturas_id"/>
                     <field name="autorizacion_notas_credito_id"/>
