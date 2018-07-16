@@ -7,7 +7,7 @@
 {
     "name": "Link refund invoice with original",
     "summary": "Link refund invoice with its original invoice",
-    "version": "9.0.2.0.2",
+    "version": "10.0.0.1",
     "category": "Accounting & Finance",
     "author": "Pexego, "
               "Tecnativa, "
