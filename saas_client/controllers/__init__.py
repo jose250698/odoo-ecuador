@@ -1,2 +1,0 @@
-import main
-import web_settings_dashboard
