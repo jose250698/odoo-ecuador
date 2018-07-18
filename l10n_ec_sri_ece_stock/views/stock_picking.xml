@@ -6,7 +6,7 @@
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
-             <button name="do_new_transfer" position="before">
+             <button name="do_print_picking" position="before">
                 <button name="send_email_de"  string="Enviar por correo electrónico" type="object"
                 class="btn-primary" attrs="{'invisible':['|',('state', '!=', 'done')]}"/>
             </button>
@@ -33,7 +33,7 @@
             <xpath expr="//field[@name='carrier_id']" position="after">
                 <field name="driver_id" />
             </xpath>
-            <xpath expr="//field[@name='carrier_price']" position="before">
+            <xpath expr="//field[@name='carrier_id']" position="before">
                 <field name="route" />
                 <field name="fechainitransporte" />
                 <field name="fechafintransporte" />

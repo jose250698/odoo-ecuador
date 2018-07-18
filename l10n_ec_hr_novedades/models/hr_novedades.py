@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from openerp import _, api, fields, models, tools
+from odoo import _, api, fields, models, tools
 
 
 class hr_payslip_input(models.Model):

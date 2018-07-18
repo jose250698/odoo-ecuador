@@ -99,7 +99,7 @@
         </t>
     </template>
 
-    <record id="journal_entries" model="ir.actions.report.xml">
-        <field name="paperformat_id" ref="report.paperformat_euro"/>
+    <record id="journal_entries" model="ir.actions.report">
+        <field name="paperformat_id" ref="base.paperformat_euro"/>
     </record>
 </odoo>

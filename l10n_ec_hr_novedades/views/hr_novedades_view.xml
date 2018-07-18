@@ -16,7 +16,7 @@
     <menuitem id="menu_hr_novedad"
               parent="hr_payroll.menu_hr_payroll_root"
               name="Novedades"
-              groups="base.group_hr_manager"/>
+              groups="hr.group_hr_manager"/>
 
     <record id="view_hr_payslip_novedad_form" model="ir.ui.view">
       <field name="name">hr.novedad.form</field>
@@ -74,7 +74,7 @@
               action="action_hr_payslip_novedad"
               parent="menu_hr_novedad"
               name="Masivas"
-              groups="base.group_hr_manager"/>
+              groups="hr.group_hr_manager"/>
 
     <record model="ir.ui.view" id="view_hr_payslip_novedad_line_form">
       <field name="name">hr.novedad.line.form</field>
@@ -130,7 +130,7 @@
               action="action_hr_payslip_novedad_line"
               parent="menu_hr_novedad"
               name="Individuales"
-              groups="base.group_hr_manager"/>
+              groups="hr.group_hr_manager"/>
 
   </data>
 </odoo>

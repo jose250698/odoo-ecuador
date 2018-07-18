@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
-import StringIO
+import io
 import time
 
 import logging
@@ -24,8 +24,8 @@ except:
     _logger.error("The module xlsxwriter can't be loaded, try: pip install xlsxwriter")
 
 
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class WizardHrPayslipNews(models.TransientModel):
@@ -58,7 +58,7 @@ class WizardHrPayslipNews(models.TransientModel):
             for rule in row.line_ids:
                 rules.append('%s|%s' % (rule.name, rule.rule_id.code))
             employee_data = []
-            file_data = StringIO.StringIO()
+            file_data = io.StringIO()
             xbook = xlsxwriter.Workbook(file_data, {'in_memory': True})
             xsheet = xbook.add_worksheet('News')
             header = [_('Identification'), _('Passport'), _('Name'), _('Period')] + rules

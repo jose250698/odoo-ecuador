@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from openerp import models, fields, api, _
-from openerp.osv import osv
+from odoo import models, fields, api, _
+from odoo.osv import osv
 from stdnum.ec import ruc, ci
 from stdnum.exceptions import *
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import hr_employee
-import hr_payslip
-import account
-import account_payment
+from . import hr_employee
+from . import hr_payslip
+from . import account
+from . import account_payment

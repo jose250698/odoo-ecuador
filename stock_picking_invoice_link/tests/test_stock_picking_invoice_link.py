@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
-# © 2016 Oihane Crucelaegui - AvanzOSC
-# © 2016 Pedro M. Baeza <pedro.baeza@tecnativa.com>
-# © 2017 Jacques-Etienne Baudoux <je@bcim.be>
+# Copyright 2016 Oihane Crucelaegui - AvanzOSC
+# Copyright 2016 Pedro M. Baeza <pedro.baeza@tecnativa.com>
+# Copyright 2017 Jacques-Etienne Baudoux <je@bcim.be>
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
-from openerp.addons.sale.tests.test_sale_common import TestSale
+from odoo.addons.sale.tests.test_sale_common import TestSale
 
 
 class TestStockPickingInvoiceLink(TestSale):
@@ -24,17 +23,33 @@ class TestStockPickingInvoiceLink(TestSale):
         warehouse = self.env['stock.warehouse'].search(
             [('company_id', '=', company.id)], limit=1)
         stock_location = warehouse.lot_stock_id
-        for (_, p) in self.products.iteritems():
+        for (_, p) in self.products.items():
             if p.type == 'product':
                 self._update_product_qty(p, stock_location)
+        prod_order = self.products['prod_order']
+        prod_del = self.products['prod_del']
+        serv_order = self.products['serv_order']
         self.so = self.env['sale.order'].create({
             'partner_id': self.partner.id,
             'partner_invoice_id': self.partner.id,
             'partner_shipping_id': self.partner.id,
-            'order_line': [(0, 0, {
-                'name': p.name, 'product_id': p.id, 'product_uom_qty': 2,
-                'product_uom': p.uom_id.id, 'price_unit': p.list_price
-            }) for (_, p) in self.products.iteritems()],
+            'order_line': [
+                (0, 0, {
+                    'name': prod_order.name, 'product_id': prod_order.id,
+                    'product_uom_qty': 2, 'product_uom': prod_order.uom_id.id,
+                    'price_unit': prod_order.list_price
+                }),
+                (0, 0, {
+                    'name': prod_del.name, 'product_id': prod_del.id,
+                    'product_uom_qty': 2, 'product_uom': prod_del.uom_id.id,
+                    'price_unit': prod_del.list_price
+                }),
+                (0, 0, {
+                    'name': serv_order.name, 'product_id': serv_order.id,
+                    'product_uom_qty': 2, 'product_uom': serv_order.uom_id.id,
+                    'price_unit': serv_order.list_price
+                }),
+            ],
             'pricelist_id': self.env.ref('product.list0').id,
             'picking_policy': 'direct',
         })
@@ -42,13 +57,12 @@ class TestStockPickingInvoiceLink(TestSale):
 
     def test_00_sale_stock_invoice_link(self):
         inv_obj = self.env['account.invoice']
+        pick_obj = self.env['stock.picking']
         self.assertTrue(self.so.picking_ids,
                         'Sale Stock: no picking created for '
                         '"invoice on delivery" stockable products')
-
         # invoice on order
         self.so.action_invoice_create()
-
         # deliver partially
         self.assertEqual(self.so.invoice_status, 'no',
                          'Sale Stock: so invoice_status should be '
@@ -56,17 +70,14 @@ class TestStockPickingInvoiceLink(TestSale):
         pick_1 = self.so.picking_ids.filtered(
             lambda x: x.picking_type_code == 'outgoing' and
             x.state in ('confirmed', 'assigned', 'partially_available'))
-        pick_1.action_assign()
-        pick_1.pack_operation_product_ids.write({'qty_done': 1})
-        wiz_act = pick_1.do_new_transfer()
-        wiz = self.env[wiz_act['res_model']].browse(wiz_act['res_id'])
-        wiz.process()
+        pick_1.force_assign()
+        pick_1.move_line_ids.write({'qty_done': 1})
+        pick_1.action_done()
         self.assertEqual(self.so.invoice_status, 'to invoice',
                          'Sale Stock: so invoice_status should be '
                          '"to invoice" after partial delivery')
         inv_id = self.so.action_invoice_create()
         inv_1 = inv_obj.browse(inv_id)
-
         # complete the delivery
         self.assertEqual(self.so.invoice_status, 'no',
                          'Sale Stock: so invoice_status should be '
@@ -77,11 +88,13 @@ class TestStockPickingInvoiceLink(TestSale):
         pick_2 = self.so.picking_ids.filtered(
             lambda x: x.picking_type_code == 'outgoing' and
             x.state in ('confirmed', 'assigned', 'partially_available'))
-        pick_2.action_assign()
-        pick_2.pack_operation_product_ids.write({'qty_done': 1})
-        self.assertIsNone(pick_2.do_new_transfer(),
-                          'Sale Stock: second picking should be '
-                          'final without need for a backorder')
+        pick_2.force_assign()
+        pick_2.move_line_ids.write({'qty_done': 1})
+        pick_2.action_done()
+        backorders = pick_obj.search([('backorder_id', '=', pick_2.id)])
+        self.assertFalse(backorders,
+                         'Sale Stock: second picking should be '
+                         'final without need for a backorder')
         self.assertEqual(self.so.invoice_status, 'to invoice',
                          'Sale Stock: so invoice_status should be '
                          '"to invoice" after complete delivery')
@@ -91,7 +104,6 @@ class TestStockPickingInvoiceLink(TestSale):
                          'Sale Stock: so invoice_status should be '
                          '"fully invoiced" after complete delivery and '
                          'invoicing')
-
         # Check links
         self.assertEqual(
             inv_1.picking_ids, pick_1,
@@ -109,10 +121,12 @@ class TestStockPickingInvoiceLink(TestSale):
             pick_2.move_lines.filtered(
                 lambda x: x.product_id.invoice_policy == "delivery"),
             "Invoice 2 lines must link to only Second Delivery lines")
-
-    def test_01_action_view_invoice(self):
-        self.so.action_invoice_create()
-        result = self.so.picking_ids.action_view_invoice()
+        # Invoice view
+        result = pick_1.action_view_invoice()
         self.assertEqual(result['views'][0][1], 'form')
-        invoice = self.so.picking_ids.invoice_ids
-        self.assertEqual(result['res_id'], invoice.id)
+        self.assertEqual(result['res_id'], inv_1.id)
+        # Mock multiple invoices linked to a picking
+        inv_3 = inv_1.copy()
+        inv_3.picking_ids |= pick_1
+        result = pick_1.action_view_invoice()
+        self.assertEqual(result['views'][0][1], 'tree')

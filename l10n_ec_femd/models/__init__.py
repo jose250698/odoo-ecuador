@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-import account_payment
-import account_journal
+from . import account_payment
+from . import account_journal

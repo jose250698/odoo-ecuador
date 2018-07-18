@@ -3,8 +3,8 @@
 
 from datetime import datetime
 
-from openerp import _, api, fields, models
-from openerp.exceptions import ValidationError, RedirectWarning
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError, RedirectWarning
 
 
 class HrPayslipLoans(models.Model):

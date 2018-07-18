@@ -14,9 +14,9 @@
         <record id="view_pos_config_form_ec" model="ir.ui.view">
             <field name="name">EC - Point of sale form view inherit</field>
             <field name="model">pos.config</field>
-            <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+            <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//sheet/group" position="inside">
+                <xpath expr="//sheet" position="inside">
                     <field name="autorizacion_id"/>
                 </xpath>
             </field>

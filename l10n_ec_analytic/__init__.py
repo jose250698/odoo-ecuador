@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-import reports
+from . import reports

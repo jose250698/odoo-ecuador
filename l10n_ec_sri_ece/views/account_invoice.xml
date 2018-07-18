@@ -17,7 +17,7 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='invoice_open']" position="before" >
+            <xpath expr="//button[@name='action_invoice_open']" position="before" >
                 <button
                     name="send_de_backend"
                     string="AUTORIZAR/VERIFICAR SRI"
@@ -63,7 +63,7 @@
         <field name="model">account.invoice</field>
         <field name="inherit_id" ref="account.invoice_supplier_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//button[@name='invoice_open']" position="before" >
+            <xpath expr="//button[@name='action_invoice_open']" position="before" >
                 <button name="send_de_backend" string="AUTORIZAR/VERIFICAR SRI"
                         type="object" states="open" class="btn-primary"/>
             </xpath>

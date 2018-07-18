@@ -4,8 +4,8 @@ from cStringIO import StringIO as s
 import zipfile
 import xmltodict
 
-from openerp import models, fields, api, _
-from openerp.exceptions import UserError
+from odoo import models, fields, api, _
+from odoo.exceptions import UserError
 from datetime import datetime
 
 class CustomPopMessage(models.TransientModel):

@@ -2,7 +2,7 @@
 import base64
 import logging
 import os
-import StringIO
+import io
 import subprocess
 import tempfile
 import xml
@@ -11,9 +11,9 @@ from datetime import datetime
 from random import randrange
 
 from lxml import etree as e
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError
-from openerp.tools import config
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
+from odoo.tools import config
 
 _logger = logging.getLogger(__name__)
 
@@ -368,7 +368,7 @@ class SriDocumentoElectronico(models.Model):
     @api.one
     def get_barcode_128(self):
         if self.claveacceso:
-            file_data = StringIO.StringIO()
+            file_data = io.StringIO()
             generate('code128', u'{}'.format(self.claveacceso),
                      writer=ImageWriter(), output=file_data)
             file_data.seek(0)

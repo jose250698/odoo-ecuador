@@ -372,7 +372,7 @@
             </t>
         </template>
 
-        <record id="report_factura_electronica_id" model="ir.actions.report.xml">
+        <record id="report_factura_electronica_id" model="ir.actions.report">
 	        <field name="paperformat_id" ref="ride_format" />
         </record>
 
@@ -550,7 +550,7 @@
             </t>
         </template>
 
-        <record id="report_retencion_electronica_id" model="ir.actions.report.xml">
+        <record id="report_retencion_electronica_id" model="ir.actions.report">
 	        <field name="paperformat_id" ref="ride_format" />
         </record>
 
@@ -894,7 +894,7 @@
             </t>
         </template>
 
-        <record id="report_nota_credito_electronica_id" model="ir.actions.report.xml">
+        <record id="report_nota_credito_electronica_id" model="ir.actions.report">
 	        <field name="paperformat_id" ref="ride_format" />
         </record>
 

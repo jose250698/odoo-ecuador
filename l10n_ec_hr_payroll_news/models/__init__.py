@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import account_payment
-import hr_payroll
-import hr_payroll_loans
-import hr_payroll_news
-import hr_payroll_overtime
-import res_company
+from . import account_payment
+from . import hr_payroll
+from . import hr_payroll_loans
+from . import hr_payroll_news
+from . import hr_payroll_overtime
+from . import res_company

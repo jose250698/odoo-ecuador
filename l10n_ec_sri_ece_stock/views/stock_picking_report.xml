@@ -123,7 +123,7 @@
         </t>
     </template>
 
-    <record id="report_guia_remision_electronica_id" model="ir.actions.report.xml">
+    <record id="report_guia_remision_electronica_id" model="ir.actions.report">
         <field name="paperformat_id" ref="l10n_ec_sri_ece.ride_format" />
     </record>
 </odoo>

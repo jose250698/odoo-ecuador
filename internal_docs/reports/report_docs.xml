@@ -107,7 +107,7 @@
         </template>
     </data>
     <data noupdate="1">
-        <record id="anulados_report_id" model="ir.actions.report.xml">
+        <record id="anulados_report_id" model="ir.actions.report">
             <field name="paperformat_id" ref="report.paperformat_euro"/>
         </record>
     </data>

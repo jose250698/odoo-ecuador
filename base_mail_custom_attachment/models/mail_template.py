@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import base64
 
-from openerp import api, models
-from openerp import report as odoo_report
-from openerp import tools
+from odoo import api, models
+from odoo import report as odoo_report
+from odoo import tools
 
 
 class MailTemplate(models.Model):

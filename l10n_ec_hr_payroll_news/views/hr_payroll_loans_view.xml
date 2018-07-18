@@ -105,7 +105,7 @@
                   action="action_l10n_ec_hr_payslip_loans"
 			      parent="root_hr_payroll_news"
                   name="Advances/Loans"
-                  groups="base.group_hr_manager" />
+                  groups="hr.group_hr_manager" />
 
     </data>
 </odoo>

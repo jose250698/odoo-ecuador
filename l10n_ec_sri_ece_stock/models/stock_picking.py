@@ -3,8 +3,8 @@ from collections import OrderedDict
 from datetime import datetime
 
 import pytz
-from openerp import _, api, fields, models
-from openerp.exceptions import UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class StockPicking(models.Model):
