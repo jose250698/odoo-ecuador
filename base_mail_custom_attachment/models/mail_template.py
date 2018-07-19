@@ -2,7 +2,7 @@
 import base64
 
 from odoo import api, models
-from odoo import report as odoo_report
+from odoo.tools import report
 from odoo import tools
 
 
