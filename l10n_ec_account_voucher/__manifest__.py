@@ -2,7 +2,7 @@
 {
     'name': "Recibos de compra y venta - Ecuador",
     'summary': """Recibos de compra y venta.""",
-    'version': '11.0.0.0.0',
+    'version': '13.0.1.0.0.0',
     'author': "Jonathan Finlay <jfinlay@riseup.net>",
     'maintainer': 'Jonathan Finlay <jfinlay@riseup.net>',
     'website': 'http://www.lalibre.net',
