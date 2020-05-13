@@ -2,7 +2,7 @@
 {
     'name': "SRI - Emision de comprabantes electronicos",
     'summary': """SRI Emisión de comprobantes electrónicos off-line.""",
-    'version': '13.0.1.0.0.0',
+    'version': '11.0.0.0.0',
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
     'maintainer': 'Fabrica de Software Libre',
     'website': 'http://www.libre.ec',

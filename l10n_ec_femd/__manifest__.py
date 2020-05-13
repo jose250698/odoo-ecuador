@@ -2,7 +2,7 @@
 {
     'name': "Flujo de Efectivo (Directo) - Ecuador",
     'summary': """Clasifica cobros y pagos para el Flujo de Efectivo.""",
-    'version': '13.0.1.0.0.0',
+    'version': '11.0.0.0.0',
     'author': "Fabrica de Software Libre,Odoo Community Association (OCA)",
     'maintainer': 'Fabrica de Software Libre',
     'website': 'http://www.libre.ec',

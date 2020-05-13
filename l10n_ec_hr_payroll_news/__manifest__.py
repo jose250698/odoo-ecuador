@@ -11,7 +11,7 @@ Manage Income/Expenses in payslip
     """,
     'author': "edison@openmailbox.org",
     'website': '',
-    'version': '13.0.1.0.0',
+    'version': '11.0.0.0',
     'depends': [
         'base',
         'l10n_ec_hr_payroll',
