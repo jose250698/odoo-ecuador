@@ -9,7 +9,7 @@ from odoo import tools
 class MailTemplate(models.Model):
     _inherit = ['mail.template']
 
-    @api.multi
+
     def generate_email(self, res_ids, fields=None):
         """
         The function _get_custom_attachment must be implemented on the model

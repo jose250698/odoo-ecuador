@@ -11,7 +11,7 @@ from odoo.exceptions import UserError
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
-    @api.multi
+
     def get_detallesadicionales(self):
         """
         return: [(nombre,valor),(nombre,valor)]
@@ -22,7 +22,7 @@ class AccountInvoiceLine(models.Model):
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    @api.multi
+
     def _get_custom_attachments(self):
         """
         Enviamos el documento electrónico de acuerdo al tipo
@@ -44,7 +44,7 @@ class AccountInvoice(models.Model):
             )
         return attachments
 
-    @api.multi
+
     def get_days(self, inv):
         date_format = '%Y-%m-%d'
         res = 0
@@ -54,7 +54,7 @@ class AccountInvoice(models.Model):
             res = (date_due - date_invoice).days
         return res
 
-    @api.multi
+
     def get_email_template(self):
         if self.type == 'out_invoice':
             template = self.env.ref(
@@ -67,7 +67,7 @@ class AccountInvoice(models.Model):
                 'l10n_ec_sri_ece.email_template_nota_de_credito_electronica', False)
         return template
 
-    @api.multi
+
     def action_invoice_sent(self):
         """ Open a window to compose an email, with the edi invoice template
            message loaded by default
@@ -122,7 +122,7 @@ class AccountInvoice(models.Model):
             self.button_send_nota_credito_electronica()
         return
 
-    @api.multi
+
     def get_infoadicional(self):
         """
         Información adicional para las notas de crédito
@@ -131,7 +131,7 @@ class AccountInvoice(models.Model):
         """
         return []
 
-    @api.multi
+
     def get_infotributaria_dict(
             self, ambiente_id, tipoemision, company, ruc,
             claveacceso, comprobante, establecimiento,
@@ -175,7 +175,7 @@ class AccountInvoice(models.Model):
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
         string="Factura electrónica", copy=False, )
 
-    @api.multi
+
     def get_propina(self):
         """
         Modificar con super
@@ -185,7 +185,7 @@ class AccountInvoice(models.Model):
         propina = 0.00
         return propina
 
-    @api.multi
+
     def get_factura_dict(self):
         """
         En caso de requerirse el tag infoAdicional se debe agregar con un super.
@@ -372,7 +372,7 @@ class AccountInvoice(models.Model):
 
         return ambiente_id, comprobante_id, factura_dict, claveacceso, tipoemision
 
-    @api.multi
+
     def button_send_factura_electronica(self):
         ambiente_id, comprobante_id, factura, claveacceso, tipoemision = self.get_factura_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']
@@ -398,7 +398,7 @@ class AccountInvoice(models.Model):
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
         string="Retención electronica", copy=False, )
 
-    @api.multi
+
     def get_retencion_dict(self):
         """
         En caso de requerirse el tag infoAdicional se debe agregar con un super.
@@ -493,7 +493,7 @@ class AccountInvoice(models.Model):
         ])
         return ambiente_id, comprobante_id, retencion_dict, claveacceso, tipoemision
 
-    @api.multi
+
     def button_send_retencion_electronica(self):
         ambiente_id, comprobante_id, retencion_dict, claveacceso, tipoemision = self.get_retencion_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']
@@ -514,7 +514,7 @@ class AccountInvoice(models.Model):
 
         return True
 
-    @api.multi
+
     def send_de_backend(self):
         edoc = self.factura_electronica_id or self.retencion_electronica_id or self.nota_credito_electronica_id
         if edoc:
@@ -527,7 +527,7 @@ class AccountInvoice(models.Model):
                     edoc.receive_de_offline()
         return True
 
-    @api.multi
+
     @api.depends(
         'factura_electronica_id.estado',
         'retencion_electronica_id.estado',
@@ -541,7 +541,7 @@ class AccountInvoice(models.Model):
 
     ce_state = fields.Char('ECE State', store=True, compute=_get_ce_state)
 
-    @api.multi
+
     def send_email_de(self):
         self.ensure_one()
         template = self.get_email_template()
@@ -553,7 +553,7 @@ class AccountInvoice(models.Model):
         'l10n_ec_sri.documento.electronico', ondelete='restrict',
         string="Nota de crédito electronica", copy=False, )
 
-    @api.multi
+
     def get_nota_credito_dict(self):
         """
         :return:
@@ -725,7 +725,7 @@ class AccountInvoice(models.Model):
 
         return ambiente_id, comprobante_id, nota_credito_dict, claveacceso, tipoemision
 
-    @api.multi
+
     def button_send_nota_credito_electronica(self):
         ambiente_id, comprobante_id, nota_credito, claveacceso, tipoemision = self.get_nota_credito_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']

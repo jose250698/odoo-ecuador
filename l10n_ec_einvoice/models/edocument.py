@@ -116,7 +116,7 @@ class Edocument(models.AbstractModel):
             )
         return access_key
 
-    @api.multi
+
     def _get_codes(self, name='account.invoice'):
         ak_temp = self.get_access_key(name)
         self.SriServiceObj.set_active_env(self.env.user.company_id.env_service)
@@ -124,7 +124,7 @@ class Edocument(models.AbstractModel):
         emission_code = self.company_id.emission_code
         return access_key, emission_code
 
-    @api.multi
+
     def check_before_sent(self):
         """
         """
@@ -168,7 +168,7 @@ class Edocument(models.AbstractModel):
         if days > LIMIT_TO_SEND:
             raise UserError(MESSAGE_TIME_LIMIT)
 
-    @api.multi
+
     def update_document(self, auth, codes):
         fecha = auth.fechaAutorizacion.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         self.write({
@@ -199,7 +199,7 @@ class Edocument(models.AbstractModel):
         )
         return attach
 
-    @api.multi
+
     def send_document(self, attachments=None, tmpl=False):
         self.ensure_one()
         self._logger.info('Enviando documento electronico por correo')

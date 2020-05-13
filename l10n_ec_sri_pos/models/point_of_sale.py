@@ -25,7 +25,7 @@ class PosOrder(models.Model):
     secuencial = fields.Integer('Secuencial')
     autorizacion = fields.Integer('Autorización')
 
-    @api.multi
+
     def action_invoice(self):
         res = super(PosOrder, self).action_invoice()
         res_id = res['res_id']

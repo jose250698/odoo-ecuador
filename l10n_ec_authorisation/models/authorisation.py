@@ -24,7 +24,7 @@ class AccountAtsSustento(models.Model):
     _name = 'account.ats.sustento'
     _description = 'Sustento del Comprobante'
 
-    @api.multi
+
     @api.depends('code', 'type')
     def name_get(self):
         res = []
@@ -44,7 +44,7 @@ class AccountAuthorisation(models.Model):
     _name = 'account.authorisation'
     _order = 'expiration_date desc'
 
-    @api.multi
+
     @api.depends('type_id', 'num_start', 'num_end')
     def name_get(self):
         res = []
@@ -107,7 +107,7 @@ class AccountAuthorisation(models.Model):
             values.update({'sequence_id': seq.id})
         return super(AccountAuthorisation, self).create(values)
 
-    @api.multi
+
     def unlink(self):
         inv = self.env['account.invoice']
         res = inv.search([('auth_inv_id', '=', self.id)])
@@ -181,7 +181,7 @@ class ResPartner(models.Model):
         'Autorizaciones'
         )
 
-    @api.multi
+
     def get_authorisation(self, type_document):
         map_type = {
             'out_invoice': '18',
@@ -333,7 +333,7 @@ class AccountInvoice(models.Model):
                 u'Debe ingresar 10, 35 o 49 dígitos según el documento.'
             )
 
-    @api.multi
+
     def action_number(self):
         # TODO: ver donde incluir el metodo de numeracion
         self.ensure_one()
@@ -348,7 +348,7 @@ class AccountInvoice(models.Model):
             number = sequence.next_by_id()
         self.write({'reference': number, 'internal_inv_number': number})
 
-    @api.multi
+
     def action_invoice_open(self):
         # lots of duplicate calls to action_invoice_open,
         # so we remove those already open

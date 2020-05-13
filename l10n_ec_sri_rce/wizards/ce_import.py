@@ -43,7 +43,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
         'l10n_ec_sri.ce.import.wizard.line', inverse_name='wizard_id',
         string='Wizard lines', )
 
-    @api.multi
+
     def get_de_dict(
             self, estado, xml, infotributaria):
         """
@@ -82,14 +82,14 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
             }
         return vals
 
-    @api.multi
+
     def normalize_date_to_odoo(self, date):
         if not date:
             return
         res = datetime.strptime(date, '%d/%m/%Y').strftime( '%Y-%m-%d')
         return res
 
-    @api.multi
+
     def get_de_from_xml(self, xml):
         """
         :param xml:
@@ -237,7 +237,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
 
         return de, key, infoTributaria, autorizacion, inv_dict, inv, secuencial
 
-    @api.multi
+
     def _process_file(self, active_model, active_ids, file, list_msg):
         active_records = self.env[active_model].browse(active_ids)
         fileio = s(base64.b64decode(file))
@@ -258,7 +258,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
             else:
                 raise UserError(_("Error: Ingrese un archivo xml o zip valido."))
 
-    @api.multi
+
     def register_de_data(self, xml, active_model, active_records, list_msg):
         de, key, info, autorizacion, xml_data, ces, secuencial = self.get_de_from_xml(xml)
         
@@ -351,7 +351,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
         active_ids = context.get('active_ids')
         return context, active_model, active_ids    
 
-    @api.multi
+
     def button_import_file(self):     
         context, active_model, active_ids = self.params_context()
 

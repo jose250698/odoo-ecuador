@@ -13,7 +13,7 @@ class HrPayslip(models.Model):
         liquido = line_obj.search([('code', 'in', ('NET', 'LIQ')), ('slip_id', '=', self.id)])
         self.pagar_liquido = liquido.amount
 
-    @api.multi
+
     def pay_sheet(self):
         valor = self.pagar_liquido
         account_payable_id = self.employee_id.account_sueldos_id or self.employee_id.address_home_id.property_account_payable_id

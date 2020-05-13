@@ -19,7 +19,7 @@ class WizardHrContractUpdate(models.TransientModel):
     wage_ids = fields.One2many('wizard.hr.contract.update.wage', 'wiz_id', string=_('Update Wage'))
     job_ids = fields.One2many('wizard.hr.contract.update.job', 'wiz_id', string=_('Update Job'))
 
-    @api.multi
+
     def update_contract(self):
         wage_obj = self.env['hr.contract.wage']
         job_obj = self.env['hr.contract.job']

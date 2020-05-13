@@ -14,7 +14,7 @@ class PosConfig(models.Model):
 class PosOrder(models.Model):
     _inherit = 'pos.order'
 
-    @api.multi
+
     def action_pos_order_invoice(self):
         super(PosOrder, self).action_pos_order_invoice()
         for order in self:

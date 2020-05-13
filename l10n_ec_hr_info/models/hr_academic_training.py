@@ -59,7 +59,7 @@ class HrAcademicInstituition(models.Model):
     _name = 'hr.academic.institution'
     _description = __doc__
 
-    @api.multi
+
     def onchange_state(self, state_id):
         if state_id:
             state = self.env['res.country.state'].browse(state_id)

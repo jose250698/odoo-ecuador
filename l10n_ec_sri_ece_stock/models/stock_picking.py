@@ -44,7 +44,7 @@ class StockPicking(models.Model):
     fechainitransporte = fields.Date('Fecha Inicio Transporte')
     fechafintransporte = fields.Date('Fecha Fin Transporte')
 
-    @api.multi
+
     def get_sri_secuencial_completo_guia(self):
         self.ensure_one()
         nro_guia = ''
@@ -58,7 +58,7 @@ class StockPicking(models.Model):
 
         return nro_guia
 
-    @api.multi
+
     def _get_custom_attachments(self):
         """
         return: recordset
@@ -72,7 +72,7 @@ class StockPicking(models.Model):
             )
         return attachments
 
-    @api.multi
+
     def get_motivotraslado(self):
         if self.picking_type_id.code == 'incoming':
             motivo = 'Compra de productos'
@@ -82,7 +82,7 @@ class StockPicking(models.Model):
             motivo = 'Movimiento interno de productos'
         return motivo
 
-    @api.multi
+
     def get_destinatario_dict(self, d, docsustento, inv_obj):
         dirdestinatario = inv_obj.normalize(' '.join([d.street, d.street]))
         motivotraslado = self.get_motivotraslado()
@@ -116,7 +116,7 @@ class StockPicking(models.Model):
         ])
         return res
 
-    @api.multi
+
     def get_detalle_dict(self, p, pack, inv_obj):
         res = OrderedDict([
             ('codigoInterno', p.default_code),
@@ -126,7 +126,7 @@ class StockPicking(models.Model):
         ])
         return res
 
-    @api.multi
+
     def get_transportista(self):
         """
         Modificar con super
@@ -136,7 +136,7 @@ class StockPicking(models.Model):
         transportista = self.driver_id
         return transportista
 
-    @api.multi
+
     def get_placa(self):
         """
         Modificar con super
@@ -146,7 +146,7 @@ class StockPicking(models.Model):
         placa = self.carrier_tracking_ref
         return placa
 
-    @api.multi
+
     def get_infoguiaremision_dict(self, autorizacion_id, dirpartida, inv_obj):
         transportista = self.get_transportista()
         placa = self.get_placa()
@@ -171,7 +171,7 @@ class StockPicking(models.Model):
             ('placa', placa)])
         return res
 
-    @api.multi
+
     def get_guia_remision_dict(self, dest=None):
         de_obj = self.env['l10n_ec_sri.documento.electronico']
         inv_obj = self.env['account.invoice']
@@ -275,7 +275,7 @@ class StockPicking(models.Model):
         aut.update({'secuencia_actual': secuencial})
         return True
 
-    @api.multi
+
     def button_send_guia_remision_electronica(self):
         self.get_autorizacion()
         ambiente_id, comprobante_id, guiaremision_dict, claveacceso, tipoemision = self.get_guia_remision_dict()
@@ -298,11 +298,11 @@ class StockPicking(models.Model):
 
         return True
 
-    @api.multi
+
     def get_email_template(self):
         return self.env.ref('l10n_ec_sri_ece_stock.email_template_guia_remision_electronica', False)
 
-    @api.multi
+
     def send_email_de(self):
         self.ensure_one()
         if self.guia_remision_electronica_id:

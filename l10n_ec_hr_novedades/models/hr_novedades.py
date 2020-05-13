@@ -20,7 +20,7 @@ class hr_novedad(models.Model):
     _name = 'hr.novedad'
     _description = 'Regsitro de Novedades en el Rol de Pagos'
 
-    @api.multi
+
     def write(self, vals):
         data = {}
         if vals.get('rule_id'):
@@ -33,7 +33,7 @@ class hr_novedad(models.Model):
                         j.write(data)
         return super(hr_novedad, self).write(vals)
 
-    @api.multi
+
     def pendiente(self):
         for this in self:
             this.write({'state': 'pendiente'})
@@ -89,12 +89,12 @@ class hr_novedad_line(models.Model):
             }
         return super(hr_novedad_line, self).create(vals or values)
 
-    @api.multi
+
     def write(self, vals):
         res = super(hr_novedad_line, self).write(vals)
         return res
 
-    @api.multi
+
     def pendiente(self):
         for this in self:
             this.write({'state': 'pendiente'})

@@ -19,7 +19,7 @@ from . import utils
 class AccountWithdrawing(models.Model):
     """ Implementacion de documento de retencion """
 
-    @api.multi
+
     @api.depends('tax_ids.amount')
     def _compute_total(self):
         """
@@ -27,19 +27,19 @@ class AccountWithdrawing(models.Model):
         """
         self.amount_total = sum(tax.amount for tax in self.tax_ids)
 
-    @api.multi
+
     def _get_period(self):
         result = {}
         for obj in self:
             result[obj.id] = self.env['account.period'].find(obj.date)[0]
         return result
 
-    @api.multi
+
     def _get_in_type(self):
         context = self._context
         return context.get('in_type', 'ret_out_invoice')
 
-    @api.multi
+
     def _default_type(self):
         context = self._context
         return context.get('type', 'out_invoice')
@@ -219,7 +219,7 @@ class AccountWithdrawing(models.Model):
             if not self.auth_id.is_valid_number(int(self.name)):
                 raise UserError('Nro no pertenece a la secuencia.')
 
-    @api.multi
+
     def unlink(self):
         for obj in self:
             if obj.state in ['done']:
@@ -239,7 +239,7 @@ class AccountWithdrawing(models.Model):
             return
         self.type = self.invoice_id.type
 
-    @api.multi
+
     def action_number(self, number):
         for wd in self:
             if wd.to_cancel:
@@ -251,7 +251,7 @@ class AccountWithdrawing(models.Model):
             wd.write({'name': number})
         return True
 
-    @api.multi
+
     def action_validate(self, number=None):
         """
         @number: Número para usar en el documento
@@ -259,7 +259,7 @@ class AccountWithdrawing(models.Model):
         self.action_number(number)
         return self.write({'state': 'done'})
 
-    @api.multi
+
     def button_validate(self):
         """
         Botón de validación de Retención que se usa cuando
@@ -275,7 +275,7 @@ class AccountWithdrawing(models.Model):
                 self.create_move()
         return True
 
-    @api.multi
+
     def create_move(self):
         """
         Generacion de asiento contable para aplicar como
@@ -321,7 +321,7 @@ class AccountWithdrawing(models.Model):
             move.post()
         return True
 
-    @api.multi
+
     def action_cancel(self):
         """
         Método para cambiar de estado a cancelado el documento
@@ -343,12 +343,12 @@ class AccountWithdrawing(models.Model):
             self.write({'state': 'cancel'})
         return True
 
-    @api.multi
+
     def action_draft(self):
         self.write({'state': 'draft'})
         return True
 
-    @api.multi
+
     def action_print(self):
         # Método para imprimir comprobante contable
         return self.env['report'].get_action(

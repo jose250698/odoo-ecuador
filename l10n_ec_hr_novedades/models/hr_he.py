@@ -7,7 +7,7 @@ class hr_he(models.Model):
     _name = 'hr.he'
     _description = 'Registro de Horas Extras'
 
-    @api.multi
+
     def procesar(self):
         for this in self:
             this.write({'state': 'done'})
@@ -49,7 +49,7 @@ class hr_he_line(models.Model):
                 self.valor_hora = (float(contract_data.wage) / 240)
         return
 
-    @api.multi
+
     @api.depends('hora_125', 'hora_150', 'hora_200')
     def _calcular(self):
         total_125 = 0.0

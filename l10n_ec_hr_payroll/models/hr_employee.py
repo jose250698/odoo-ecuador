@@ -12,7 +12,7 @@ _logger = logging.getLogger(__name__)
 class HrEmployee(models.Model):
     _inherit = 'hr.employee'
 
-    @api.multi
+
     def _check_age(self):
         for row in self:
             if row.birthday:
@@ -69,7 +69,7 @@ class HrEmployee(models.Model):
             name = '%s %s %s' % (row.lastname or '', row.second_lastname or '', row.names or '')
             row.name = name
 
-    @api.multi
+
     @api.depends('family_ids')
     def _get_children(self):
         family_obj = self.env['hr.family']
@@ -124,7 +124,7 @@ class HrEmployee(models.Model):
             vals['flag'] = True
         return super(HrEmployee, self).create(vals)
 
-    @api.multi
+
     def write(self, vals):
         if vals.get('job_id'):
             vals['flag'] = True

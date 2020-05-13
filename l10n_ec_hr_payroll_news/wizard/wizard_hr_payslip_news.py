@@ -48,7 +48,7 @@ class WizardHrPayslipNews(models.TransientModel):
     state = fields.Selection([('draft', _('Draft')),
                               ('exported', _('Exported'))], string='State', default='draft')
 
-    @api.multi
+
     def generate_template(self):
         for row in self:
             rules = []
@@ -90,7 +90,7 @@ class WizardHrPayslipNews(models.TransientModel):
             'target': 'new',
         }
 
-    @api.multi
+
     def import_template(self):
         employee_obj = self.env['hr.employee']
         news_obj = self.env['hr.payslip.news']

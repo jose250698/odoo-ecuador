@@ -38,7 +38,7 @@ class AccountPayment(models.Model):
         check_amount_in_words = amount_to_text_es.amount_to_text(self.amount, lang='en')  # noqa
         self.check_amount_in_words = check_amount_in_words
 
-    @api.multi
+
     def do_print_checks(self):
         """
         Validate numbering

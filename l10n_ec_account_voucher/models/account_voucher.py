@@ -6,7 +6,7 @@ from odoo.exceptions import UserError
 class account_voucher_line(models.Model):
     _inherit = 'account.voucher.line'
 
-    @api.multi
+
     def product_id_change(self, product_id, partner_id=False, price_unit=False, company_id=None, currency_id=None, type=None):
         context = self._context
         company_id = company_id if company_id is not None else context.get('company_id', False)

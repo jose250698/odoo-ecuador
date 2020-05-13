@@ -351,7 +351,7 @@ class HrPayslip(models.Model):
         result = [value for code, value in result_dict.items()]
         return result
 
-    @api.multi
+
     def process_sheet(self):
         move_pool = self.env['account.move']
         precision = self.env['decimal.precision'].precision_get('Payroll')

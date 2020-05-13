@@ -38,7 +38,7 @@ class ComprobantesAnulados(models.Model):
         required=True,
         domain=[('requiere_autorizacion', '=', True)])
 
-    @api.multi
+
     @api.onchange('secuencialinicio')
     def _onchange_secuencialinicio(self):
         for r in self:

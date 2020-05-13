@@ -7,7 +7,7 @@ from odoo import api, models
 class HrJob(models.Model):
     _inherit = 'hr.job'
 
-    @api.multi
+
     def name_get(self):
         reads = self.read(['name', 'department_id'])
         res = []

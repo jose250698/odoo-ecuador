@@ -65,13 +65,13 @@ class HrContract(models.Model):
             vals['flag'] = True
         return super(HrContract, self).create(vals)
 
-    @api.multi
+
     def write(self, vals):
         if vals.get('wage'):
             vals['flag'] = True
         return super(HrContract, self).write(vals)
 
-    @api.multi
+
     @api.depends('wage')
     def _get_hour_cost(self):
         for row in self:
@@ -156,11 +156,11 @@ class hr_contract_prestamo(models.Model):
     move_id = fields.Many2one('account.move', string='Movimiento')
     create_move = fields.Boolean('Crear movimiento')
 
-    @api.multi
+
     def action_draft(self):
         self.state = 'draft'
 
-    @api.multi
+
     def action_run(self):
         if self.type == 'prestamo' or (self.type == 'adelanto' and not self.create_move):
             self.state = 'run'
@@ -209,11 +209,11 @@ class hr_contract_prestamo(models.Model):
         move_pool.post([move_id])
         self.state = 'run'
 
-    @api.multi
+
     def action_paid(self):
         self.state = 'paid'
 
-    @api.multi
+
     def action_cancel(self):
         move_obj = self.pool.get('account.move')
         try:

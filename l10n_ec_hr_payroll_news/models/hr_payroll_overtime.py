@@ -35,7 +35,7 @@ class HrPayslipOvertime(models.Model):
         else:
             raise UserError(_('Can not approve a record without detail lines'))
 
-    @api.multi
+
     def unlink(self):
         delete = True
         for row in self:
@@ -82,7 +82,7 @@ class HrPayslipOvertimeLine(models.Model):
                               ('done', _('Done'))], string=_('State'),
                              default='draft')
 
-    @api.multi
+
     @api.depends('hour_cost', 'overtime_025', 'overtime_050', 'overtime_100')
     def _amount(self):
         for row in self:

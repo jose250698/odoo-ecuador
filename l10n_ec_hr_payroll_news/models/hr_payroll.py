@@ -25,7 +25,7 @@ class HrPayslipInput(models.Model):
 class HrPayslip(models.Model):
     _inherit = ['hr.payslip']
 
-    @api.multi
+
     def hr_verify_sheet(self):
         for row in self:
             for line in row.input_line_ids:

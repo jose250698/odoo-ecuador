@@ -101,7 +101,7 @@ class AccountReportTax(models.TransientModel):
     date_start = fields.Date('Inicio Periodo', default=_default_start)
     date_end = fields.Date('Final de Periodo', default=_default_end)
 
-    @api.multi
+
     def action_print(self):
         return self.env['report'].get_action(
             self,

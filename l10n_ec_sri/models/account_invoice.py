@@ -46,7 +46,7 @@ class AccountInvoice(models.Model):
         if fmt == 'dmy':
             return datetime.strptime(date, '%Y-%m-%d').strftime('%d/%m/%Y')
 
-    @api.multi
+
     def get_sri_secuencial_completo_factura(self):
         """
         Obtiene el secuencial completo del documento principal,
@@ -58,7 +58,7 @@ class AccountInvoice(models.Model):
             (self.secuencial or '0').zfill(9)
         ])
 
-    @api.multi
+
     def get_sri_secuencial_completo_retencion(self):
         return '-'.join([
             self.estabretencion1 or '0',
@@ -66,7 +66,7 @@ class AccountInvoice(models.Model):
             (self.secretencion1 or '0').zfill(9)
         ])
 
-    @api.multi
+
     def get_sri_secuencial_completo_guia(self):
         nro_guia = ''
 
@@ -79,7 +79,7 @@ class AccountInvoice(models.Model):
             pass
         return nro_guia
 
-    @api.multi
+
     def get_sri_cero_iva(self):
         """
         Si la linea no tiene retención de IVA creamos un impuesto con
@@ -107,7 +107,7 @@ class AccountInvoice(models.Model):
                         'codigoporcentaje': '7',
                     })
 
-    @api.multi
+
     def get_sri_cero_air(self):
         """
         En caso de haber valores no declarados en el formulario 103
@@ -145,7 +145,7 @@ class AccountInvoice(models.Model):
                         'codigoporcentaje': '332',
                     })
 
-    @api.multi
+
     def get_sri_ats_lines(self):
         for inv in self:
             # Limpia líneas de ATS anteriormente calculadas
@@ -266,7 +266,7 @@ class AccountInvoice(models.Model):
             for l in sri_ats_lines:
                 self.env['l10n_ec_sri.ats.line'].create(l)
 
-    @api.multi
+
     def button_prepare_sri_declaration(self):
         for inv in self:
 
@@ -290,7 +290,7 @@ class AccountInvoice(models.Model):
             # Se debe ejecutar luego de las anteriores para tener todos los impuestos.
             inv.get_sri_ats_lines()
 
-    @api.multi
+
     def consolidate_sri_tax_lines(self):
         """
         Crea un consolidado de impuestos en la factura para
@@ -332,7 +332,7 @@ class AccountInvoice(models.Model):
             for l in sri_tax_lines:
                 self.env['l10n_ec_sri.tax.line'].create(l)
 
-    @api.multi
+
     def prepare_detallecompras_dict(self):
         """
         Genera un diccionario para la creación del ATS.
@@ -539,7 +539,7 @@ class AccountInvoice(models.Model):
 
             return detalleCompras
 
-    @api.multi
+
     def get_sri_tax_lines(self):
         for inv in self:
             # Datos para crear los impuestos en las líneas
@@ -695,7 +695,7 @@ class AccountInvoice(models.Model):
         self.compute_sri_invoice_amounts()
         return res
 
-    @api.multi
+
     def compute_sri_invoice_amounts(self):
 
         tax_lines = self.tax_line_ids
@@ -772,13 +772,13 @@ class AccountInvoice(models.Model):
         'out_refund_ids', string="Tax form", )
     """
 
-    @api.multi
+
     def _default_date_invoice(self):
         return fields.Date.from_string(datetime.now().strftime('%Y-%m-%d'))
 
     state = fields.Selection(selection_add=[('reembolso', 'Reembolso')])
 
-    @api.multi
+
     def button_marcar_reembolso(self):
         for inv in self:
             inv.state = 'reembolso'
@@ -851,7 +851,7 @@ class AccountInvoice(models.Model):
 
         return aut, tipo
 
-    @api.multi
+
     def set_liquidacion(self, aut):
         """
         Registra los valores en caso de liquidaciones de compra.
@@ -870,7 +870,7 @@ class AccountInvoice(models.Model):
         })
         aut.update({'secuencia_actual': secuencial})
 
-    @api.multi
+
     def set_autorizacion(self):
         aut, tipo = self.get_autorizacion()
 
@@ -931,7 +931,7 @@ class AccountInvoice(models.Model):
         elif tipo == 'r':
             self.autretencion1 = aut.autorizacion
 
-    @api.multi
+
     def sri_legalizar_documento(self):
         for r in self:
             # Calculamos la autorización y el tipo de documento.
@@ -952,7 +952,7 @@ class AccountInvoice(models.Model):
                 r.emision_documentos_electronicos(aut, tipo)
             return True
 
-    @api.multi
+
     def action_date_assign(self):
         """
         Al usar action_date_assign es lo primero en ejecutarse
@@ -1009,7 +1009,7 @@ class AccountInvoice(models.Model):
             'estabretencion1': self.r_autorizacion_id.establecimiento,
             'autretencion1': self.r_autorizacion_id.autorizacion})
 
-    @api.multi
+
     def button_anular_secuencial(self):
         for inv in self:
             secuencial = inv.secuencial
@@ -1064,13 +1064,13 @@ class AccountInvoice(models.Model):
     subtotal_sin_iva = fields.Monetary(
         string="SUBTOTAL SIN IVA", compute="_compute_subtotal_sin_iva", )
 
-    @api.multi
+
     @api.depends('baseimpexe', 'baseimponible', 'basenograiva')
     def _compute_subtotal_sin_iva(self):
         for r in self:
             r.subtotal_sin_iva = r.baseimpexe + r.baseimponible + r.basenograiva
 
-    @api.multi
+
     @api.constrains(
         'secuencial', 'comprobante_code',
         'fechaemiret1', 'date_invoice'
@@ -1085,7 +1085,7 @@ class AccountInvoice(models.Model):
                 raise UserWarning(
                     _("La fecha de la retención no puede ser menor que la de la factura."))
 
-    @api.multi
+
     @api.constrains('secuencial')
     def check_number(self):
         for inv in self:

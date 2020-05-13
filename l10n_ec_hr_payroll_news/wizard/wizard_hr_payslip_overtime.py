@@ -40,7 +40,7 @@ class WizardHrPayslipOvertime(models.TransientModel):
     state = fields.Selection([('draft', _('Draft')),
                               ('generated', _('Generated'))], default='draft')
 
-    @api.multi
+
     def generate_template(self):
         for row in self:
             file_data = io.StringIO()
@@ -65,7 +65,7 @@ class WizardHrPayslipOvertime(models.TransientModel):
             'target': 'new',
         }
 
-    @api.multi
+
     def import_template(self):
         employee_obj = self.env['hr.employee']
         line_obj = self.env['hr.payslip.overtime.line']

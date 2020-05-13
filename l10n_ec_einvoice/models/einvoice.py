@@ -169,7 +169,7 @@ class AccountInvoice(models.Model):
         auth_invoice = einvoice_tmpl.render(auth_xml)
         return auth_invoice
 
-    @api.multi
+
     def action_generate_einvoice(self):
         """
         Metodo de generacion de factura electronica
@@ -219,7 +219,7 @@ class AccountInvoice(models.Model):
                 tmpl='l10n_ec_einvoice.email_template_einvoice'
             )
 
-    @api.multi
+
     def invoice_print(self):
         return self.env['report'].get_action(
             self,

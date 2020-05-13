@@ -14,7 +14,7 @@ class HrPayslipLoans(models.Model):
     _name = 'hr.payslip.loans'
     _description = __doc__
 
-    @api.multi
+
     def pay_loan(self):
         if self.state == 'draft':
             raise ValidationError(_("Can not generate the payment of a loan in draft state!"))
@@ -83,7 +83,7 @@ class HrPayslipLoans(models.Model):
                 if len(dues) == 0:
                     self.write({'state': 'paid'})
 
-    @api.multi
+
     @api.depends('month', 'year')
     def _get_pay_from(self):
         for row in self:
@@ -96,7 +96,7 @@ class HrPayslipLoans(models.Model):
                              400 == 0 else 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1])
         return date.replace(day=day, month=month, year=year)
 
-    @api.multi
+
     def approve_loan(self):
         line_obj = self.env['hr.payslip.news']
         for row in self:
@@ -120,7 +120,7 @@ class HrPayslipLoans(models.Model):
                 }
                 line_obj.create(vals)
 
-    @api.multi
+
     def _get_pending_amount(self):
         for row in self:
             amount = 0.0

@@ -94,7 +94,7 @@ class AccountWithdrawing(models.Model):
         auth_withdrawing = edocument_tmpl.render(auth_xml)
         return auth_withdrawing
 
-    @api.multi
+
     def action_generate_document(self):
         """
         """
@@ -126,7 +126,7 @@ class AccountWithdrawing(models.Model):
             )
             return True
 
-    @api.multi
+
     def retention_print(self):
         return self.env['report'].get_action(
             self,
@@ -137,14 +137,14 @@ class AccountWithdrawing(models.Model):
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    @api.multi
+
     def action_generate_eretention(self):
         for obj in self:
             if not obj.journal_id.auth_ret_id.is_electronic:
                 return True
             obj.retention_id.action_generate_document()
 
-    @api.multi
+
     def action_retention_create(self):
         super(AccountInvoice, self).action_retention_create()
         for obj in self:

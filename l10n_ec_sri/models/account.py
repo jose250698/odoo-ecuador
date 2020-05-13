@@ -22,7 +22,7 @@ class AccountTax(models.Model):
     codigoporcentaje = fields.Char('Código del porcentaje en documentos electrónicos', )
 
     # TODO: Verificar el porque del error TypeError: expected a readable buffer object al eliminar esta fórmula.
-    @api.multi
+
     def compute_all(self, price_unit, currency=None, quantity=1.0, product=None, partner=None):
         """ Returns all information required to apply taxes (in self + their children in case of a tax goup).
             We consider the sequence of the parent for group of taxes.
@@ -131,7 +131,7 @@ class AccountTax(models.Model):
             'base': base,
         }
 
-    @api.multi
+
     def get_data_from_tag(self, tags, formulario='', campo=''):
         for tag in tags:
             tag_list = tag.name.split("_")

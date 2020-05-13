@@ -43,7 +43,7 @@ class Invoice(models.Model):
         ]
         return self.env['account.journal'].search(domain, limit=1)
 
-    @api.multi
+
     def print_move(self):
         # Método para imprimir comprobante contable
         return self.env['report'].get_action(
@@ -51,7 +51,7 @@ class Invoice(models.Model):
             'l10n_ec_withholding.reporte_move'
         )
 
-    @api.multi
+
     def print_liq_purchase(self):
         # Método para imprimir reporte de liquidacion de compra
         return self.env['report'].get_action(
@@ -59,7 +59,7 @@ class Invoice(models.Model):
             'l10n_ec_withholding.account_liq_purchase_report'
         )
 
-    @api.multi
+
     def print_retention(self):
         """
         Método para imprimir reporte de retencion
@@ -115,7 +115,7 @@ class Invoice(models.Model):
         self.amount_total_signed = self.amount_total * sign
         self.amount_untaxed_signed = amount_untaxed_signed * sign
 
-    @api.multi
+
     def name_get(self):
         result = []
         for inv in self:
@@ -275,7 +275,7 @@ class Invoice(models.Model):
                 raise UserError('El número de retención no pertenece a una secuencia activa en la empresa.')  # noqa
             self.withholding_number = self.withholding_number.zfill(9)
 
-    @api.multi
+
     def action_invoice_open(self):
         # lots of duplicate calls to action_invoice_open,
         # so we remove those already open
@@ -289,7 +289,7 @@ class Invoice(models.Model):
         to_open_invoices.action_withholding_create()
         return to_open_invoices.invoice_validate()
 
-    @api.multi
+
     def action_invoice_cancel(self):
         """
         Primero intenta cancelar la retencion
@@ -298,7 +298,7 @@ class Invoice(models.Model):
             self.retention_id.action_cancel()
         super(Invoice, self).action_invoice_cancel()
 
-    @api.multi
+
     def action_invoice_draft(self):
         """
         Redefinicion de metodo para cancelar la retencion asociada.
@@ -312,7 +312,7 @@ class Invoice(models.Model):
         super(Invoice, self).action_invoice_draft()
         return True
 
-    @api.multi
+
     def action_withholding_create(self):
         """
         Este método genera el documento de retencion en varios escenarios
@@ -373,7 +373,7 @@ class Invoice(models.Model):
             inv.write({'retention_id': withdrawing.id})
         return True
 
-    @api.multi
+
     def action_retention_cancel(self):
         """
         TODO: revisar si este metodo debe llamarse desde el cancelar
@@ -384,7 +384,7 @@ class Invoice(models.Model):
                 inv.retention_id.action_cancel()
         return True
 
-    @api.multi
+
     @api.returns('self')
     def refund(self, date_invoice=None, date=None, description=None, journal_id=None):  # noqa
         new_invoices = super(Invoice, self).refund(date_invoice, date, description, journal_id)  # noqa
@@ -413,7 +413,7 @@ class AccountInvoiceTax(models.Model):
         index=True
     )
 
-    @api.multi
+
     def get_invoice(self, number):
         return self.env['account.invoice'].search([('number', '=', number)])
 

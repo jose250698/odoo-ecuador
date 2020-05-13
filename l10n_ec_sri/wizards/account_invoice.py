@@ -25,7 +25,7 @@ class SriMultiDataWizard(models.TransientModel):
         }
 
 
-    @api.multi
+
     def register_sri_data(self):
         self.ensure_one()
         context = dict(self._context or {})

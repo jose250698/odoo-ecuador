@@ -17,7 +17,7 @@ class StockPicking(models.Model):
         readonly=True,
     )
 
-    @api.multi
+
     def action_view_invoice(self):
         """This function returns an action that display existing invoices
         of given stock pickings.

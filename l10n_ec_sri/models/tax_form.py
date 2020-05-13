@@ -19,7 +19,7 @@ class SriTaxFormSet(models.Model):
     _name = 'l10n_ec_sri.tax.form.set'
     _order = 'date_from'
 
-    @api.multi
+
     def prepare_sri_declaration(self):
         for s in self:
             invoices = s.in_invoice_ids + s.in_refund_ids + \
@@ -27,7 +27,7 @@ class SriTaxFormSet(models.Model):
             for inv in invoices:
                 inv.button_prepare_sri_declaration()
 
-    @api.multi
+
     def get_invoices(self):
         for s in self:
             # Obtenemos todas las facturas abiertas y pagadas del periodo.
@@ -91,7 +91,7 @@ class SriTaxFormSet(models.Model):
         'account.invoice', string='Reembolsos en compras',
         compute='_compute_reembolsos', readonly=True, )
 
-    @api.multi
+
     @api.depends('in_invoice_ids', 'out_invoice_ids')
     def _compute_reembolsos(self):
         for f in self:
@@ -143,7 +143,7 @@ class SriTaxForm(models.Model):
     declarar_facturas_electronicas = fields.Boolean(
         string='Declarar facturas electronicas', default=True, )
 
-    @api.multi
+
     def prepare_ats(self):
         """
         Método para ser heredado.
@@ -346,7 +346,7 @@ class SriTaxForm(models.Model):
             }
             return res
 
-    @api.multi
+
     def get_ats_xml(self):
         decl = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>"""
         for f in self:
@@ -374,7 +374,7 @@ class SriTaxForm(models.Model):
             f.write({'xml_filename': 'ATS.xml',
                      'xml_file': base64.encodestring(xml_data)})
 
-    @api.multi
+
     def get_tax_form_lines(self):
         for f in self:
             # Limpiamos las líneas de impuestos previamente creadas.
@@ -444,7 +444,7 @@ class SriTaxFormLine(models.Model):
     _name = 'l10n_ec_sri.tax.form.line'
     _order = 'campo'
 
-    @api.multi
+
     def _compute_tax_lines(self):
         for r in self:
             s = r.sri_tax_form_id.sri_tax_form_set_id

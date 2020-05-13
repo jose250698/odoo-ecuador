@@ -30,7 +30,7 @@ class AccountInvoice(models.Model):
             'company_id': self.company_id.id,
         }
 
-    @api.multi
+
     def create_picking(self):
         StockPicking = self.env['stock.picking']
         for inv in self:
@@ -43,7 +43,7 @@ class AccountInvoice(models.Model):
                 picking.do_transfer()
         return True
 
-    @api.multi
+
     def action_invoice_open(self):
         # lots of duplicate calls to action_invoice_open,
         # so we remove those already open
@@ -62,7 +62,7 @@ class AccountInvoice(models.Model):
 class AccountInvoiceLine(models.Model):
     _inherit = 'account.invoice.line'
 
-    @api.multi
+
     def _get_stock_move_price_unit(self):
         self.ensure_one()
         line = self[0]
@@ -76,7 +76,7 @@ class AccountInvoiceLine(models.Model):
             price_unit = invoice.currency_id.compute(price_unit, order.company_id.currency_id, round=False)  # noqa
         return price_unit
 
-    @api.multi
+
     def _create_stock_moves(self, picking):
         moves = self.env['stock.move']
         done = self.env['stock.move'].browse()

@@ -206,7 +206,7 @@ class ReportFinancial(models.AbstractModel):
                         lines.append(vals)
         return profitloss
 
-    @api.multi
+
     def render_html(self, data):
         self.model = self.env.context.get('active_model')
         docs = self.env[self.model].browse(self.env.context.get('active_id'))

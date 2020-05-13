@@ -47,7 +47,7 @@ class HrCalendarException(models.Model):
     )
     calendar_id = fields.Many2one('resource.calendar', 'Calendario')
 
-    @api.multi
+
     def action_confirm(self):
         self.write({'state': 'confirm'})
         return True
@@ -58,14 +58,14 @@ class HrContract(models.Model):
     _name = 'hr.contract'
     _inherit = ['hr.contract', 'mail.thread', 'ir.needaction_mixin']
 
-    @api.multi
+
     def name_get(self):
         res = []
         for obj in self:
             res.append((obj.id, '%s - %s' % (obj.name, obj.employee_id.name)))
         return res
 
-    @api.multi
+
     @api.depends('employee_id', 'state')
     def _compute_department(self):
         # TODO: revisar, debemos asegurar el departmento por contrato
@@ -76,7 +76,7 @@ class HrContract(models.Model):
             elif contract.employee_id.department_id:
                 contract.department_id = contract.employee_id.department_id.id
 
-    @api.multi
+
     @api.depends('date_start', 'date_end')
     def _compute_days(self):
         for obj in self:
@@ -240,7 +240,7 @@ class HrContract(models.Model):
 #            self.job_id = res
 #        return super(hr_contract, self).onchange_job()
 
-    @api.multi
+
     def signal_confirm(self):
         """
         TODO: revisar condicionamiento de
@@ -251,19 +251,19 @@ class HrContract(models.Model):
         self.update_job()
         self.update_holidays()
 
-    @api.multi
+
     def condition_trial_period(self):
         for contract in self:
             if not contract.trial_date_start:
                 return False
         return True
 
-    @api.multi
+
     def signal_ending_contract(self):
         self.write({'state': 'contract_ending'})
         return True
 
-    @api.multi
+
     def try_signal_ending_contract(self):
         d = datetime.now().date() + relativedelta(days=+30)
         ids = self.search([
@@ -275,7 +275,7 @@ class HrContract(models.Model):
             return
         self.signal_ending_contract()
 
-    @api.multi
+
     def try_signal_contract_completed(self):
         d = datetime.now().date()
         ids = self.search([
@@ -288,12 +288,12 @@ class HrContract(models.Model):
 
         self.state_pending_done()
 
-    @api.multi
+
     def signal_ending_trial(self):
         self.write({'state': 'trial_ending'})
         return True
 
-    @api.multi
+
     def try_signal_ending_trial(self):
         d = datetime.now().date() + relativedelta(days=+10)
         ids = self.search([
@@ -306,7 +306,7 @@ class HrContract(models.Model):
 
         self.signal_ending_trial()
 
-    @api.multi
+
     def try_signal_open(self):
 
         d = datetime.now().date() + relativedelta(days=-5)
@@ -324,7 +324,7 @@ class HrContract(models.Model):
     def onchange_start(self):
         self.trial_date_start = self.date_start
 
-    @api.multi
+
     def update_holidays(self):
         holidays = self.env['hr.holidays']
         for obj in self:
@@ -338,7 +338,7 @@ class HrContract(models.Model):
             holidays.holidays_validate()
         return True
 
-    @api.multi
+
     def update_job(self):
         # metodo que actualiza el trabajo a ocupado
         for obj in self:
@@ -354,22 +354,22 @@ class HrContract(models.Model):
                 })
         return True
 
-    @api.multi
+
     def state_trial(self):
         self.write({'state': 'trial'})
         return True
 
-    @api.multi
+
     def state_open(self):
         self.write({'state': 'open'})
         return True
 
-    @api.multi
+
     def state_pending_done(self):
         self.write({'state': 'pending_done'})
         return True
 
-    @api.multi
+
     def state_done(self):
         for obj in self:
             vals = {

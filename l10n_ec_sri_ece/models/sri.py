@@ -66,13 +66,13 @@ class SriFirma(models.Model):
             vals['path'] = self.save_sign(vals['p12'])
         return super(SriFirma, self).create(vals)
 
-    @api.multi
+
     def write(self, vals):
         if 'p12' in vals:
             vals['path'] = self.save_sign(vals['p12'])
         return super(SriFirma, self).write(vals)
 
-    @api.multi
+
     def unlink(self):
         os.remove(self.path)
         return super(SriFirma, self).unlink()
@@ -97,7 +97,7 @@ class SriAmbiente(models.Model):
 class SriDocumentoElectronico(models.Model):
     _name = 'l10n_ec_sri.documento.electronico'
 
-    @api.multi
+
     def name_get(self):
         return [(documento.id, '%s %s' % (documento.claveacceso, documento.estado)) for documento in self]
 
@@ -115,7 +115,7 @@ class SriDocumentoElectronico(models.Model):
 
         return res
 
-    @api.multi
+
     def validate_xsd_schema(self, xml, xsd_path):
         """
 
@@ -138,7 +138,7 @@ class SriDocumentoElectronico(models.Model):
         except e.DocumentInvalid:
             return False
 
-    @api.multi
+
     def modulo11(self, clave):
         digitos = list(clave)
         nro = 6  # cantidad de digitos en cada segmento
@@ -157,7 +157,7 @@ class SriDocumentoElectronico(models.Model):
             mod = 1
         return mod
 
-    @api.multi
+
     def firma_xades_bes(self, xml, p12, clave):
         """
 
@@ -182,7 +182,7 @@ class SriDocumentoElectronico(models.Model):
         except subprocess.CalledProcessError as se:
             _logger.exception('FIRMA ELECTRONICA FALLIDA: %s' % se.returncode)
 
-    @api.multi
+
     def send_de_backend(self):
         """
         Envía el documento electrónico desde el backend
@@ -203,7 +203,7 @@ class SriDocumentoElectronico(models.Model):
         else:
             return False
 
-    @api.multi
+
     def send_de_offline(self, ambiente_id, xml):
         """
         :param ambiente_id: recordset del ambiente
@@ -215,7 +215,7 @@ class SriDocumentoElectronico(models.Model):
             response = client.service.validarComprobante(xml)
         return response
 
-    @api.multi
+
     def receive_de_offline(self):
         ambiente_id = self.env.user.company_id.ambiente_id
         claveacceso = self.claveacceso
@@ -261,7 +261,7 @@ class SriDocumentoElectronico(models.Model):
                 pass
         return True
 
-    @api.multi
+
     def get_documento_electronico_dict(
             self, ambiente_id, comprobante_id, documento, claveacceso, tipoemision, reference):
         # Generamos el xml en memoria.
@@ -296,7 +296,7 @@ class SriDocumentoElectronico(models.Model):
         }
         return vals
 
-    @api.multi
+
     def get_claveacceso(self, fecha, comprobante, ruc, ambiente_id,
                         establecimiento, puntoemision, secuencial):
         """
@@ -341,7 +341,7 @@ class SriDocumentoElectronico(models.Model):
                 """ % tuple(data)))
         return claveacceso
 
-    @api.multi
+
     def _get_reference_models(self):
         records = self.env['ir.model'].search(
             ['|', ('model', '=', 'account.invoice'), ('model', '=', 'stock.picking')])

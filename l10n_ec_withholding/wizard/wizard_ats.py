@@ -55,11 +55,11 @@ class WizardAts(models.TransientModel):
     _description = 'Anexo Transaccional Simplificado'
     __logger = logging.getLogger(_name)
 
-    @api.multi
+
     def _get_period(self):
         return self.env['account.period'].find()
 
-    @api.multi
+
     def _get_company(self):
         return self.env.user.company_id.id
 
@@ -257,7 +257,7 @@ class WizardAts(models.TransientModel):
                 compras.append(detallecompras)
         return compras
 
-    @api.multi
+
     def read_ventas(self, period):
         dmn = [
             ('state', 'in', ['open', 'paid']),
@@ -331,7 +331,7 @@ class WizardAts(models.TransientModel):
             ventas_end.append(detalle)
         return ventas_end
 
-    @api.multi
+
     def read_anulados(self, period):
         dmn = [
             ('state', '=', 'cancel'),
@@ -371,14 +371,14 @@ class WizardAts(models.TransientModel):
             anulados.append(detalleanulados)
         return anulados
 
-    @api.multi
+
     def render_xml(self, ats):
         tmpl_path = os.path.join(os.path.dirname(__file__), 'templates')
         env = Environment(loader=FileSystemLoader(tmpl_path))
         ats_tmpl = env.get_template('ats.xml')
         return ats_tmpl.render(ats)
 
-    @api.multi
+
     def validate_document(self, ats, error_log=False):
         file_path = os.path.join(os.path.dirname(__file__), 'XSD/ats.xsd')
         schema_file = open(file_path)
@@ -393,7 +393,7 @@ class WizardAts(models.TransientModel):
                 ok = False
         return ok, xmlschema
 
-    @api.multi
+
     def act_export_ats(self):
         ats = AccountAts()
         period = self.period_id

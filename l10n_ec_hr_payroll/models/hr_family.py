@@ -14,7 +14,7 @@ class HrFamily(models.Model):
     """
     _name = 'hr.family'
 
-    @api.multi
+
     @api.depends('birthday', 'date_marriage')
     def _compute_age(self):
         for row in self:

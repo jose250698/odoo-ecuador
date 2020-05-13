@@ -14,7 +14,7 @@ class AccountBankReconcile(models.Model):
     _name = 'account.bank.reconcile'
     _order = 'date_start DESC'
 
-    @api.multi
+
     def unlink(self):
         for ob in self:
             if ob.state != 'draft':
@@ -100,7 +100,7 @@ class AccountBankReconcile(models.Model):
         default='draft'
     )
 
-    @api.multi
+
     def action_load_entries(self):
         for obj in self:
             obj.line_ids.unlink()
@@ -121,7 +121,7 @@ class AccountBankReconcile(models.Model):
             not_conciled.write({'concile_id': obj.id})
         return True
 
-    @api.multi
+
     def action_done(self):
         for obj in self:
             debits = sum([l.debit for l in obj.line_ids.filtered(lambda r: r.conciled)])  # noqa
@@ -133,7 +133,7 @@ class AccountBankReconcile(models.Model):
             obj.write({'state': 'done', 'name': code})
         return True
 
-    @api.multi
+
     def action_print(self):
         pass
 
@@ -141,7 +141,7 @@ class AccountBankReconcile(models.Model):
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
 
-    @api.multi
+
     def action_done(self):
         self.write({'conciled': not self.conciled})
 

@@ -76,7 +76,7 @@ class PurchaseOrder(models.Model):
     no_declarado = fields.Monetary(
         string='VALOR NO DECLARADO', compute=_amount_all, )
 
-    @api.multi
+
     def action_invoice_create(self, grouped=False, final=False):
         res = super(PurchaseOrder, self).action_invoice_create(grouped=grouped, final=final)
         inv = self.env['account.invoice'].browse(res)

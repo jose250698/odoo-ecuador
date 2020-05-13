@@ -68,7 +68,7 @@ class HrSriProjection(models.Model):
     _description = 'Maximum value to deduct'
     _order = 'name asc'
 
-    @api.multi
+
     @api.depends('deduction_id')
     def _compute_name(self):
         for record in self:
@@ -114,7 +114,7 @@ class HrSriAnnualProjection(models.Model):
         name_reference = '{} {}'.format('Proyección de gastos', default)
         return name_reference
 
-    @api.multi
+
     def _compute_all(self):
         for i in self:
             sum = 0.0

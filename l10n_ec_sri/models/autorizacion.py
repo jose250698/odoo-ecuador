@@ -44,7 +44,7 @@ class Autorizacion(models.Model):
     # Facturación electrónica.
     direstablecimiento = fields.Char('Dirección del establecimiento', )
 
-    @api.multi
+
     def name_get(self):
         res = []
         for r in self:
@@ -70,7 +70,7 @@ class Autorizacion(models.Model):
         autorizaciones = self.search(domain + args, limit=limit)
         return autorizaciones.name_get()
 
-    @api.multi
+
     @api.depends('secuencia_inicial', 'secuencia_actual', 'c_invoice_ids', 'comprobantesanulados_ids')
     def _compute_c_ids(self):
         for r in self:

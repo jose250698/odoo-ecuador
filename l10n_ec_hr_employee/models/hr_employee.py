@@ -67,7 +67,7 @@ class HrEmployee(models.Model):
         res = super(HrEmployee, self).create(vals)
         return res
 
-    @api.multi
+
     def write(self, vals):
         if vals.get('firstname') or vals.get('lastname'):
             lastname = vals.get('lastname') or self.lastname or ' '

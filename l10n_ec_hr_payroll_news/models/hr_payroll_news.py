@@ -35,7 +35,7 @@ class HrPayslipNews(models.Model):
     def approved_new(self):
         self.state = 'approved'
 
-    @api.multi
+
     def unlink(self):
         delete = True
         for row in self:

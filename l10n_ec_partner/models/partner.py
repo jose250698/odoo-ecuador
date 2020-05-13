@@ -14,7 +14,7 @@ class ResPartner(models.Model):
 
     _inherit = 'res.partner'
 
-    @api.multi
+
     def update_identifiers(self):
         sql = """UPDATE res_partner SET identifier='9999999999'
         WHERE identifier is NULL"""
@@ -31,7 +31,7 @@ class ResPartner(models.Model):
         WHERE type_identifier <> 'pasaporte'"""
         self._cr.execute(sql_index)
 
-    @api.multi
+
     @api.depends('identifier', 'name')
     def name_get(self):
         data = []
