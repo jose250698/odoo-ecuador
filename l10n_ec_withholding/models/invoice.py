@@ -69,7 +69,7 @@ class Invoice(models.Model):
             'l10n_ec_withholding.account_withholding_report'
         )
 
-    @api.one
+
     @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'currency_id', 'company_id')  # noqa
     def _compute_amount(self):
         self.amount_untaxed = sum(line.price_subtotal for line in self.invoice_line_ids)  # noqa
@@ -122,7 +122,7 @@ class Invoice(models.Model):
             result.append((inv.id, "%s %s" % (inv.reference, inv.number and inv.number or '*')))  # noqa
         return result
 
-    @api.one
+
     @api.depends('tax_line_ids.tax_id')
     def _check_retention(self):
         TAXES = ['ret_vat_b', 'ret_vat_srv', 'ret_ir', 'no_ret_ir']  # noqa

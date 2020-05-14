@@ -57,7 +57,7 @@ class AccountAuthorisation(models.Model):
             res.append((record.id, name))
         return res
 
-    @api.one
+
     @api.depends('expiration_date')
     def _compute_active(self):
         """
@@ -248,7 +248,7 @@ class AccountInvoice(models.Model):
         if self.type not in self._DOCUMENTOS_EMISION:
             self.auth_inv_id = self.partner_id.get_authorisation(self.type)
 
-    @api.one
+
     @api.depends(
         'state',
         'reference'

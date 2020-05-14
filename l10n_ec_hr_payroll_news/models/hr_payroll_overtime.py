@@ -26,7 +26,7 @@ class HrPayslipOvertime(models.Model):
                               ('done', _('Done'))], string='State',
                              default='draft')
 
-    @api.one
+
     def approved(self):
         if self.line_ids:
             self.state = 'approved'

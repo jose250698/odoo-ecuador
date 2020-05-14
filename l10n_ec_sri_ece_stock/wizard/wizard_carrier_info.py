@@ -20,7 +20,7 @@ class WizardCarrierInfo(models.TransientModel):
             driver_ids = [x.id for x in self.carrier_id.delivery_carrier_ids]
         return {'domain': {'driver_id': [('id', 'in', driver_ids)]}}
 
-    @api.one
+
     def generar_guia_remision(self):
         picking_id = self.env['stock.picking'].browse(self._context.get('active_ids', False))
         vals = {

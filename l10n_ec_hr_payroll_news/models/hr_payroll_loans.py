@@ -66,7 +66,7 @@ class HrPayslipLoans(models.Model):
         if self.payment_id:
             self.paid = True
 
-    @api.one
+
     def _conciliate_loan(self):
         if not self.reconciled and self.payment_id:
             account_id = self.employee_id.company_id.loan_account_id

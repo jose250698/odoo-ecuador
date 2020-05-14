@@ -365,7 +365,7 @@ class SriDocumentoElectronico(models.Model):
         ('2', 'Producción'),
     ], string='Ambiente', )
 
-    @api.one
+
     def get_barcode_128(self):
         if self.claveacceso:
             file_data = io.StringIO()

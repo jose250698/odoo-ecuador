@@ -31,7 +31,7 @@ class HrPayslipNews(models.Model):
                               ('done', _('Done'))], string=_('State'),
                              default='draft')
 
-    @api.one
+
     def approved_new(self):
         self.state = 'approved'
 

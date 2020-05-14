@@ -181,7 +181,7 @@ class Edocument(models.AbstractModel):
             'emission_code': codes[1]
         })
 
-    @api.one
+
     def add_attachment(self, xml_element, auth):
         buf = StringIO.StringIO()
         buf.write(xml_element.encode('utf-8'))

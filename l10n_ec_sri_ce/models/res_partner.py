@@ -7,7 +7,7 @@ class ResPartner(models.Model):
     """
     _inherit = 'res.partner'
 
-    @api.one
+
     @api.depends('country_id', 'company_id.country_id')
     def _is_international(self):
         company_country = self.company_id.country_id.id

@@ -14,13 +14,42 @@ class ResPartner(models.Model):
 
     _inherit = 'res.partner'
 
+    identifier = fields.Char(
+        'Cedula/RUC',
+        size=13,
+        required=True,
+        default='9999999999',
+        help='Identificación o Registro Unico de Contribuyentes')
+    type_identifier = fields.Selection(
+        [
+            ('cedula', 'CEDULA'),
+            ('ruc', 'RUC'),
+            ('pasaporte', 'PASAPORTE')
+        ],
+        'Tipo ID',
+        required=True,
+        default='pasaporte'
+    )
+
+    tipo_persona = fields.Selection(
+        compute='_compute_tipo_persona',
+        selection=[
+            ('6', 'Persona Natural'),
+            ('9', 'Persona Juridica'),
+            ('0', 'Otro')
+        ],
+        string='Persona',
+        store=True
+    )
+
+    is_company = fields.Boolean(default=True)
 
     def update_identifiers(self):
         sql = """UPDATE res_partner SET identifier='9999999999'
         WHERE identifier is NULL"""
         self.env.cr.execute(sql)
 
-    @api.model_cr_context
+
     def init(self):
         self.update_identifiers()
         super(ResPartner, self).init()
@@ -30,7 +59,6 @@ class ResPartner(models.Model):
         (company_id, type_identifier, identifier)
         WHERE type_identifier <> 'pasaporte'"""
         self._cr.execute(sql_index)
-
 
     @api.depends('identifier', 'name')
     def name_get(self):
@@ -55,7 +83,6 @@ class ResPartner(models.Model):
             partners = self.search(args, limit=limit)
         return partners.name_get()
 
-    @api.one
     @api.constrains('identifier', 'type_identifier')
     def _check_identifier(self):
         res = False
@@ -64,47 +91,15 @@ class ResPartner(models.Model):
             raise ValidationError('Error en el identificador.')
         return True
 
-    @api.one
     @api.depends('identifier')
     def _compute_tipo_persona(self):
-        if self.type_identifier == 'pasaporte':
-            self.tipo_persona = '0'
-        elif not self.identifier:
-            self.tipo_persona = '0'
-        elif int(self.identifier[2]) <= 6:
-            self.tipo_persona = '6'
-        elif int(self.identifier[2]) in [6, 9]:
-            self.tipo_persona = '9'
-        else:
-            self.tipo_persona = '0'
-
-    identifier = fields.Char(
-        'Cedula/ RUC',
-        size=13,
-        required=True,
-        default='9999999999',
-        help='Identificación o Registro Unico de Contribuyentes')
-    type_identifier = fields.Selection(
-        [
-            ('cedula', 'CEDULA'),
-            ('ruc', 'RUC'),
-            ('pasaporte', 'PASAPORTE')
-        ],
-        'Tipo ID',
-        required=True,
-        default='pasaporte'
-    )
-    tipo_persona = fields.Selection(
-        compute='_compute_tipo_persona',
-        selection=[
-            ('6', 'Persona Natural'),
-            ('9', 'Persona Juridica'),
-            ('0', 'Otro')
-        ],
-        string='Persona',
-        store=True
-    )
-    is_company = fields.Boolean(default=True)
+        for una_persona in self:
+            person_type = '0'
+            if int(una_persona.identifier[2]) <= 6:
+                person_type = '6'
+            if int(una_persona.identifier[2]) in [6, 9]:
+                person_type = '9'
+            una_persona.tipo_persona = person_type
 
     def validate_from_sri(self):
         """

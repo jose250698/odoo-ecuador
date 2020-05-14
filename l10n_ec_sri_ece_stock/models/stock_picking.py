@@ -253,7 +253,7 @@ class StockPicking(models.Model):
 
         return ambiente_id, comprobante_id, guiaremision_dict, claveacceso, tipoemision
 
-    @api.one
+
     def get_autorizacion(self):
         """
         Si el usuario tiene una autorización la usamos.
