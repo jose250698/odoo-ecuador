@@ -487,7 +487,7 @@
 
         <record id="action_liq_purchase_tree" model="ir.actions.act_window">
             <field name="name">Liquidaciones de Compra</field>
-            <field name="res_model">account.invoice</field>
+            <field name="res_model">account.move</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,calendar,graph</field>
             <field name="view_id" ref="account.invoice_tree"/>
