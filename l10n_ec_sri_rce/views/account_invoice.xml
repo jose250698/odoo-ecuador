@@ -2,7 +2,7 @@
 <odoo>
     <record id="invoice_form" model="ir.ui.view">
         <field name="name">prepare_taxes_account.invoice</field>
-        <field name="model">account.invoice</field>
+        <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="before" >
@@ -14,7 +14,7 @@
 
     <record id="invoice_supplier_form" model="ir.ui.view">
         <field name="name">prepare_taxes_account.invoice supplier form</field>
-        <field name="model">account.invoice</field>
+        <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='state']" position="before" >
