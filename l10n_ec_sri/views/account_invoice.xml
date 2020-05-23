@@ -3,9 +3,9 @@
     <data>
         <!-- Factura de compra -->
         <record id="view_invoice_supplier_form_ec" model="ir.ui.view">
-            <field name="name">account.move.supplier.form.ec</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.move_supplier_form"/>
+            <field name="name">account.invoice.supplier.form.ec</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
                 <field name="state" position="before">
                     <button name="button_marcar_reembolso" string="REEMBOLSO DE GASTOS"
@@ -96,9 +96,9 @@
 
         <!-- Factura de venta -->
         <record id="view_invoice_form_ec" model="ir.ui.view">
-            <field name="name">account.move.form.ec</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.move_form"/>
+            <field name="name">account.invoice.form.ec</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
                 <field name="state" position="before">
                     <button name="button_anular_secuencial" string="Anular Secuencial"
@@ -196,9 +196,9 @@
         <!-- Vista lista facturas proveedores -->
         <record id="invoice_supplier_tree_ec" model="ir.ui.view">
             <field name="name">Invoice Ecuador tree view</field>
-            <field name="model">account.move</field>
+            <field name="model">account.invoice</field>
             <field name="type">tree</field>
-            <field name="inherit_id" ref="account.move_supplier_tree"/>
+            <field name="inherit_id" ref="account.invoice_supplier_tree"/>
             <field name="arch" type="xml">
                 <data>
                     <xpath expr="//field[@name='reference']" position="replace" >
@@ -216,7 +216,7 @@
         <!-- Vista simplificada para información de retenciones -->
         <record id="view_invoice_tree_ret" model="ir.ui.view">
             <field name="name">Invoice Ecuador retention tree view</field>
-            <field name="model">account.move</field>
+            <field name="model">account.invoice</field>
             <field name="type">tree</field>
             <field name="arch" type="xml">
                 <tree >
@@ -233,9 +233,9 @@
         <!-- Vista lista facturas clientes -->
         <record id="invoice_tree_ec" model="ir.ui.view">
             <field name="name">Invoice Ecuador tree view</field>
-            <field name="model">account.move</field>
+            <field name="model">account.invoice</field>
             <field name="type">tree</field>
-            <field name="inherit_id" ref="account.move_tree"/>
+            <field name="inherit_id" ref="account.invoice_tree"/>
             <field name="arch" type="xml">
                 <data>
                     <xpath expr="//field[@name='origin']" position="replace" >
@@ -249,8 +249,8 @@
         </record>
 
         <record id="view_invoice_line_form" model="ir.ui.view">
-            <field name="name">ats.account.move.line.form</field>
-            <field name="model">account.move.line</field>
+            <field name="name">ats.account.invoice.line.form</field>
+            <field name="model">account.invoice.line</field>
             <field name="inherit_id" ref="account.view_invoice_line_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form" position="inside">
@@ -264,7 +264,7 @@
         <!-- Vista búsqueda facturas -->
         <record id="view_account_invoice_filter_sri" model="ir.ui.view">
             <field name="name">Invoice - SRI Search View</field>
-            <field name="model">account.move</field>
+            <field name="model">account.invoice</field>
             <field name="type">search</field>
             <field name="inherit_id" ref="account.view_account_invoice_filter"/>
             <field name="arch" type="xml">

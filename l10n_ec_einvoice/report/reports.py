@@ -15,31 +15,31 @@ class ReportAccountInvoice(report_sxw.rml_parse):
         })
 
     def get_date_modified(self, o):
-        res = self.pool.get('account.move').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
+        res = self.pool.get('account.invoice').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
         if not res:
             return
-        inv = self.pool.get('account.move').browse(self.cr, self.uid, res)  # noqa
+        inv = self.pool.get('account.invoice').browse(self.cr, self.uid, res)  # noqa
         return inv.date_invoice
 
     def get_num_modified(self, o):
-        res = self.pool.get('account.move').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
+        res = self.pool.get('account.invoice').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
         if not res:
             return
-        inv = self.pool.get('account.move').browse(self.cr, self.uid, res)  # noqa
+        inv = self.pool.get('account.invoice').browse(self.cr, self.uid, res)  # noqa
         number = '-'.join([inv.invoice_number[:3], inv.invoice_number[3:6], inv.invoice_number[-9:]])  # noqa
         return number
 
     def get_auth_modified(self, o):
-        res = self.pool.get('account.move').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
+        res = self.pool.get('account.invoice').search(self.cr, self.uid, [('number', '=', o.origin)], limit=1)  # noqa
         if not res:
             return
-        inv = self.pool.get('account.move').browse(self.cr, self.uid, res)  # noqa
+        inv = self.pool.get('account.invoice').browse(self.cr, self.uid, res)  # noqa
         return inv.numero_autorizacion
 
 
 webkit_report.WebKitParser(
     'report.account_einvoice',
-    'account.move',
+    'account.invoice',
     'l10n_ec_einvoice/views/report_envoice.mako',
     parser=ReportAccountInvoice
 )

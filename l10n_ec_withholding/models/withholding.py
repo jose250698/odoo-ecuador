@@ -46,13 +46,13 @@ class AccountWithdrawing(models.Model):
 
     @api.model
     def _default_currency(self):
-        company = self.env['res.company']._company_default_get('account.move')  # noqa
+        company = self.env['res.company']._company_default_get('account.invoice')  # noqa
         return company.currency_id
 
     @api.model
     def _default_authorisation(self):
         if self.env.context.get('in_type') == 'ret_in_invoice':
-            company = self.env['res.company']._company_default_get('account.move')  # noqa
+            company = self.env['res.company']._company_default_get('account.invoice')  # noqa
             auth_ret = company.partner_id.get_authorisation('ret_in_invoice')
             return auth_ret
 
@@ -111,7 +111,7 @@ class AccountWithdrawing(models.Model):
         states={'draft': [('readonly', False)]}, required=True
     )
     tax_ids = fields.One2many(
-        'account.move.tax',
+        'account.invoice.tax',
         'retention_id',
         'Detalle de Impuestos',
         readonly=True,
@@ -119,7 +119,7 @@ class AccountWithdrawing(models.Model):
         copy=False
         )
     invoice_id = fields.Many2one(
-        'account.move',
+        'account.invoice',
         string='Documento',
         required=False,
         readonly=True,
@@ -182,7 +182,7 @@ class AccountWithdrawing(models.Model):
         change_default=True,
         readonly=True,
         states={'draft': [('readonly', False)]},
-        default=lambda self: self.env['res.company']._company_default_get('account.move')  # noqa
+        default=lambda self: self.env['res.company']._company_default_get('account.invoice')  # noqa
         )
 
     _sql_constraints = [
@@ -230,7 +230,7 @@ class AccountWithdrawing(models.Model):
     @api.onchange('to_cancel')
     def onchange_tocancel(self):
         if self.to_cancel:
-            company = self.env['res.company']._company_default_get('account.move')  # noqa
+            company = self.env['res.company']._company_default_get('account.invoice')  # noqa
             self.partner_id = company.partner_id.id
 
     @api.onchange('invoice_id')

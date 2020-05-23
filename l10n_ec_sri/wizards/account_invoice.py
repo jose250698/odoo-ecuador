@@ -34,8 +34,8 @@ class SriMultiDataWizard(models.TransientModel):
 
         if not active_model or not active_ids:
             raise UserError(_("Programmation error: wizard action executed without active_model or active_ids in context."))
-        if active_model != 'account.move':
-            raise UserError(_("Programmation error: the expected model for this action is 'account.move'. The provided one is '%d'.") % active_model)
+        if active_model != 'account.invoice':
+            raise UserError(_("Programmation error: the expected model for this action is 'account.invoice'. The provided one is '%d'.") % active_model)
 
         # Checks on received invoice records
         invoices = self.env[active_model].browse(active_ids)

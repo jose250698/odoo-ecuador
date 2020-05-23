@@ -101,7 +101,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
         comprobante = autorizacion_dict['comprobante'].encode('utf-8')
         comprobante = xmltodict.parse(comprobante)
 
-        inv_obj = self.env['account.move']
+        inv_obj = self.env['account.invoice']
 
         if 'factura' in comprobante.keys():
             infoTributaria = comprobante['factura']['infoTributaria']
@@ -198,7 +198,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
             key = 'comprobanteRetencion'
             fecha = comprobante['comprobanteRetencion']['infoCompRetencion']['fechaEmision']
             
-            inv_obj = self.env['account.move']
+            inv_obj = self.env['account.invoice']
             docs = []
             
             for impuesto in comprobante['comprobanteRetencion']['impuestos']['impuesto']:
@@ -264,7 +264,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
         
         for ce in ces:
             creando = False
-            if key == 'factura' and active_model == 'account.move':
+            if key == 'factura' and active_model == 'account.invoice':
                 old_des = active_records.mapped('factura_electronica_id')
                 if active_records and not ce and not active_records.invoice_line_ids:
                     active_records.write({
@@ -273,7 +273,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
                     active_records.write(xml_data)       
                 elif active_records and not ce and  active_records.invoice_line_ids:
                     creando = True
-                    new_inv = self.env['account.move'].create(xml_data)
+                    new_inv = self.env['account.invoice'].create(xml_data)  
                     new_inv.write({
                          'factura_electronica_id': de.id,
                     })
@@ -299,7 +299,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
                     list_msg.append('Ya existe la factura importada con el secuencial %s' % xml_data['secuencial'])
                 else:
                     creando = True
-                    new_inv = self.env['account.move'].create(xml_data)
+                    new_inv = self.env['account.invoice'].create(xml_data)  
                     new_inv.write({
                          'factura_electronica_id': de.id,
                     })
@@ -307,7 +307,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
                         'reference': ('{0},{1}'.format(active_model, new_inv.id))
                         })   
 
-            if key == 'comprobanteRetencion' and active_model == 'account.move':
+            if key == 'comprobanteRetencion' and active_model == 'account.invoice':
                 old_des = active_records.mapped('retencion_electronica_id')
                 if active_records == ce and ce and not active_records.retencion_electronica_id:
                     active_records.write({
@@ -356,7 +356,7 @@ class ComprobanteElectronicoImportWizard(models.TransientModel):
         context, active_model, active_ids = self.params_context()
 
         if not active_model or not active_ids:
-            active_model = 'account.move'
+            active_model = 'account.invoice'
             active_ids = []
         elif len(active_ids) > 1:
             raise UserError(_("Debe seleccionar solo un registro."))

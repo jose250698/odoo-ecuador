@@ -5,7 +5,7 @@ from odoo import api, fields, models
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = "account.move.line"
+    _inherit = "account.invoice.line"
 
     price_discount = fields.Monetary(
         compute='_compute_price_discount',
@@ -54,7 +54,7 @@ class AccountInvoiceLine(models.Model):
 
 
 class AccountInvoice(models.Model):
-    _inherit = "account.move"
+    _inherit = "account.invoice"
 
     price_discount = fields.Monetary(
         compute='_compute_price_discount',

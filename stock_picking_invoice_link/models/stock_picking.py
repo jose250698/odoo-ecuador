@@ -11,7 +11,7 @@ class StockPicking(models.Model):
     _inherit = "stock.picking"
 
     invoice_ids = fields.Many2many(
-        comodel_name='account.move',
+        comodel_name='account.invoice',
         copy=False,
         string='Invoices',
         readonly=True,
@@ -30,7 +30,7 @@ class StockPicking(models.Model):
         if len(self.invoice_ids) > 1:
             result['domain'] = "[('id', 'in', %s)]" % self.invoice_ids.ids
         else:
-            form_view = self.env.ref('account.move_form')
+            form_view = self.env.ref('account.invoice_form')
             result['views'] = [(form_view.id, 'form')]
             result['res_id'] = self.invoice_ids.id
         return result

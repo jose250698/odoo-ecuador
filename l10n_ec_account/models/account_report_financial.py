@@ -5,7 +5,7 @@ from odoo import api, models
 
 
 class ReportFinancial(models.AbstractModel):
-
+    _inherit = 'report.account.report_financial'
 
     def _compute_account_balance(self, accounts):
         """ compute the balance, debit and credit for the provided accounts

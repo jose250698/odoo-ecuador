@@ -24,7 +24,7 @@ class Edocument(models.AbstractModel):
 
     _name = 'account.edocument'
     _FIELDS = {
-        'account.move': 'invoice_number',
+        'account.invoice': 'invoice_number',
         'account.retention': 'name'
     }
     SriServiceObj = SriService()
@@ -61,7 +61,7 @@ class Edocument(models.AbstractModel):
 
     def get_auth(self, document):
         partner = document.company_id.partner_id
-        if document._name == 'account.move':
+        if document._name == 'account.invoice':
             return document.auth_inv_id
         elif document._name == 'account.retention':
             return partner.get_authorisation('ret_in_invoice')
@@ -94,7 +94,7 @@ class Edocument(models.AbstractModel):
         return code
 
     def get_access_key(self, name):
-        if name == 'account.move':
+        if name == 'account.invoice':
             auth = self.company_id.partner_id.get_authorisation('out_invoice')
             ld = self.date_invoice.split('-')
             numero = getattr(self, 'invoice_number')
@@ -117,7 +117,7 @@ class Edocument(models.AbstractModel):
         return access_key
 
 
-    def _get_codes(self, name='account.move'):
+    def _get_codes(self, name='account.invoice'):
         ak_temp = self.get_access_key(name)
         self.SriServiceObj.set_active_env(self.env.user.company_id.env_service)
         access_key = self.SriServiceObj.create_access_key(ak_temp)
@@ -134,14 +134,14 @@ class Edocument(models.AbstractModel):
             'y secuencial. Por favor enviar primero el',
             ' comprobante inmediatamente anterior.'])
         FIELD = {
-            'account.move': 'invoice_number',
+            'account.invoice': 'invoice_number',
             'account.retention': 'name'
         }
         number = getattr(self, FIELD[self._name])
         sql = ' '.join([
             "SELECT autorizado_sri, %s FROM %s" % (FIELD[self._name], self._table),  # noqa
             "WHERE state='open' AND %s < '%s'" % (FIELD[self._name], number),  # noqa
-            self._name == 'account.move' and "AND type = 'out_invoice'" or '',  # noqa
+            self._name == 'account.invoice' and "AND type = 'out_invoice'" or '',  # noqa
             "ORDER BY %s DESC LIMIT 1" % FIELD[self._name]
         ])
         self.env.cr.execute(sql)

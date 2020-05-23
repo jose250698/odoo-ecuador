@@ -45,30 +45,30 @@ msgid "Picking List"
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: view:account.move:stock_picking_invoice_link.invoice_form
-#: view:account.move:stock_picking_invoice_link.invoice_supplier_form
+#: view:account.invoice:stock_picking_invoice_link.invoice_form
+#: view:account.invoice:stock_picking_invoice_link.invoice_supplier_form
 msgid "Pickings"
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: field:account.move,picking_ids:0
+#: field:account.invoice,picking_ids:0
 msgid "Related Pickings"
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: field:account.move.line,move_line_ids:0
+#: field:account.invoice.line,move_line_ids:0
 msgid "Related Stock Moves"
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: help:account.move,picking_ids:0
+#: help:account.invoice,picking_ids:0
 msgid ""
 "Related pickings (only when the invoice has been generated from the "
 "picking)."
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: help:account.move.line,move_line_ids:0
+#: help:account.invoice.line,move_line_ids:0
 msgid ""
 "Related stock moves (only when the invoice has been generated from the "
 "picking)."

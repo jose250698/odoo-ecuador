@@ -137,7 +137,7 @@ class WizardAts(models.TransientModel):
         }
 
     def get_refund(self, invoice):
-        refund = self.env['account.move'].search([
+        refund = self.env['account.invoice'].search([
             ('number', '=', invoice.origin)
         ])
         if refund:
@@ -188,7 +188,7 @@ class WizardAts(models.TransientModel):
           * facturas de proveedor
           * liquidaciones de compra
         """
-        inv_obj = self.env['account.move']
+        inv_obj = self.env['account.invoice']
         dmn_purchase = [
             ('state', 'in', ['open', 'paid']),
             ('period_id', '=', period.id),
@@ -266,7 +266,7 @@ class WizardAts(models.TransientModel):
             ('auth_inv_id.is_electronic', '!=', True)
         ]
         ventas = []
-        for inv in self.env['account.move'].search(dmn):
+        for inv in self.env['account.invoice'].search(dmn):
             detalleventas = {
                 'tpIdCliente': tpIdCliente[inv.partner_id.type_ced_ruc],
                 'idCliente': inv.partner_id.ced_ruc,
@@ -339,7 +339,7 @@ class WizardAts(models.TransientModel):
             ('type', 'in', ['out_invoice', 'liq_purchase'])
         ]
         anulados = []
-        for inv in self.env['account.move'].search(dmn):
+        for inv in self.env['account.invoice'].search(dmn):
             auth = inv.auth_inv_id
             aut = auth.is_electronic and inv.numero_autorizacion or auth.name
             detalleanulados = {

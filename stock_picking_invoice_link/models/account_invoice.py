@@ -8,7 +8,7 @@ from odoo import fields, models
 
 
 class AccountInvoice(models.Model):
-    _inherit = "account.move"
+    _inherit = "account.invoice"
 
     picking_ids = fields.Many2many(
         comodel_name='stock.picking',
@@ -21,7 +21,7 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = "account.move.line"
+    _inherit = "account.invoice.line"
 
     move_line_ids = fields.One2many(
         comodel_name='stock.move',

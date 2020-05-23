@@ -12,7 +12,7 @@ from odoo import tools
 
 class AccountInvoiceTax(models.Model):
 
-    _inherit = 'account.move.tax'
+    _inherit = 'account.invoice.tax'
 
     fiscal_year = fields.Char(
         'Ejercicio Fiscal',
@@ -66,7 +66,7 @@ class AccountTax(models.Model):
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.move'
+    _inherit = 'account.invoice'
 
     def compute_compensaciones(self):
         res = []

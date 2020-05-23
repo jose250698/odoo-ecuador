@@ -21,7 +21,7 @@
 
       <report
           id="account.account_invoices"
-          model="account.move"
+          model="account.invoice"
           string="Factura Electronica"
           report_type="qweb-pdf"
           name="l10n_ec_einvoice.report_einvoice"

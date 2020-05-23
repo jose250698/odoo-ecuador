@@ -31,7 +31,7 @@ class SriTaxFormSet(models.Model):
     def get_invoices(self):
         for s in self:
             # Obtenemos todas las facturas abiertas y pagadas del periodo.
-            invoices = self.env['account.move'].search([
+            invoices = self.env['account.invoice'].search([
                 ('state', 'in', ('open', 'paid')),
                 ('date_invoice', ">=", self.date_from),
                 ('date_invoice', '<=', self.date_to),
@@ -73,22 +73,22 @@ class SriTaxFormSet(models.Model):
         string='Tax declarations', )
 
     no_declarado_ids = fields.Many2many(
-        'account.move', 'no_declarado_tax_form_set_rel', 'no_declarado_ids',
+        'account.invoice', 'no_declarado_tax_form_set_rel', 'no_declarado_ids',
         'no_declarado_tax_form_set_ids', string="Comprobantes no declarados", )
     in_invoice_ids = fields.Many2many(
-        'account.move', 'in_inv_tax_form_set_rel', 'in_invoice_ids',
+        'account.invoice', 'in_inv_tax_form_set_rel', 'in_invoice_ids',
         'in_inv_tax_form_set_ids', string="In invoices", )
     out_invoice_ids = fields.Many2many(
-        'account.move', 'out_inv_tax_form_set_rel', 'out_invoice_ids',
+        'account.invoice', 'out_inv_tax_form_set_rel', 'out_invoice_ids',
         'out_inv_tax_form_set_ids', string="Out invoices", )
     in_refund_ids = fields.Many2many(
-        'account.move', 'in_ref_tax_form_set_rel', 'in_refund_ids',
+        'account.invoice', 'in_ref_tax_form_set_rel', 'in_refund_ids',
         'in_ref_tax_form_set_ids', string="In refunds", )
     out_refund_ids = fields.Many2many(
-        'account.move', 'out_ref_tax_form_set_rel', 'out_refund_ids',
+        'account.invoice', 'out_ref_tax_form_set_rel', 'out_refund_ids',
         'out_ref_tax_form_set_ids', string="Out refunds", )
     in_reembolso_ids = fields.One2many(
-        'account.move', string='Reembolsos en compras',
+        'account.invoice', string='Reembolsos en compras',
         compute='_compute_reembolsos', readonly=True, )
 
 
@@ -150,7 +150,7 @@ class SriTaxForm(models.Model):
         :return: dict con valores del ATS
         """
         for f in self:
-            inv = self.env['account.move']
+            inv = self.env['account.invoice']
             form_set = f.sri_tax_form_set_id
 
             # Para generar los datos de ventas

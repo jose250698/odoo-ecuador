@@ -2,7 +2,7 @@
 from odoo import models, fields, api
 
 class AccountInvoice(models.Model):
-    _inherit = ['account.move']
+    _inherit = ['account.invoice']
 
     credit_card_retention = fields.Boolean('¿Retencion de tarjeta de credito?')
 

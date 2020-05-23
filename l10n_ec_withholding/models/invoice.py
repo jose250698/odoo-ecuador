@@ -27,7 +27,7 @@ TYPE2JOURNAL = {
 
 class Invoice(models.Model):
 
-    _inherit = 'account.move'
+    _inherit = 'account.invoice'
     __logger = logging.getLogger(_inherit)
 
     @api.model
@@ -393,7 +393,7 @@ class Invoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.move.line'
+    _inherit = 'account.invoice.line'
 
     def _set_taxes(self):
         """
@@ -405,7 +405,7 @@ class AccountInvoiceLine(models.Model):
 
 class AccountInvoiceTax(models.Model):
 
-    _inherit = 'account.move.tax'
+    _inherit = 'account.invoice.tax'
 
     retention_id = fields.Many2one(
         'account.retention',
@@ -415,7 +415,7 @@ class AccountInvoiceTax(models.Model):
 
 
     def get_invoice(self, number):
-        return self.env['account.move'].search([('number', '=', number)])
+        return self.env['account.invoice'].search([('number', '=', number)])
 
     @api.onchange('tax_id')
     def _onchange_tax(self):

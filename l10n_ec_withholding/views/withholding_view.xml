@@ -18,9 +18,9 @@
         </record>
 
         <record id="invoice_supplier_form" model="ir.ui.view">
-            <field name="name">account.move.supplier.form</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.move_supplier_form"/>
+            <field name="name">account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='move_id']" position="after">
                     <field name="retention_id" context="{'form_view_ref': 'l10n_ec_withholding.view_account_retention_form'}"/>
@@ -307,20 +307,20 @@
             id="act_window_retention"
             name="Retención"
             domain="[('id','=',retention_id)]"
-            src_model="account.move"
+            src_model="account.invoice"
             res_model="account.retention"/>
 
         <act_window
             id="act_window_move"
             name="Comprobante Contable"
             domain="[('id','=',move_id)]"
-            src_model="account.move"
+            src_model="account.invoice"
             res_model="account.move"/>
 
         <record id="view_account_invoice_tree22" model="ir.ui.view">
-            <field name="name">view.account.move.tree22</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.move_tree"/>
+            <field name="name">view.account.invoice.tree22</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_tree"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='number']" position="replace">
                     <field name="invoice_number"/>
@@ -337,8 +337,8 @@
         -->
 
         <!-- record id="invoice_liq_purchase_form" model="ir.ui.view">
-            <field name="name">account.move.liq.purchase.form</field>
-            <field name="model">account.move</field>
+            <field name="name">account.invoice.liq.purchase.form</field>
+            <field name="model">account.invoice</field>
             <field name="type">form</field>
             <field name="arch" type="xml">
                 <form string="Liquidacion de Compra" version="7.0">
@@ -487,10 +487,10 @@
 
         <record id="action_liq_purchase_tree" model="ir.actions.act_window">
             <field name="name">Liquidaciones de Compra</field>
-            <field name="res_model">account.move</field>
+            <field name="res_model">account.invoice</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form,calendar,graph</field>
-            <field name="view_id" ref="account.move_tree"/>
+            <field name="view_id" ref="account.invoice_tree"/>
             <field name="context">{'type':'liq_purchase', 'journal_type': 'purchase'}</field>
             <field name="domain">[('type','=','liq_purchase')]</field>
         </record>
@@ -514,9 +514,9 @@
         -->
 
         <record id="view_invoice_form" model="ir.ui.view">
-            <field name="name">account.move.reference.cust.form</field>
-            <field name="model">account.move</field>
-            <field name="inherit_id" ref="account.move_form"/>
+            <field name="name">account.invoice.reference.cust.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='date_invoice']" position="attributes">
                     <attribute name="required">1</attribute>
@@ -554,8 +554,8 @@
         </record>
 
         <record id="account.view_invoice_tax_form" model="ir.ui.view">
-            <field name="name">account.move.tax.form</field>
-            <field name="model">account.move.tax</field>
+            <field name="name">account.invoice.tax.form</field>
+            <field name="model">account.invoice.tax</field>
             <field name="arch" type="xml">
                 <form string="Manual Invoice Taxes">
                     <group>

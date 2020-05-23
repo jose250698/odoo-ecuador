@@ -6,7 +6,7 @@ from odoo import api, fields, models
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.move'
+    _inherit = 'account.invoice'
 
     @api.model
     def _prepare_refund(self, invoice, date_invoice=None, date=None, description=None, journal_id=None):  # noqa
@@ -17,7 +17,7 @@ class AccountInvoice(models.Model):
 
 class AccountInvoiceRefund(models.TransientModel):
 
-    _inherit = 'account.move.refund'
+    _inherit = 'account.invoice.refund'
 
     @api.model
     def _get_reason(self):
@@ -25,7 +25,7 @@ class AccountInvoiceRefund(models.TransientModel):
         active_id = context.get('active_id', False)
         if not active_id:
             return ''
-        inv = self.env['account.move'].browse(active_id)
+        inv = self.env['account.invoice'].browse(active_id)
         return inv.invoice_number
 
     description = fields.Char(default=_get_reason)
