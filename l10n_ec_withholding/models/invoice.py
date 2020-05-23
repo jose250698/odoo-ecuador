@@ -405,7 +405,7 @@ class AccountInvoiceLine(models.Model):
 
 class AccountInvoiceTax(models.Model):
 
-    _inherit = 'account.invoice.tax'
+    _inherit = 'account.tax'
 
     retention_id = fields.Many2one(
         'account.retention',

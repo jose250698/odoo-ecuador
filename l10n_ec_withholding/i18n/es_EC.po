@@ -247,7 +247,7 @@ msgid "Draft Refund"
 msgstr "Reembolso en borrador"
 
 #. module: l10n_ec_withdrawing
-#: field:account.invoice.tax,fiscal_year:0
+#: field:account.tax,fiscal_year:0
 msgid "Ejercicio Fiscal"
 msgstr "Ejercicio Fiscal"
 
@@ -318,14 +318,14 @@ msgid "Group By"
 msgstr "Agrupar por"
 
 #. module: l10n_ec_withdrawing
-#: field:account.invoice.tax,tax_group:0
+#: field:account.tax,tax_group:0
 #: field:account.tax,tax_group:0
 msgid "Grupo"
 msgstr "Grupo"
 
 #. module: l10n_ec_withdrawing
 #: field:account.invoice,amount_ice:0
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "ICE"
 msgstr "ICE"
@@ -337,13 +337,13 @@ msgid "ID"
 msgstr "ID"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "IVA 0%"
 msgstr "IVA 0%"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "IVA Diferente de 0%"
 msgstr "IVA diferente de 0%"
@@ -354,7 +354,7 @@ msgid "Imprimir"
 msgstr "Imprimir"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "Imps. Aduanas"
 msgstr "Imps. Aduanas"
@@ -485,7 +485,7 @@ msgid "No Validar"
 msgstr "No Validar"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "No objeto de IVA"
 msgstr "No objeto de IVA"
@@ -496,7 +496,7 @@ msgid "No objeto de Retención"
 msgstr "No objeto de Retención"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "No sujetos a Ret. de Imp. Renta"
 msgstr "No sujetos a Ret. de IR"
@@ -512,7 +512,7 @@ msgid "Nro. de Retención"
 msgstr "Nro. de Retención"
 
 #. module: l10n_ec_withdrawing
-#: field:account.invoice.tax,num_document:0
+#: field:account.tax,num_document:0
 #: field:account.retention,num_document:0
 msgid "Num. Comprobante"
 msgstr "Num. Comprobante"
@@ -553,7 +553,7 @@ msgid "Número fuera de rango de autorización activa."
 msgstr "Número fuera de rango de autorización activa."
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "Other"
 msgstr "Otro"
@@ -590,7 +590,7 @@ msgid "Periodo"
 msgstr "Período"
 
 #. module: l10n_ec_withdrawing
-#: field:account.invoice.tax,percent:0
+#: field:account.tax,percent:0
 #: field:account.tax,porcentaje:0
 msgid "Porcentaje"
 msgstr "Porcentaje"
@@ -623,7 +623,7 @@ msgid "Reportes SRI"
 msgstr "Reportes SRI"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "Ret. Imp. Renta"
 msgstr "Ret. Imp. Renta"
@@ -646,7 +646,7 @@ msgstr "Retención de Impuestos"
 
 #. module: l10n_ec_withdrawing
 #: view:account.invoice:l10n_ec_withdrawing.view_retention_authinv_form
-#: field:account.invoice.tax,retention_id:0
+#: field:account.tax,retention_id:0
 #: model:ir.actions.act_window,name:l10n_ec_withdrawing.act_window_retention
 #: model:ir.actions.report.xml,name:l10n_ec_withdrawing.account_withdrawing_document
 msgid "Retención"
@@ -673,13 +673,13 @@ msgid "Retención de Cliente"
 msgstr "Retención de Cliente"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "Retención de IVA (Bienes)"
 msgstr "Retención de IVA (Bienes)"
 
 #. module: l10n_ec_withdrawing
-#: selection:account.invoice.tax,tax_group:0
+#: selection:account.tax,tax_group:0
 #: selection:account.tax,tax_group:0
 msgid "Retención de IVA (Servicios)"
 msgstr "Retención de IVA (Servicios)"

@@ -111,7 +111,7 @@ class AccountWithdrawing(models.Model):
         states={'draft': [('readonly', False)]}, required=True
     )
     tax_ids = fields.One2many(
-        'account.invoice.tax',
+        'account.tax',
         'retention_id',
         'Detalle de Impuestos',
         readonly=True,

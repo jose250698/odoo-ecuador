@@ -12,7 +12,7 @@ from odoo import tools
 
 class AccountInvoiceTax(models.Model):
 
-    _inherit = 'account.invoice.tax'
+    _inherit = 'account.tax'
 
     fiscal_year = fields.Char(
         'Ejercicio Fiscal',

@@ -552,7 +552,7 @@ class AccountInvoice(models.Model):
             taxes_set = inv.tax_line_ids.mapped('tax_id')
 
             # Seleccionamos una línea por cada impuesto para usarla de base.
-            unique_tax_lines = self.env['account.invoice.tax']
+            unique_tax_lines = self.env['account.tax']
             for t in taxes_set:
                 unique_tax_lines += inv.tax_line_ids.filtered(
                     lambda x: x.tax_id == t)[0]
