@@ -17,8 +17,8 @@ from ..xades.xades import Xades
 
 class AccountInvoice(models.Model):
 
-    _name = 'account.invoice'
-    _inherit = ['account.invoice', 'account.edocument']
+    _name = 'account.move'
+    _inherit = ['account.move', 'account.edocument']
     _logger = logging.getLogger('account.edocument')
     TEMPLATES = {
         'out_invoice': 'out_invoice.xml',
@@ -181,7 +181,7 @@ class AccountInvoice(models.Model):
                 continue
             self.check_date(obj.date_invoice)
             self.check_before_sent()
-            access_key, emission_code = self._get_codes(name='account.invoice')
+            access_key, emission_code = self._get_codes(name='account.move')
             einvoice = self.render_document(obj, access_key, emission_code)
             inv_xml = DocumentXML(einvoice, obj.type)
             inv_xml.validate_xml()

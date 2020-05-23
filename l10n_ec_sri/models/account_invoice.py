@@ -31,7 +31,7 @@ BASES_IMPONIBLES = [
 
 
 class AccountInvoice(models.Model):
-    _inherit = ['account.invoice']
+    _inherit = ['account.move']
 
     def normalize_text(self, s, result='unicode'):
         remove = ['Mn', 'Po', 'Pc', 'Pd', 'Pf', 'Pi', 'Ps']
@@ -552,7 +552,7 @@ class AccountInvoice(models.Model):
             taxes_set = inv.tax_line_ids.mapped('tax_id')
 
             # Seleccionamos una línea por cada impuesto para usarla de base.
-            unique_tax_lines = self.env['account.invoice.tax']
+            unique_tax_lines = self.env['account.move.tax']
             for t in taxes_set:
                 unique_tax_lines += inv.tax_line_ids.filtered(
                     lambda x: x.tax_id == t)[0]
@@ -784,10 +784,10 @@ class AccountInvoice(models.Model):
             inv.state = 'reembolso'
 
     documento_reembolsado_ids = fields.Many2many(
-        'account.invoice', 'invoice_reembolso_rel', 'documento_reembolsado_ids',
+        'account.move', 'invoice_reembolso_rel', 'documento_reembolsado_ids',
         'reembolso_ids', string="Documentos reembolsados", )
     reembolso_ids = fields.Many2many(
-        'account.invoice', 'invoice_reembolso_rel', 'reembolso_ids',
+        'account.move', 'invoice_reembolso_rel', 'reembolso_ids',
         'documento_reembolsado_ids', string="Reembolsos",
         domain=[('state', '=', 'reembolso')], )
 
@@ -1098,7 +1098,7 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = ['account.invoice.line']
+    _inherit = ['account.move.line']
 
     sri_tax_line_ids = fields.One2many(
         'l10n_ec_sri.tax.line', inverse_name='invoice_line_id', string="Impuestos a declarar", )
@@ -1134,7 +1134,7 @@ class SriAtsLine(models.Model):
     _order = 'codsustento'
 
     invoice_id = fields.Many2one(
-        'account.invoice', ondelete='cascade',
+        'account.move', ondelete='cascade',
         string="Invoice", required=False, )
     detalleair_ids = fields.One2many(
         'l10n_ec_sri.detalleair', string="Detalle AIR",
@@ -1177,9 +1177,9 @@ class SriTaxLine(models.Model):
     _order = 'formulario,campo'
 
     invoice_line_id = fields.Many2one(
-        'account.invoice.line', ondelete='cascade', string="Invoice line", )
+        'account.move.line', ondelete='cascade', string="Invoice line", )
     invoice_id = fields.Many2one(
-        'account.invoice', ondelete='cascade', string="Invoice", )
+        'account.move', ondelete='cascade', string="Invoice", )
     formulario = fields.Char('Formulario', )
     campo = fields.Char('Campo', )
     group = fields.Char('Group', )

@@ -12,7 +12,7 @@ from odoo.tools.float_utils import float_compare
 
 class AccountInvoice(models.Model):
 
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
     @api.model
     def _prepare_picking(self):
@@ -60,7 +60,7 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
 
     def _get_stock_move_price_unit(self):

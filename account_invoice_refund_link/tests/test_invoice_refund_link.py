@@ -32,14 +32,14 @@ class TestInvoiceRefundLinkBase(common.SavepointCase):
             'quantity': 2.0,
             'price_unit': 25.0,
         })]
-        cls.invoice = cls.env['account.invoice'].create({
+        cls.invoice = cls.env['account.move'].create({
             'partner_id': cls.partner.id,
             'type': 'out_invoice',
             'invoice_line_ids': cls.invoice_lines,
         })
         cls.invoice.signal_workflow('invoice_open')
         cls.refund_reason = 'The refund reason'
-        cls.env['account.invoice.refund'].with_context(
+        cls.env['account.move.refund'].with_context(
             active_ids=cls.invoice.ids).create({
                 'filter_refund': cls.filter_refund,
                 'description': cls.refund_reason,

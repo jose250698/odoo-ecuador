@@ -23,7 +23,7 @@
             id="action_multi_data_wizard"
             name="Registrar datos del SRI"
             res_model="l10n_ec_sri.multi.data.wizard"
-            src_model="account.invoice"
+            src_model="account.move"
             view_mode="form"
             multi="True"
             target="new"

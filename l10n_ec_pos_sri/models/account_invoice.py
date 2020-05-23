@@ -3,7 +3,7 @@ from odoo import models, fields, api
 
 
 class AccountInvoice(models.Model):
-    _inherit = ['account.invoice']
+    _inherit = ['account.move']
 
     def _default_autorizacion_id(self):
         session = self.env['pos.session'].search([('user_id', '=', self.env.user.id), ('state', '=', 'opened')])

@@ -4,7 +4,7 @@
 
       <report
           id="account.account_invoices"
-          model="account.invoice"
+          model="account.move"
           string="Factura Electronica"
           report_type="qweb-html"
           name="l10n_ec_einvoice.report_einvoice"
@@ -13,7 +13,7 @@
           attachment="('FACTURA_'+(object.invoice_number or '').replace('/','')+'.pdf')"
           />
 
-    <!-- report auto="False" id="account.account_invoices" model="account.invoice"
+    <!-- report auto="False" id="account.account_invoices" model="account.move"
             name="account_einvoice" rml="l10n_ec_einvoice/views/report_einvoice.mako"
             usage="default" string="Factura" header="False" report_type="webkit"/ -->
 

@@ -46,7 +46,6 @@ class AccountMoveLineReport(models.Model):
         """
         return query_str
 
-    @api.model_cr
     def init(self):
         # self._table = account_invoice_report
         cr = self._cr

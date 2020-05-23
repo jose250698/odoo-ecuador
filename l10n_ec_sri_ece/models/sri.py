@@ -344,7 +344,7 @@ class SriDocumentoElectronico(models.Model):
 
     def _get_reference_models(self):
         records = self.env['ir.model'].search(
-            ['|', ('model', '=', 'account.invoice'), ('model', '=', 'stock.picking')])
+            ['|', ('model', '=', 'account.move'), ('model', '=', 'stock.picking')])
         return [(record.model, record.name) for record in records] + [('', '')]
 
     reference = fields.Reference(

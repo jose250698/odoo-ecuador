@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
 
     def get_detallesadicionales(self):
@@ -20,7 +20,7 @@ class AccountInvoiceLine(models.Model):
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
 
     def _get_custom_attachments(self):
@@ -81,7 +81,7 @@ class AccountInvoice(models.Model):
             compose_form = self.env.ref(
                 'mail.email_compose_message_wizard_form', False)
             ctx = dict(
-                default_model='account.invoice',
+                default_model='account.move',
                 default_res_id=self.id,
                 default_use_template=bool(template),
                 default_template_id=template and template.id or False,
@@ -376,7 +376,7 @@ class AccountInvoice(models.Model):
     def button_send_factura_electronica(self):
         ambiente_id, comprobante_id, factura, claveacceso, tipoemision = self.get_factura_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']
-        reference = 'account.invoice,%s' % self.id
+        reference = 'account.move,%s' % self.id
         vals = de_obj.get_documento_electronico_dict(
             ambiente_id, comprobante_id, factura, claveacceso, tipoemision, reference
         )
@@ -497,7 +497,7 @@ class AccountInvoice(models.Model):
     def button_send_retencion_electronica(self):
         ambiente_id, comprobante_id, retencion_dict, claveacceso, tipoemision = self.get_retencion_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']
-        reference = 'account.invoice,%s' % self.id
+        reference = 'account.move,%s' % self.id
         vals = de_obj.get_documento_electronico_dict(
             ambiente_id, comprobante_id, retencion_dict, claveacceso, tipoemision, reference
         )
@@ -729,7 +729,7 @@ class AccountInvoice(models.Model):
     def button_send_nota_credito_electronica(self):
         ambiente_id, comprobante_id, nota_credito, claveacceso, tipoemision = self.get_nota_credito_dict()
         de_obj = self.env['l10n_ec_sri.documento.electronico']
-        reference = 'account.invoice,%s' % self.id
+        reference = 'account.move,%s' % self.id
         vals = de_obj.get_documento_electronico_dict(
             ambiente_id, comprobante_id, nota_credito, claveacceso, tipoemision, reference
         )

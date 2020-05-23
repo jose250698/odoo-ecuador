@@ -135,7 +135,7 @@ class AccountWithdrawing(models.Model):
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
 
     def action_generate_eretention(self):

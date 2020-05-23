@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <data>
+    <data noupdate="0">
 
         <!-- Account Types -->
         <record model="account.account.type" id="data_account_type_capital">
             <field name="name">Capital</field>
             <field name="type">other</field>
             <field name="include_initial_balance" eval="True"/>
+            <field name="internal_group">equity</field>
         </record>
-        <record model="account.account.type" id="account.data_account_type_stock">
+        <record model="account.account.type" id="data_account_type_stock">
             <field name="name">Inventario</field>
             <field name="type">other</field>
             <field name="include_initial_balance" eval="True"/>
+            <field name="internal_group">equity</field>
         </record>
 
         <record model="account.account.template" id="990205">
@@ -24,7 +26,9 @@
         <record id="account_ec_chart_template" model="account.chart.template">
             <field name="name">Ecuador - Chart of Accounts</field>
             <field name="currency_id" ref="base.USD"/>
-            <field name="transfer_account_id" ref="990205"/>
+            <field name="bank_account_code_prefix">10.01.02</field>
+            <field name="cash_account_code_prefix">10.01.01</field>
+            <field name="transfer_account_code_prefix">10.01.03</field>
         </record>
 
         <record id="990205" model="account.account.template">
@@ -152,56 +156,56 @@
             <field name="name">INVENTARIOS</field>
             <field name="code">10103</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="101030101">
             <field name="name">INVENTARIOS DE MATERIA PRIMA</field>
             <field name="code">101030101</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="101030201">
             <field name="name">INVENTARIOS DE PRODUCTOS EN PROCESO</field>
             <field name="code">101030201</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="101030301">
             <field name="name">INVENTARIOS DE SUMINISTROS O MATERIALES A SER CONSUMIDOS EN EL PROCESO DE PRODUCCION</field>
             <field name="code">101030301</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="101030401">
             <field name="name">INVENTARIOS DE SUMINISTROS O MATERIALES A SER CONSUMIDOS EN LA PRESTACION DE SERVICIO</field>
             <field name="code">101030401</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010305">
             <field name="name">INVENTARIOS DE PRODUCTOS TERMINADOS Y MERCADERIA EN ALMACEN - PRODUCIDO POR LA COMPAÑIA</field>
             <field name="code">101030501</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010306">
             <field name="name">INVENTARIOS DE PRODUCTOS TERMINADOS Y MERCADERIA EN ALMACEN - COMPRADO DE TERCEROS</field>
             <field name="code">101030601</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010307">
             <field name="name">MERCADERIAS EN TRANSITO</field>
             <field name="code">101030701</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010308">
@@ -229,14 +233,14 @@
             <field name="name">INVENTARIOS REPUESTOS, HERRAMIENTAS Y ACCESORIOS</field>
             <field name="code">101031101</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010312">
             <field name="name">OTROS INVENTARIOS</field>
             <field name="code">101031201</field>
             <field name="reconcile" eval="False"/>
-            <field ref="account.data_account_type_stock" name="user_type_id"/>
+            <field ref="data_account_type_stock" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
         <record model="account.account.template" id="1010313">
@@ -3126,15 +3130,6 @@
             <field ref="account.data_account_type_expenses" name="user_type_id"/>
             <field name="chart_template_id" ref="l10n_ec_chart.account_ec_chart_template"/>
         </record>
-
-        <!-- cuentas por defecto -->
-        <function  id="partner_account_receivable_default_set"
-                   model="ir.values" name="set_default"
-                   eval="('res.partner', 'property_account_receivable_id', ref('101020601'))"/>
-
-        <function  id="partner_account_payable_default_set"
-                   model="ir.values" name="set_default"
-                   eval="('res.partner', 'property_account_payable_id', ref('2020401'))"/>
 
         <!--
             Propiedades de cuentas por cobrar y por pagar

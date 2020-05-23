@@ -79,7 +79,7 @@ class SaleOrder(models.Model):
 
     def action_invoice_create(self, grouped=False, final=False):
         res = super(SaleOrder, self).action_invoice_create(grouped=grouped, final=final)
-        inv = self.env['account.invoice'].browse(res)
+        inv = self.env['account.move'].browse(res)
         for i in inv:
             i.compute_sri_invoice_amounts()
 

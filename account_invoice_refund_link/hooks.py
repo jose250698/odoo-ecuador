@@ -11,7 +11,7 @@ _logger = logging.getLogger(__name__)
 
 def _invoice_match(env, invoice):
     inv_type = 'out_invoice' if invoice.type == 'out_refund' else 'in_invoice'
-    return env['account.invoice'].search([
+    return env['account.move'].search([
         ('type', '=', inv_type),
         ('number', '=ilike', invoice.origin),
         ('company_id', '=', invoice.company_id.id),
@@ -40,7 +40,7 @@ def post_init_hook(cr, registry):
     with api.Environment.manage():
         env = api.Environment(cr, SUPERUSER_ID, {})
         # Linking all refund invoices to its original invoices
-        refunds = env['account.invoice'].search([
+        refunds = env['account.move'].search([
             ('type', 'in', ('out_refund', 'in_refund')),
             ('origin_invoice_ids', '=', False),
         ])

@@ -98,7 +98,7 @@ class AccountAuthorisation(models.Model):
             typ = self.env['account.ats.doc'].browse(values['type_id'])
             name_type = '{0}_{1}'.format(values['name'], values['type_id'])
             sequence_data = {
-                'code': typ.code == '07' and 'account.retention' or 'account.invoice',  # noqa
+                'code': typ.code == '07' and 'account.retention' or 'account.move',  # noqa
                 'name': name_type,
                 'padding': 9,
                 'number_next': values['num_start'],
@@ -109,7 +109,7 @@ class AccountAuthorisation(models.Model):
 
 
     def unlink(self):
-        inv = self.env['account.invoice']
+        inv = self.env['account.move']
         res = inv.search([('auth_inv_id', '=', self.id)])
         if res:
             raise UserError(
@@ -217,7 +217,7 @@ class AccountJournal(models.Model):
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
     _DOCUMENTOS_EMISION = ['out_invoice', 'liq_purchase', 'out_refund']
 

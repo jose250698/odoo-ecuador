@@ -8,18 +8,18 @@ from odoo import models, fields, api
 
 
 class AccountInvoice(models.Model):
-    _inherit = 'account.invoice'
+    _inherit = 'account.move'
 
     refund_reason = fields.Text(string="Refund reason")
     origin_invoice_ids = fields.Many2many(
-        comodel_name='account.invoice', column1='refund_invoice_id',
+        comodel_name='account.move', column1='refund_invoice_id',
         column2='original_invoice_id', relation='account_invoice_refunds_rel',
         string="Original invoice", readonly=True,
         help="Original invoice to which this refund invoice is referred to",
         copy=False,
     )
     refund_invoice_ids = fields.Many2many(
-        comodel_name='account.invoice', column1='original_invoice_id',
+        comodel_name='account.move', column1='original_invoice_id',
         column2='refund_invoice_id', relation='account_invoice_refunds_rel',
         string="Refund invoices",  readonly=True,
         help="Refund invoices created from this invoice",
@@ -46,10 +46,10 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
     origin_line_ids = fields.Many2many(
-        comodel_name='account.invoice.line', column1='refund_line_id',
+        comodel_name='account.move.line', column1='refund_line_id',
         column2='original_line_id', string="Original invoice line",
         relation='account_invoice_line_refunds_rel',
         help="Original invoice line to which this refund invoice line "
@@ -57,7 +57,7 @@ class AccountInvoiceLine(models.Model):
         copy=False,
     )
     refund_line_ids = fields.Many2many(
-        comodel_name='account.invoice.line', column1='original_line_id',
+        comodel_name='account.move.line', column1='original_line_id',
         column2='refund_line_id', string="Refund invoice line",
         relation='account_invoice_line_refunds_rel',
         help="Refund invoice lines created from this invoice line",

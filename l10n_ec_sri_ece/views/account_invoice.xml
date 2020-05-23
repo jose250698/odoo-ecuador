@@ -2,8 +2,8 @@
 <odoo>
 
     <record id="invoice_tree" model="ir.ui.view">
-        <field name="name">prepare_taxes_account.invoice.tree</field>
-        <field name="model">account.invoice</field>
+        <field name="name">prepare_taxes_account.move.tree</field>
+        <field name="model">account.move</field>
         <field name="inherit_id" ref="l10n_ec_sri.invoice_tree_ec"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='secuencial']" position="before">
@@ -13,9 +13,9 @@
     </record>
 
     <record id="invoice_form" model="ir.ui.view">
-        <field name="name">prepare_taxes_account.invoice</field>
-        <field name="model">account.invoice</field>
-        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="name">prepare_taxes_account.move</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_invoice_open']" position="before" >
                 <button
@@ -48,8 +48,8 @@
 
 
     <record id="invoice_supplier_tree" model="ir.ui.view">
-        <field name="name">prepare_taxes_account.invoice supplier form</field>
-        <field name="model">account.invoice</field>
+        <field name="name">prepare_taxes_account.move supplier form</field>
+        <field name="model">account.move</field>
         <field name="inherit_id" ref="l10n_ec_sri.invoice_supplier_tree_ec"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='secuencial']" position="before">
@@ -59,9 +59,9 @@
     </record>
 
     <record id="invoice_supplier_form" model="ir.ui.view">
-        <field name="name">prepare_taxes_account.invoice supplier form</field>
-        <field name="model">account.invoice</field>
-        <field name="inherit_id" ref="account.invoice_supplier_form"/>
+        <field name="name">prepare_taxes_account.move supplier form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.move_supplier_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_invoice_open']" position="before" >
                 <button name="send_de_backend" string="AUTORIZAR/VERIFICAR SRI"
@@ -82,7 +82,7 @@
 
     <record id="view_account_invoice_filter" model="ir.ui.view">
         <field name="name">Invoice - SRI ECE Search View</field>
-        <field name="model">account.invoice</field>
+        <field name="model">account.move</field>
         <field name="type">search</field>
         <field name="inherit_id" ref="account.view_account_invoice_filter"/>
         <field name="arch" type="xml">

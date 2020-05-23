@@ -56,7 +56,7 @@ class TestStockPickingInvoiceLink(TestSale):
         self.so.action_confirm()
 
     def test_00_sale_stock_invoice_link(self):
-        inv_obj = self.env['account.invoice']
+        inv_obj = self.env['account.move']
         pick_obj = self.env['stock.picking']
         self.assertTrue(self.so.picking_ids,
                         'Sale Stock: no picking created for '

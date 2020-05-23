@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 	<data>
-		<report id="report_factura_electronica_id" model="account.invoice"
+		<report id="report_factura_electronica_id" model="account.move"
 			    string="Factura electrónica" name="l10n_ec_sri_ece.report_factura_electronica"
 			    file="Facturación electrónica" report_type="qweb-pdf" />
 		<template id="report_factura_electronica">
@@ -376,7 +376,7 @@
 	        <field name="paperformat_id" ref="ride_format" />
         </record>
 
-        <report id="report_retencion_electronica_id" model="account.invoice"
+        <report id="report_retencion_electronica_id" model="account.move"
 			    string="Retención electrónica" name="l10n_ec_sri_ece.report_retencion_electronica"
 			    file="Retención  electrónica" report_type="qweb-pdf" />
 		<template id="report_retencion_electronica">
@@ -555,7 +555,7 @@
         </record>
 
         <!-- NOTA DE CRÉDITO ELECTRÓNICA -->
-        <report id="report_nota_credito_electronica_id" model="account.invoice"
+        <report id="report_nota_credito_electronica_id" model="account.move"
 			    string="Nota de crédito electrónica" name="l10n_ec_sri_ece.report_nota_credito_electronica"
 			    file="Nota de crédito electrónica" report_type="qweb-pdf" />
 		<template id="report_nota_credito_electronica">

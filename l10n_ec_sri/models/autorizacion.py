@@ -22,10 +22,10 @@ class Autorizacion(models.Model):
         'l10n_ec_sri.comprobante', string="Comprobante", required=True,
         domain=[('requiere_autorizacion', '=', True)],)
     c_invoice_ids = fields.One2many(
-        'account.invoice', inverse_name='autorizacion_id', ondelete='restrict',
+        'account.move', inverse_name='autorizacion_id', ondelete='restrict',
         string="Facturas", )
     r_invoice_ids = fields.One2many(
-        'account.invoice', inverse_name='r_autorizacion_id', ondelete='restrict',
+        'account.move', inverse_name='r_autorizacion_id', ondelete='restrict',
         string="Retenciones", )
     comprobantesanulados_ids = fields.One2many('l10n_ec_sri.comprobantesanulados', inverse_name='autorizacion_id',
                                                ondelete='restrict', string="Comprobantes anulados", )

@@ -174,7 +174,7 @@ class StockPicking(models.Model):
 
     def get_guia_remision_dict(self, dest=None):
         de_obj = self.env['l10n_ec_sri.documento.electronico']
-        inv_obj = self.env['account.invoice']
+        inv_obj = self.env['account.move']
 
         dest = dest or self.partner_id
         ambiente_id = self.env.user.company_id.ambiente_id
