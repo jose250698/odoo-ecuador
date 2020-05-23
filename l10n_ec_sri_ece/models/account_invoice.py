@@ -9,7 +9,7 @@ from odoo.exceptions import UserError
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
 
     def get_detallesadicionales(self):

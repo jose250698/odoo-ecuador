@@ -21,7 +21,7 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = "account.invoice.line"
+    _inherit = "account.move.line"
 
     move_line_ids = fields.One2many(
         comodel_name='stock.move',

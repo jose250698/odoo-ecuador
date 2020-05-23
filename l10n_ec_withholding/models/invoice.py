@@ -393,7 +393,7 @@ class Invoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = 'account.invoice.line'
+    _inherit = 'account.move.line'
 
     def _set_taxes(self):
         """

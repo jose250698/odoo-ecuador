@@ -249,8 +249,8 @@
         </record>
 
         <record id="view_invoice_line_form" model="ir.ui.view">
-            <field name="name">ats.account.invoice.line.form</field>
-            <field name="model">account.invoice.line</field>
+            <field name="name">ats.account.move.line.form</field>
+            <field name="model">account.move.line</field>
             <field name="inherit_id" ref="account.view_invoice_line_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form" position="inside">

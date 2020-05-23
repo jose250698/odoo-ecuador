@@ -56,7 +56,7 @@ msgid "Related Pickings"
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: field:account.invoice.line,move_line_ids:0
+#: field:account.move.line,move_line_ids:0
 msgid "Related Stock Moves"
 msgstr ""
 
@@ -68,7 +68,7 @@ msgid ""
 msgstr ""
 
 #. module: stock_picking_invoice_link
-#: help:account.invoice.line,move_line_ids:0
+#: help:account.move.line,move_line_ids:0
 msgid ""
 "Related stock moves (only when the invoice has been generated from the "
 "picking)."

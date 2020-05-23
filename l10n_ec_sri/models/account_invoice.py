@@ -1098,7 +1098,7 @@ class AccountInvoice(models.Model):
 
 
 class AccountInvoiceLine(models.Model):
-    _inherit = ['account.invoice.line']
+    _inherit = ['account.move.line']
 
     sri_tax_line_ids = fields.One2many(
         'l10n_ec_sri.tax.line', inverse_name='invoice_line_id', string="Impuestos a declarar", )
@@ -1177,7 +1177,7 @@ class SriTaxLine(models.Model):
     _order = 'formulario,campo'
 
     invoice_line_id = fields.Many2one(
-        'account.invoice.line', ondelete='cascade', string="Invoice line", )
+        'account.move.line', ondelete='cascade', string="Invoice line", )
     invoice_id = fields.Many2one(
         'account.invoice', ondelete='cascade', string="Invoice", )
     formulario = fields.Char('Formulario', )
